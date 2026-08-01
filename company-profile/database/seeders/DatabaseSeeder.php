@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +14,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Jalankan seeder sesuai urutan ketergantungan relasinya
+        $this->call([
+            RolePermissionSeeder::class, // Otorisasi
+            AdminSeeder::class,          // User Admin
+            SettingSeeder::class,        // Config Web
+            CategorySeeder::class,       // Kategori Produk
+            CertificationSeeder::class,  // Sertifikat Global
+            ExportMarketSeeder::class,   // Negara Tujuan Ekspor
+            ProductSeeder::class,        // Produk Kopi (Bergantung pada Kategori & Sertifikat)
+            NewsSeeder::class,           // Berita Ekspor Kopi (Bergantung pada User Admin)
+            GallerySeeder::class,        // Foto & Video Fasilitas
+            DownloadSeeder::class,       // Katalog PDF
         ]);
     }
 }
