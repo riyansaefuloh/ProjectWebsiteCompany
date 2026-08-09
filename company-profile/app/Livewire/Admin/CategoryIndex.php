@@ -4,12 +4,13 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use App\Models\Category;
 use Illuminate\Support\Str;
 
 class CategoryIndex extends Component
 {
-    use WithPagination;
+    use WithPagination, WithFileUploads;
 
     public string $search = '';
     public bool $showModal = false;
@@ -20,9 +21,14 @@ class CategoryIndex extends Component
     public string $name_id = '';
     public string $description_en = '';
     public string $description_id = '';
-    public ?string $icon = null;
+    public ?string $icon = null; // Still kept for CSS classes fallback if needed
     public int $sort_order = 0;
     public string $status = 'active';
+
+    // Image Upload & UI State
+    public $imageFile;
+    public ?string $existingImage = null;
+    public string $activeTab = 'en';
 
     protected function rules(): array
     {
@@ -34,6 +40,7 @@ class CategoryIndex extends Component
             'icon'           => 'nullable|string|max:50',
             'sort_order'     => 'integer|min:0',
             'status'         => 'required|in:active,inactive',
+            'imageFile'      => 'nullable|image|max:3072',
         ];
     }
 
@@ -54,6 +61,10 @@ class CategoryIndex extends Component
         $this->icon = $category->icon;
         $this->sort_order = $category->sort_order;
         $this->status = $category->status;
+
+        $this->existingImage = $category->getFirstMediaUrl('icon');
+        $this->activeTab = 'en';
+
         $this->showModal = true;
     }
 
@@ -81,6 +92,12 @@ class CategoryIndex extends Component
             ['name' => $this->name_id, 'description' => $this->description_id]
         );
 
+        // Simpan Gambar Kategori (Spatie MediaLibrary)
+        if ($this->imageFile) {
+            $category->clearMediaCollection('icon'); // Hapus gambar lama
+            $category->addMedia($this->imageFile->getRealPath())->toMediaCollection('icon');
+        }
+
         $this->showModal = false;
         $this->resetForm();
         session()->flash('message', 'Category saved successfully!');
@@ -88,8 +105,20 @@ class CategoryIndex extends Component
 
     public function delete(string $id): void
     {
-        Category::findOrFail($id)->delete();
+        $category = Category::findOrFail($id);
+        $category->clearMediaCollection('icon');
+        $category->delete();
         session()->flash('message', 'Category deleted successfully!');
+    }
+
+    public function deleteImage(): void
+    {
+        if ($this->editingId) {
+            $category = Category::findOrFail($this->editingId);
+            $category->clearMediaCollection('icon');
+            $this->existingImage = null;
+            session()->flash('message', 'Image deleted successfully!');
+        }
     }
 
     private function resetForm(): void
@@ -102,6 +131,9 @@ class CategoryIndex extends Component
         $this->icon = null;
         $this->sort_order = 0;
         $this->status = 'active';
+        $this->imageFile = null;
+        $this->existingImage = null;
+        $this->activeTab = 'en';
     }
 
     public function render()

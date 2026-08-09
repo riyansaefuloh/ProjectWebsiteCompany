@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Inquiry;
+use App\Models\Setting;
 
 class WhatsAppService
 {
@@ -11,8 +12,9 @@ class WhatsAppService
      */
     public static function generateLink(Inquiry $inquiry, ?string $targetPhoneNumber = null): string
     {
-        // Gunakan nomor tujuan atau fallback ke nomor default
-        $phone = $targetPhoneNumber ?? config('app.whatsapp_number', '6289670475275');
+        // Ambil nomor WA dari Settings DB, fallback ke config/default jika kosong (termasuk string kosong)
+        $dbPhone = Setting::where('key', 'whatsapp_number')->value('value');
+        $phone = $targetPhoneNumber ?: ($dbPhone ?: config('app.whatsapp_number', '6289670475275'));
 
         // Bersihkan karakter non-digit dari nomor telepon (misal hapus '+', '-', ' ')
         $cleanPhone = preg_replace('/[^0-9]/', '', $phone);

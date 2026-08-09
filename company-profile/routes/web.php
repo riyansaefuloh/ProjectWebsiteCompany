@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\InquiryExportController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Public\DownloadController;
 use App\Livewire\Public\InquiryForm;
 use App\Livewire\Admin\ProductIndex;
@@ -14,6 +15,16 @@ use App\Livewire\Admin\DownloadIndex;
 use App\Livewire\Admin\UserIndex;
 use App\Livewire\Admin\ExportMarketIndex;
 use App\Livewire\Admin\SettingIndex;
+use App\Livewire\Public\Home;
+use App\Livewire\Public\ProductIndex as PublicProductIndex;
+use App\Livewire\Public\ProductShow;
+use App\Livewire\Public\NewsIndex as PublicNewsIndex;
+use App\Livewire\Public\NewsShow;
+use App\Livewire\Public\ExportMarketIndex as PublicExportMarketIndex;
+use App\Livewire\Public\GalleryIndex as PublicGalleryIndex;
+use App\Livewire\Public\About;
+use App\Livewire\Admin\PageIndex;
+use App\Livewire\Admin\GalleryIndex;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 // ==========================================
@@ -24,24 +35,20 @@ Route::group([
     'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
 ], function () {
     
-    Route::get('/', function () {
-        return "Halaman Beranda Publik (" . app()->getLocale() . ")";
-    })->name('home');
-
-    Route::get('/products', function () {
-        return "Halaman Katalog Produk (" . app()->getLocale() . ")";
-    })->name('products.index');
-
-    Route::get('/products/{slug}', function ($slug) {
-        return "Detail Produk Slug: {$slug} (" . app()->getLocale() . ")";
-    })->name('products.show');
-
-    Route::get('/about', function () {
-        return "Halaman About Us (" . app()->getLocale() . ")";
-    })->name('about');
+    Route::get('/', Home::class)->name('home');
+    Route::get('/products', PublicProductIndex::class)->name('products.index');
+    Route::get('/products/{slug}', ProductShow::class)->name('products.show');
+    Route::get('/news', PublicNewsIndex::class)->name('news.index');
+    Route::get('/news/{slug}', NewsShow::class)->name('news.show');
+    Route::get('/export-markets', PublicExportMarketIndex::class)->name('export-markets.index');
+    Route::get('/gallery', PublicGalleryIndex::class)->name('gallery.index');
+    Route::get('/about', About::class)->name('about');
 
     Route::get('/inquiry', InquiryForm::class)->name('inquiry.index');
-    Route::get('/download/catalog-pdf', [DownloadController::class, 'downloadCatalog'])->name('download.catalog');
+    // GET → tampilkan form email untuk download katalog
+    Route::get('/download/catalog-pdf', [DownloadController::class, 'showCatalogForm'])->name('download.catalog.form');
+    // POST → proses email + generate PDF
+    Route::post('/download/catalog-pdf', [DownloadController::class, 'downloadCatalog'])->name('download.catalog');
     Route::get('/download/file/{download}', [DownloadController::class, 'downloadFile'])->name('download.file');
 });
 
@@ -57,10 +64,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     
-    // Admin Dashboard Main Menu (Menggunakan View Blade & Directive @can Spatie)
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    // Admin Dashboard — menggunakan DashboardController untuk data statistik & alert
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Livewire Admin Products (Super Admin & Admin CMS)
     Route::get('/products', ProductIndex::class)
@@ -86,6 +91,16 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/news', NewsIndex::class)
         ->middleware('permission:manage news')
         ->name('admin.news.index');
+
+    // Livewire Admin Pages (Super Admin & Admin CMS)
+    Route::get('/pages', PageIndex::class)
+        ->middleware('permission:manage pages')
+        ->name('admin.pages.index');
+
+    // Livewire Admin Galleries (Super Admin & Admin CMS)
+    Route::get('/galleries', GalleryIndex::class)
+        ->middleware('permission:manage galleries')
+        ->name('admin.galleries.index');
 
     // Livewire Admin Inquiries (Super Admin & Sales)
     Route::get('/inquiries', InquiryIndex::class)

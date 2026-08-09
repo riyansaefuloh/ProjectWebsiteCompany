@@ -61,13 +61,37 @@
                         <label>ISO Country Code (2-letter e.g. US, DE, JP) *</label>
                         <input type="text" wire:model="country_code" maxlength="2" style="width: 100%; padding: 6px;" required>
                     </div>
-                    <div style="margin-bottom: 10px;">
-                        <label>Country Name (EN) *</label>
-                        <input type="text" wire:model="name_en" style="width: 100%; padding: 6px;" required>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <label>Nama Negara (ID) *</label>
-                        <input type="text" wire:model="name_id" style="width: 100%; padding: 6px;" required>
+                    <!-- Tabs for Language -->
+                    @php $activeTab = $activeTab ?? 'en'; @endphp
+                    <div style="margin-bottom: 15px; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+                        <div style="display: flex; background: #f3f4f6; border-bottom: 1px solid #e5e7eb;">
+                            <button type="button" wire:click="$set('activeTab', 'en')" style="flex: 1; padding: 10px; border: none; background: {{ $activeTab === 'en' ? 'white' : 'transparent' }}; border-bottom: {{ $activeTab === 'en' ? '2px solid #2563eb' : 'none' }}; cursor: pointer; font-weight: {{ $activeTab === 'en' ? 'bold' : 'normal' }};">English (EN)</button>
+                            <button type="button" wire:click="$set('activeTab', 'id')" style="flex: 1; padding: 10px; border: none; background: {{ $activeTab === 'id' ? 'white' : 'transparent' }}; border-bottom: {{ $activeTab === 'id' ? '2px solid #2563eb' : 'none' }}; cursor: pointer; font-weight: {{ $activeTab === 'id' ? 'bold' : 'normal' }};">Indonesia (ID)</button>
+                        </div>
+                        <div style="padding: 15px; background: white;">
+                            <!-- English Tab -->
+                            <div style="display: {{ $activeTab === 'en' ? 'block' : 'none' }};">
+                                <div style="margin-bottom: 10px;">
+                                    <label>Country Name (EN) *</label>
+                                    <input type="text" wire:model="name_en" style="width: 100%; padding: 6px;">
+                                </div>
+                                <div>
+                                    <label>Note / Catatan (EN)</label>
+                                    <textarea wire:model="note_en" rows="3" style="width: 100%; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+                            <!-- Indonesia Tab -->
+                            <div style="display: {{ $activeTab === 'id' ? 'block' : 'none' }};">
+                                <div style="margin-bottom: 10px;">
+                                    <label>Nama Negara (ID) *</label>
+                                    <input type="text" wire:model="name_id" style="width: 100%; padding: 6px;">
+                                </div>
+                                <div>
+                                    <label>Note / Catatan (ID)</label>
+                                    <textarea wire:model="note_id" rows="3" style="width: 100%; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <label>Region *</label>

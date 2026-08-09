@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -26,18 +28,34 @@ class LoginController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // 2. Mencoba mencocokkan kredensial & melakukan login
-        // 'remember' opsional (di sini diset false, bisa ditambah checkbox jika perlu)
+        // 2. Rate Limiting — PRD Bab 10.4: "Rate limiting pada form inquiry & login"
+        // Maksimal 5 percobaan login per menit per kombinasi email + IP
+        $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, maxAttempts: 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
+            ]);
+        }
+
+        // 3. Mencoba mencocokkan kredensial & melakukan login
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             
-            // 3. Regenerasi session ID untuk keamanan (Mencegah Session Fixation)
+            // 4. Reset rate limiter setelah login berhasil
+            RateLimiter::clear($throttleKey);
+
+            // 5. Regenerasi session ID untuk keamanan (mencegah Session Fixation)
             $request->session()->regenerate();
 
-            // 4. Redirect ke halaman yang dituju sebelumnya (atau ke /admin)
+            // 6. Redirect ke halaman yang dituju sebelumnya (atau ke /admin)
             return redirect()->intended('/admin');
         }
 
-        // 5. Jika gagal, kembalikan dengan error
+        // 7. Catat percobaan gagal ke rate limiter
+        RateLimiter::hit($throttleKey, decay: 60);
+
+        // 8. Jika gagal, kembalikan dengan error
         throw ValidationException::withMessages([
             'email' => __('Mungkin email atau password salah.'),
         ]);

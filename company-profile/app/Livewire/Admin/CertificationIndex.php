@@ -26,7 +26,14 @@ class CertificationIndex extends Component
     public ?string $certificate_number = null;
     public ?string $issued_at = null;
     public ?string $expires_at = null;
+    
+    // Uploads
     public $logoFile;
+    public $pdfFile;
+
+    // Existing media (for preview/delete in edit mode)
+    public ?string $existingLogoUrl = null;
+    public ?string $existingPdfUrl = null;
 
     protected function rules(): array
     {
@@ -38,6 +45,7 @@ class CertificationIndex extends Component
             'issued_at'          => 'nullable|date',
             'expires_at'         => 'nullable|date|after_or_equal:issued_at',
             'logoFile'           => 'nullable|image|max:2048', // Max 2MB
+            'pdfFile'            => 'nullable|mimes:pdf|max:5120', // Max 5MB PDF
         ];
     }
 
@@ -57,6 +65,10 @@ class CertificationIndex extends Component
         $this->certificate_number = $cert->certificate_number;
         $this->issued_at = $cert->issued_at ? $cert->issued_at->format('Y-m-d') : null;
         $this->expires_at = $cert->expires_at ? $cert->expires_at->format('Y-m-d') : null;
+        
+        $this->existingLogoUrl = $cert->getFirstMediaUrl('logos');
+        $this->existingPdfUrl = $cert->getFirstMediaUrl('pdfs');
+
         $this->showModal = true;
     }
 
@@ -89,8 +101,13 @@ class CertificationIndex extends Component
         // Process Upload Logo via Spatie MediaLibrary
         if ($this->logoFile) {
             $cert->clearMediaCollection('logos');
-            $cert->addMedia($this->logoFile->getRealPath())
-                ->toMediaCollection('logos');
+            $cert->addMedia($this->logoFile->getRealPath())->toMediaCollection('logos');
+        }
+
+        // Process Upload PDF via Spatie MediaLibrary
+        if ($this->pdfFile) {
+            $cert->clearMediaCollection('pdfs');
+            $cert->addMedia($this->pdfFile->getRealPath())->toMediaCollection('pdfs');
         }
 
         $this->showModal = false;
@@ -100,8 +117,31 @@ class CertificationIndex extends Component
 
     public function delete(string $id): void
     {
-        Certification::findOrFail($id)->delete();
+        $cert = Certification::findOrFail($id);
+        $cert->clearMediaCollection('logos');
+        $cert->clearMediaCollection('pdfs');
+        $cert->delete();
         session()->flash('message', 'Certification deleted successfully!');
+    }
+
+    public function deleteLogo(): void
+    {
+        if ($this->editingId) {
+            $cert = Certification::findOrFail($this->editingId);
+            $cert->clearMediaCollection('logos');
+            $this->existingLogoUrl = null;
+            session()->flash('message', 'Logo deleted successfully!');
+        }
+    }
+
+    public function deletePdf(): void
+    {
+        if ($this->editingId) {
+            $cert = Certification::findOrFail($this->editingId);
+            $cert->clearMediaCollection('pdfs');
+            $this->existingPdfUrl = null;
+            session()->flash('message', 'PDF deleted successfully!');
+        }
     }
 
     private function resetForm(): void
@@ -114,6 +154,9 @@ class CertificationIndex extends Component
         $this->issued_at = null;
         $this->expires_at = null;
         $this->logoFile = null;
+        $this->pdfFile = null;
+        $this->existingLogoUrl = null;
+        $this->existingPdfUrl = null;
     }
 
     public function render()

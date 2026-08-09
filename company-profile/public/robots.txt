@@ -1,2 +1,24 @@
+# ============================================================
+# robots.txt — Company Profile Eksportir
+# Mengatur akses crawler/bot mesin pencari ke halaman website
+# ============================================================
+
+# Aturan untuk SEMUA mesin pencari (Google, Bing, dll.)
 User-agent: *
-Disallow:
+
+# Blokir halaman admin & autentikasi (tidak boleh muncul di Google)
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+Disallow: /logout
+
+# Blokir halaman internal Laravel yang tidak relevan untuk publik
+Disallow: /livewire/
+Disallow: /_ignition/
+Disallow: /telescope/
+
+# Izinkan semua halaman publik (produk, berita, about, inquiry, dll.)
+Allow: /
+
+# Lokasi sitemap.xml agar Google langsung tahu peta situs kita
+Sitemap: https://yourdomain.com/sitemap.xml 

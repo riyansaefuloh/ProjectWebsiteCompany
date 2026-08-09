@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Inquiry;
 use App\Models\User;
+use App\Models\Product;
 
 class InquiryIndex extends Component
 {
@@ -13,6 +14,10 @@ class InquiryIndex extends Component
 
     public string $search = '';
     public string $selectedStatus = '';
+    public string $dateFrom = '';
+    public string $dateTo = '';
+    public string $selectedProduct = '';
+    
     public bool $showModal = false;
     public ?string $editingId = null;
 
@@ -50,13 +55,28 @@ class InquiryIndex extends Component
     {
         $inquiries = Inquiry::with(['product.translations', 'assignedSales'])
             ->when($this->search, function ($q) {
-                $q->where('name', 'LIKE', "%{$this->search}%")
-                  ->orWhere('company', 'LIKE', "%{$this->search}%")
-                  ->orWhere('email', 'LIKE', "%{$this->search}%")
-                  ->orWhere('country_code', 'LIKE', "%{$this->search}%");
+                $q->where(function ($subQ) {
+                    $subQ->where('name', 'LIKE', "%{$this->search}%")
+                         ->orWhere('company', 'LIKE', "%{$this->search}%")
+                         ->orWhere('email', 'LIKE', "%{$this->search}%")
+                         ->orWhere('country_code', 'LIKE', "%{$this->search}%");
+                });
             })
             ->when($this->selectedStatus, function ($q) {
                 $q->where('status', $this->selectedStatus);
+            })
+            ->when($this->selectedProduct, function ($q) {
+                if ($this->selectedProduct === 'general') {
+                    $q->whereNull('product_id');
+                } else {
+                    $q->where('product_id', $this->selectedProduct);
+                }
+            })
+            ->when($this->dateFrom, function ($q) {
+                $q->whereDate('created_at', '>=', $this->dateFrom);
+            })
+            ->when($this->dateTo, function ($q) {
+                $q->whereDate('created_at', '<=', $this->dateTo);
             })
             ->latest()
             ->paginate(10);
@@ -64,6 +84,7 @@ class InquiryIndex extends Component
         return view('livewire.admin.inquiry-index', [
             'inquiries'  => $inquiries,
             'salesUsers' => User::all(),
+            'products'   => Product::all(),
         ]);
     }
 }

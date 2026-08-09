@@ -19,7 +19,7 @@ trait HasTranslation
         $translation = $this->translations
             ->firstWhere('locale', $targetLocale);
 
-        // Jika tidak ditemukan pada locale aktif, fallback ke default locale (misal 'id')
+        // Jika tidak ditemukan pada locale aktif, fallback ke default locale 
         if (!$translation && $targetLocale !== $defaultLocale) {
             $translation = $this->translations
                 ->firstWhere('locale', $defaultLocale);

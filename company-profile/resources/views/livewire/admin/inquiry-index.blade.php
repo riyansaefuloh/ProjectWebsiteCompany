@@ -2,8 +2,9 @@
     <h2>Received Inquiries (RFQ Management)</h2>
 
     <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        <div>
-            <input type="text" wire:model.live="search" placeholder="Search buyer name, company, email, country..." style="padding: 8px; width: 300px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <input type="text" wire:model.live="search" placeholder="Search buyer, company, email, country..." style="padding: 8px; width: 250px;">
+            
             <select wire:model.live="selectedStatus" style="padding: 8px;">
                 <option value="">All Statuses</option>
                 <option value="new">NEW</option>
@@ -12,6 +13,24 @@
                 <option value="closed">CLOSED</option>
                 <option value="rejected">REJECTED</option>
             </select>
+
+            <select wire:model.live="selectedProduct" style="padding: 8px;">
+                <option value="">All Products</option>
+                <option value="general">General Inquiry (No Product)</option>
+                @foreach($products as $prod)
+                    <option value="{{ $prod->id }}">{{ $prod->translated_name }}</option>
+                @endforeach
+            </select>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label style="font-size: 14px;">From:</label>
+                <input type="date" wire:model.live="dateFrom" style="padding: 8px;">
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label style="font-size: 14px;">To:</label>
+                <input type="date" wire:model.live="dateTo" style="padding: 8px;">
+            </div>
         </div>
         
         <a href="{{ route('admin.inquiries.export') }}" target="_blank" style="padding: 8px 16px; background: #10b981; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">

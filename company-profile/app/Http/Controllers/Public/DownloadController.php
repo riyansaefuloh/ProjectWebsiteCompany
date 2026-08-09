@@ -13,10 +13,49 @@ use Symfony\Component\HttpFoundation\Response;
 class DownloadController extends Controller
 {
     /**
-     * Download Katalog PDF Dinamis langsung.
+     * Tampilkan form email sebelum download katalog (GET).
      */
-    public function downloadCatalog(PdfCatalogService $pdfService): Response
+    public function showCatalogForm()
     {
+        return response('<html><body style="font-family:sans-serif;max-width:400px;margin:60px auto;padding:20px">
+            <h2>Download Export Product Catalog</h2>
+            <p>Masukkan email Anda untuk mengunduh katalog produk kami.</p>
+            <form method="POST" action="' . route('download.catalog') . '">
+                ' . csrf_field() . '
+                <label>Email <span style="color:red">*</span></label><br>
+                <input type="email" name="email" required 
+                    style="width:100%;padding:8px;margin:8px 0 16px;border:1px solid #ccc;border-radius:4px">
+                <button type="submit" 
+                    style="background:#2563eb;color:white;padding:10px 20px;border:none;border-radius:4px;cursor:pointer;width:100%">
+                    📥 Download Katalog PDF
+                </button>
+            </form>
+        </body></html>', 200, ['Content-Type' => 'text/html']);
+    }
+
+    /**
+     * Download Katalog PDF Dinamis dengan Lead Capture Gate.
+     * PRD Bab 7.9: "Buyer memasukkan email sebelum mengunduh katalog"
+     */
+    public function downloadCatalog(Request $request, PdfCatalogService $pdfService): Response
+    {
+        // 1. Validasi email (Lead Capture Gate — PRD Bab 7.9)
+        $request->validate([
+            'email' => 'required|email|max:150',
+        ]);
+
+        // 2. Simpan lead buyer ke tabel inquiries
+        Inquiry::create([
+            'name'         => 'Catalog Lead',
+            'company'      => 'Unknown',
+            'email'        => $request->input('email'),
+            'country_code' => 'ID',
+            'message'      => 'Downloaded Export Product Catalog PDF',
+            'status'       => 'new',
+            'ip_address'   => $request->ip(),
+        ]);
+
+        // 3. Generate dan return PDF katalog
         return $pdfService->generateCatalogPdf();
     }
 

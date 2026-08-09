@@ -23,6 +23,7 @@ class ExportMarketIndex extends Component
     public string $note_id = '';
     public bool $is_active = true;
     public int $sort_order = 0;
+    public string $activeTab = 'en';
 
     protected function rules(): array
     {
@@ -56,6 +57,7 @@ class ExportMarketIndex extends Component
         $this->note_id = $market->getTranslation('note', 'id') ?? '';
         $this->is_active = $market->is_active;
         $this->sort_order = $market->sort_order;
+        $this->activeTab = 'en';
         $this->showModal = true;
     }
 
@@ -105,6 +107,7 @@ class ExportMarketIndex extends Component
         $this->note_id = '';
         $this->is_active = true;
         $this->sort_order = 0;
+        $this->activeTab = 'en';
     }
 
     public function render()

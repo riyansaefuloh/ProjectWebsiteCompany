@@ -44,6 +44,8 @@ class ProductIndex extends Component
     public array $specifications = []; // [['key' => 'Moisture', 'value' => '12%']]
 
     public $imageFiles = [];
+    public $existingMedia = [];
+    public string $activeTab = 'en';
 
     protected function rules(): array
     {
@@ -110,6 +112,9 @@ class ProductIndex extends Component
             return ['key' => $spec->spec_key, 'value' => $spec->spec_value];
         })->toArray();
 
+        $this->existingMedia = $product->getMedia('gallery');
+        $this->activeTab = 'en';
+
         $this->showModal = true;
     }
 
@@ -172,6 +177,35 @@ class ProductIndex extends Component
         session()->flash('message', 'Export Product saved successfully!');
     }
 
+    public function deleteMedia(int $mediaId): void
+    {
+        $product = Product::findOrFail($this->editingId);
+        $media = $product->media()->findOrFail($mediaId);
+        $media->delete();
+        
+        $this->existingMedia = $product->getMedia('gallery');
+        session()->flash('message', 'Image deleted successfully!');
+    }
+
+    public function setCoverMedia(int $mediaId): void
+    {
+        $product = Product::findOrFail($this->editingId);
+        
+        // Remove cover status from all media
+        $product->media()->where('collection_name', 'gallery')->get()->each(function ($media) {
+            $media->forgetCustomProperty('is_cover');
+            $media->save();
+        });
+
+        // Set the new cover
+        $media = $product->media()->findOrFail($mediaId);
+        $media->setCustomProperty('is_cover', true);
+        $media->save();
+        
+        $this->existingMedia = $product->getMedia('gallery');
+        session()->flash('message', 'Cover image updated successfully!');
+    }
+
     public function delete(string $id): void
     {
         Product::findOrFail($id)->delete();
@@ -199,6 +233,8 @@ class ProductIndex extends Component
         $this->selectedCertifications = [];
         $this->specifications = [];
         $this->imageFiles = [];
+        $this->existingMedia = [];
+        $this->activeTab = 'en';
     }
 
     public function render()

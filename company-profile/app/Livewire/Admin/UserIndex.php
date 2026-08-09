@@ -20,7 +20,7 @@ class UserIndex extends Component
     public string $name = '';
     public string $email = '';
     public ?string $password = null;
-    public string $selectedRole = 'Admin CMS';
+    public string $selectedRole = 'admin-cms';
 
     protected function rules(): array
     {
@@ -49,7 +49,7 @@ class UserIndex extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->password = null;
-        $this->selectedRole = $user->roles->first() ? $user->roles->first()->name : 'Admin CMS';
+        $this->selectedRole = $user->roles->first() ? $user->roles->first()->name : 'admin-cms';
         $this->showModal = true;
     }
 
@@ -96,7 +96,7 @@ class UserIndex extends Component
         $this->name = '';
         $this->email = '';
         $this->password = null;
-        $this->selectedRole = 'Admin CMS';
+        $this->selectedRole = 'admin-cms';
     }
 
     public function render()

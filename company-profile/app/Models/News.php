@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Traits\HasTranslation;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class News extends Model implements HasMedia
 {
@@ -20,6 +22,7 @@ class News extends Model implements HasMedia
     protected $fillable = [
         'slug',
         'author_id',
+        'news_category_id',
         'cover',
         'published_at',
         'status',
@@ -46,6 +49,22 @@ class News extends Model implements HasMedia
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Relasi ke kategori berita.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(NewsCategory::class, 'news_category_id');
+    }
+
+    /**
+     * Relasi ke tag berita (Many-to-Many).
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(NewsTag::class, 'news_news_tag');
     }
 
         /**
@@ -78,4 +97,34 @@ class News extends Model implements HasMedia
         });
     }
 
+    /**
+     * Konversi media otomatis ke WebP — PRD Bab 5.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // WebP full-size untuk cover berita di halaman detail
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(85)
+            ->nonQueued();
+
+        // Thumbnail WebP 600x400px — untuk kartu berita di listing
+        $this->addMediaConversion('thumb')
+            ->format('webp')
+            ->width(600)
+            ->height(400)
+            ->quality(80)
+            ->nonQueued();
+    }
+
+    /**
+     * Daftarkan koleksi media untuk berita.
+     */
+    public function registerMediaCollections(): void
+    {
+        // Koleksi cover berita (hanya 1 gambar, menimpa yang lama)
+        $this->addMediaCollection('covers')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
 }

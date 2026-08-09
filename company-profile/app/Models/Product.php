@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use App\Traits\HasTranslation;
 
 class Product extends Model implements HasMedia
@@ -111,4 +112,42 @@ class Product extends Model implements HasMedia
         });
     }
 
+    /**
+     * Daftarkan konversi media otomatis — PRD Bab 5:
+     * "Semua gambar dikonversi otomatis ke WebP via medialibrary"
+     * Konversi dijalankan di background via Laravel Queue.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Konversi utama: WebP full-size (kualitas 85 — seimbang antara ukuran & kualitas)
+        $this->addMediaConversion('webp')
+            ->format('webp')
+            ->quality(85)
+            ->nonQueued(); // Dijalankan langsung saat upload
+
+        // Thumbnail WebP 400px — untuk kartu produk di katalog publik
+        $this->addMediaConversion('thumb')
+            ->format('webp')
+            ->width(400)
+            ->height(300)
+            ->quality(80)
+            ->nonQueued();
+
+        // Medium WebP 800px — untuk lightbox & detail produk
+        $this->addMediaConversion('medium')
+            ->format('webp')
+            ->width(800)
+            ->quality(85)
+            ->nonQueued();
+    }
+
+    /**
+     * Daftarkan koleksi media untuk produk.
+     */
+    public function registerMediaCollections(): void
+    {
+        // Koleksi galeri gambar produk (multi-gambar)
+        $this->addMediaCollection('gallery')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    }
 }

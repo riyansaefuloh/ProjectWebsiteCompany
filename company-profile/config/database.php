@@ -97,6 +97,13 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+
+            // Path ke pg_dump untuk spatie/laravel-backup
+            // Windows (lokal): pg_dump ada di instalasi PostgreSQL 16
+            // Linux (server): hapus key ini karena pg_dump sudah ada di PATH
+            'dump' => [
+                'dump_binary_path' => env('PGDUMP_BINARY_PATH', 'D:\Program Files\PostgreSQL\16\bin'),
+            ],
         ],
 
         'sqlsrv' => [

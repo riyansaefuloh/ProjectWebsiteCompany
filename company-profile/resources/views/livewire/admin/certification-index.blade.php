@@ -34,6 +34,7 @@
         <thead>
             <tr style="background-color: #f3f4f6;">
                 <th>Name (EN)</th>
+                <th>Logo/PDF</th>
                 <th>Issuer</th>
                 <th>Cert No</th>
                 <th>Issued At</th>
@@ -45,6 +46,14 @@
             @forelse($certifications as $cert)
                 <tr>
                     <td><strong>{{ $cert->translated_name }}</strong></td>
+                    <td>
+                        @if($cert->getFirstMediaUrl('logos'))
+                            <img src="{{ $cert->getFirstMediaUrl('logos') }}" style="height: 30px; object-fit: contain; margin-bottom: 4px; border: 1px solid #ccc; border-radius: 2px;"><br>
+                        @endif
+                        @if($cert->getFirstMediaUrl('pdfs'))
+                            <a href="{{ $cert->getFirstMediaUrl('pdfs') }}" target="_blank" style="font-size: 11px; background: #e11d48; color: white; padding: 2px 4px; border-radius: 2px; text-decoration: none;">View PDF</a>
+                        @endif
+                    </td>
                     <td>{{ $cert->issuer }}</td>
                     <td>{{ $cert->certificate_number ?? '-' }}</td>
                     <td>{{ $cert->issued_at ? $cert->issued_at->format('d M Y') : '-' }}</td>
@@ -76,8 +85,8 @@
 
     <!-- Modal Form (Inline Simpel) -->
     @if($showModal)
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;">
-            <div style="background: white; padding: 25px; border-radius: 8px; width: 500px;">
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
+            <div style="background: white; padding: 25px; border-radius: 8px; width: 500px; max-height: 90vh; overflow-y: auto;">
                 <h3>{{ $editingId ? 'Edit Certificate' : 'Add New Certificate' }}</h3>
                 <form wire:submit.prevent="save">
                     <div style="margin-bottom: 10px;">
@@ -103,6 +112,32 @@
                     <div style="margin-bottom: 10px;">
                         <label>Expires Date</label>
                         <input type="date" wire:model="expires_at" style="width: 100%; padding: 6px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px;">
+                        <label><strong>Certification Logo (Auto WebP)</strong></label>
+                        @if($editingId && $existingLogoUrl)
+                            <div style="margin-top: 5px; margin-bottom: 10px;">
+                                <img src="{{ $existingLogoUrl }}" style="height: 60px; object-fit: contain; border: 1px solid #ccc;"><br>
+                                <button type="button" wire:click="deleteLogo" wire:confirm="Delete this logo?" style="font-size: 10px; background: #ef4444; color: white; border: none; padding: 4px; cursor: pointer; border-radius: 2px;">Delete Logo</button>
+                            </div>
+                        @endif
+                        <input type="file" wire:model="logoFile" accept="image/*" style="width: 100%; padding: 6px; margin-top: 5px;">
+                        <div wire:loading wire:target="logoFile" style="font-size: 12px; color: #2563eb;">Uploading...</div>
+                        @error('logoFile') <span style="color: red; font-size: 12px;">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div style="margin-bottom: 15px; border: 1px solid #e5e7eb; padding: 10px; border-radius: 4px;">
+                        <label><strong>Official PDF Document</strong></label>
+                        @if($editingId && $existingPdfUrl)
+                            <div style="margin-top: 5px; margin-bottom: 10px;">
+                                <a href="{{ $existingPdfUrl }}" target="_blank" style="color: #2563eb; text-decoration: underline; font-size: 12px;">📄 View Current PDF</a><br>
+                                <button type="button" wire:click="deletePdf" wire:confirm="Delete this PDF?" style="font-size: 10px; background: #ef4444; color: white; border: none; padding: 4px; margin-top: 5px; cursor: pointer; border-radius: 2px;">Delete PDF</button>
+                            </div>
+                        @endif
+                        <input type="file" wire:model="pdfFile" accept="application/pdf" style="width: 100%; padding: 6px; margin-top: 5px;">
+                        <div wire:loading wire:target="pdfFile" style="font-size: 12px; color: #2563eb;">Uploading...</div>
+                        @error('pdfFile') <span style="color: red; font-size: 12px;">{{ $message }}</span> @enderror
                     </div>
 
                     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">

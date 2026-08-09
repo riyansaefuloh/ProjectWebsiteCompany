@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             NewsSeeder::class,           // Berita Ekspor Kopi (Bergantung pada User Admin)
             GallerySeeder::class,        // Foto & Video Fasilitas
             DownloadSeeder::class,       // Katalog PDF
+            PageSeeder::class,           // Halaman Statis (About, Privacy)
         ]);
     }
 }

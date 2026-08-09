@@ -88,14 +88,37 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <div style="flex: 1;">
-                            <label>Product Name (EN) *</label>
-                            <input type="text" wire:model="name_en" style="width: 100%; padding: 6px;" required>
+                    <!-- Tabs for Language -->
+                    <div style="margin-bottom: 15px; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden;">
+                        <div style="display: flex; background: #f3f4f6; border-bottom: 1px solid #e5e7eb;">
+                            <button type="button" wire:click="$set('activeTab', 'en')" style="flex: 1; padding: 10px; border: none; background: {{ $activeTab === 'en' ? 'white' : 'transparent' }}; border-bottom: {{ $activeTab === 'en' ? '2px solid #2563eb' : 'none' }}; cursor: pointer; font-weight: {{ $activeTab === 'en' ? 'bold' : 'normal' }};">English (EN)</button>
+                            <button type="button" wire:click="$set('activeTab', 'id')" style="flex: 1; padding: 10px; border: none; background: {{ $activeTab === 'id' ? 'white' : 'transparent' }}; border-bottom: {{ $activeTab === 'id' ? '2px solid #2563eb' : 'none' }}; cursor: pointer; font-weight: {{ $activeTab === 'id' ? 'bold' : 'normal' }};">Indonesia (ID)</button>
                         </div>
-                        <div style="flex: 1;">
-                            <label>Nama Produk (ID) *</label>
-                            <input type="text" wire:model="name_id" style="width: 100%; padding: 6px;" required>
+                        <div style="padding: 15px; background: white;">
+                            <!-- English Tab -->
+                            <div style="display: {{ $activeTab === 'en' ? 'block' : 'none' }};">
+                                <div style="margin-bottom: 10px;">
+                                    <label>Product Name (EN) *</label>
+                                    <input type="text" wire:model="name_en" style="width: 100%; padding: 6px;">
+                                    @error('name_en') <span style="color: red; font-size: 12px;">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label>Description (EN)</label>
+                                    <textarea wire:model="description_en" rows="4" style="width: 100%; padding: 6px;"></textarea>
+                                </div>
+                            </div>
+                            <!-- Indonesia Tab -->
+                            <div style="display: {{ $activeTab === 'id' ? 'block' : 'none' }};">
+                                <div style="margin-bottom: 10px;">
+                                    <label>Nama Produk (ID) *</label>
+                                    <input type="text" wire:model="name_id" style="width: 100%; padding: 6px;">
+                                    @error('name_id') <span style="color: red; font-size: 12px;">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label>Deskripsi (ID)</label>
+                                    <textarea wire:model="description_id" rows="4" style="width: 100%; padding: 6px;"></textarea>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -145,6 +168,37 @@
                         <button type="button" wire:click="addSpecification" style="margin-top: 8px; padding: 4px 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
                             + Add Specification
                         </button>
+                    </div>
+
+                    <!-- Product Images -->
+                    <div style="margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 6px;">
+                        <label><strong>Product Images (Gallery)</strong></label>
+                        
+                        @if($editingId && count($existingMedia) > 0)
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; margin-top: 10px;">
+                                @foreach($existingMedia as $media)
+                                    <div style="position: relative; border: 1px solid #ccc; padding: 4px; border-radius: 4px; width: 120px; text-align: center; background: white;">
+                                        <img src="{{ $media->getUrl() }}" style="width: 100%; height: 80px; object-fit: cover; border-radius: 2px;">
+                                        @if($media->getCustomProperty('is_cover'))
+                                            <div style="position: absolute; top: 0; left: 0; background: #eab308; color: white; font-size: 10px; padding: 2px 4px; font-weight: bold;">COVER</div>
+                                        @endif
+                                        <div style="margin-top: 5px; display: flex; flex-direction: column; gap: 4px;">
+                                            @if(!$media->getCustomProperty('is_cover'))
+                                                <button type="button" wire:click="setCoverMedia({{ $media->id }})" style="font-size: 10px; background: #2563eb; color: white; border: none; padding: 4px; cursor: pointer; border-radius: 2px;">Set Cover</button>
+                                            @endif
+                                            <button type="button" wire:click="deleteMedia({{ $media->id }})" wire:confirm="Delete this image?" style="font-size: 10px; background: #ef4444; color: white; border: none; padding: 4px; cursor: pointer; border-radius: 2px;">Delete</button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div style="margin-top: 5px;">
+                            <label style="font-size: 12px; color: #6b7280;">Upload New Images (Multiple allowed, max 3MB each, WebP auto-conversion)</label>
+                            <input type="file" wire:model="imageFiles" multiple accept="image/*" style="width: 100%; padding: 6px; background: white; border: 1px solid #d1d5db; border-radius: 4px; margin-top: 4px;">
+                            <div wire:loading wire:target="imageFiles" style="font-size: 12px; color: #2563eb; margin-top: 4px;">Uploading...</div>
+                            @error('imageFiles.*') <span style="color: red; font-size: 12px;">{{ $message }}</span> @enderror
+                        </div>
                     </div>
 
                     <!-- Related Certifications Checkbox -->
