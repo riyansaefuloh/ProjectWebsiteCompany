@@ -3,6 +3,7 @@
 namespace App\Livewire\Public;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Inquiry;
 use App\Services\WhatsAppService;
 use App\Mail\InquiryReceivedMail;
@@ -109,8 +110,10 @@ class InquiryForm extends Component
         $this->isSubmitted = true;
     }
 
+    #[Layout('components.layouts.public')]
     public function render()
     {
-        return view('livewire.public.inquiry-form');
+        $products = \App\Models\Product::where('status', 'published')->with('translations')->get();
+        return view('livewire.public.inquiry-form', compact('products'));
     }
 }

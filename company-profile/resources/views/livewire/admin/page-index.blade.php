@@ -78,7 +78,7 @@
                     <td style="padding: 10px; border: 1px solid #d1d5db;">{{ ucfirst($page->status) }}</td>
                     <td style="padding: 10px; border: 1px solid #d1d5db;">
                         <button wire:click="edit('{{ $page->id }}')" style="padding: 5px 10px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;">Edit</button>
-                        <button wire:click="delete('{{ $page->id }}')" onclick="return confirm('Are you sure?')" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                        <button wire:click="delete('{{ $page->id }}')" wire:confirm="Are you sure?" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
                     </td>
                 </tr>
             @empty

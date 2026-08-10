@@ -3,6 +3,7 @@
 namespace App\Livewire\Public;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\News;
 
@@ -21,7 +22,8 @@ class NewsIndex extends Component
         $this->resetPage();
     }
 
-    public function render()
+    #[Layout('components.layouts.public')]
+     public function render()
     {
         $news = News::where('status', 'published')
             ->when($this->search, function ($query) {

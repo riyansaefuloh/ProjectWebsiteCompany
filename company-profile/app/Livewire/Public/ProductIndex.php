@@ -3,6 +3,7 @@
 namespace App\Livewire\Public;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\Product;
 use App\Models\Category;
@@ -29,6 +30,7 @@ class ProductIndex extends Component
         $this->resetPage();
     }
 
+    #[Layout('components.layouts.public')]
     public function render()
     {
         $categories = Category::where('status', 'active')

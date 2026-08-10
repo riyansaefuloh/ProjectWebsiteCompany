@@ -22,7 +22,10 @@ use App\Livewire\Public\NewsIndex as PublicNewsIndex;
 use App\Livewire\Public\NewsShow;
 use App\Livewire\Public\ExportMarketIndex as PublicExportMarketIndex;
 use App\Livewire\Public\GalleryIndex as PublicGalleryIndex;
+use App\Livewire\Public\CertificationIndex as PublicCertificationIndex;
+use App\Livewire\Public\DownloadIndex as PublicDownloadIndex;
 use App\Livewire\Public\About;
+use App\Livewire\Public\PageShow;
 use App\Livewire\Admin\PageIndex;
 use App\Livewire\Admin\GalleryIndex;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -41,8 +44,11 @@ Route::group([
     Route::get('/news', PublicNewsIndex::class)->name('news.index');
     Route::get('/news/{slug}', NewsShow::class)->name('news.show');
     Route::get('/export-markets', PublicExportMarketIndex::class)->name('export-markets.index');
+    Route::get('/certifications', PublicCertificationIndex::class)->name('certifications.index');
     Route::get('/gallery', PublicGalleryIndex::class)->name('gallery.index');
+    Route::get('/downloads', PublicDownloadIndex::class)->name('downloads.index');
     Route::get('/about', About::class)->name('about');
+    Route::get('/page/{slug}', PageShow::class)->name('page.show');
 
     Route::get('/inquiry', InquiryForm::class)->name('inquiry.index');
     // GET → tampilkan form email untuk download katalog

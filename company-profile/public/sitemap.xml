@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
-    <loc>http://localhost/en</loc>
+    <loc>http://localhost:8000/en</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
-    <loc>http://localhost/id</loc>
+    <loc>http://localhost:8000/id</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
-    <loc>http://localhost/en/products</loc>
+    <loc>http://localhost:8000/en/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost/id/products</loc>
+    <loc>http://localhost:8000/id/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost/en/about</loc>
+    <loc>http://localhost:8000/en/about</loc>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/id/about</loc>
+    <loc>http://localhost:8000/id/about</loc>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/en/inquiry</loc>
+    <loc>http://localhost:8000/en/inquiry</loc>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost/id/inquiry</loc>
+    <loc>http://localhost:8000/id/inquiry</loc>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost/en/products/arabica-gayo-coffee-beans</loc>
-    <lastmod>2026-07-22T07:42:11+07:00</lastmod>
+    <loc>http://localhost:8000/en/products/arabica-gayo-coffee-green-beans</loc>
+    <lastmod>2026-08-09T20:51:42+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/id/products/arabica-gayo-coffee-beans</loc>
-    <lastmod>2026-07-22T07:42:11+07:00</lastmod>
+    <loc>http://localhost:8000/id/products/arabica-gayo-coffee-green-beans</loc>
+    <lastmod>2026-08-09T20:51:42+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/en/products/robusta-lampung-coffee-beans</loc>
-    <lastmod>2026-07-22T07:42:12+07:00</lastmod>
+    <loc>http://localhost:8000/en/products/robusta-lampung-coffee-green-beans</loc>
+    <lastmod>2026-08-09T20:52:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/id/products/robusta-lampung-coffee-beans</loc>
-    <lastmod>2026-07-22T07:42:12+07:00</lastmod>
+    <loc>http://localhost:8000/id/products/robusta-lampung-coffee-green-beans</loc>
+    <lastmod>2026-08-09T20:52:30+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost/en/news/ekspor-perdana-kopi-gayo-jerman</loc>
-    <lastmod>2026-07-22T07:42:12+07:00</lastmod>
+    <loc>http://localhost:8000/en/news/ekspor-perdana-kopi-gayo-jerman</loc>
+    <lastmod>2026-08-09T20:34:29+07:00</lastmod>
     <priority>0.7</priority>
             </url>
     <url>
-    <loc>http://localhost/id/news/ekspor-perdana-kopi-gayo-jerman</loc>
-    <lastmod>2026-07-22T07:42:12+07:00</lastmod>
+    <loc>http://localhost:8000/id/news/ekspor-perdana-kopi-gayo-jerman</loc>
+    <lastmod>2026-08-09T20:34:29+07:00</lastmod>
     <priority>0.7</priority>
             </url>
 </urlset>

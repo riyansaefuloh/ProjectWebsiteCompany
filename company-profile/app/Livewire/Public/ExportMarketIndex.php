@@ -3,10 +3,12 @@
 namespace App\Livewire\Public;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\ExportMarket;
 
 class ExportMarketIndex extends Component
 {
+    #[Layout('components.layouts.public')]
     public function render()
     {
         $exportMarkets = ExportMarket::where('is_active', true)

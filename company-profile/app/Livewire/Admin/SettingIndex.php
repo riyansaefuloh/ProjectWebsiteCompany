@@ -11,6 +11,7 @@ class SettingIndex extends Component
 {
     use WithFileUploads;
     // Settings Fields
+    public string $company_name = '';
     public string $whatsapp_number = '';
     public string $contact_email = '';
     public string $company_address = '';
@@ -33,6 +34,7 @@ class SettingIndex extends Component
     public function mount(): void
     {
         // Load existing settings from DB (key-value)
+        $this->company_name = Setting::where('key', 'company_name')->value('value') ?? 'PT. Indo Export Global';
         $this->whatsapp_number = Setting::where('key', 'whatsapp_number')->value('value') ?? '6289670475275';
         $this->contact_email = Setting::where('key', 'contact_email')->value('value') ?? 'arjunapandawa088@gmail.com';
         $this->company_address = Setting::where('key', 'company_address')->value('value') ?? 'Jl. Jenderal Sudirman No. 123, Jakarta, Indonesia';
@@ -52,6 +54,17 @@ class SettingIndex extends Component
         $sectionsJson = Setting::where('key', 'home_sections')->value('value');
         if ($sectionsJson) {
             $this->home_sections = json_decode($sectionsJson, true);
+            
+            // Check if downloads is missing and inject it
+            $hasDownloads = false;
+            foreach ($this->home_sections as $sec) {
+                if ($sec['id'] === 'downloads') $hasDownloads = true;
+            }
+            if (!$hasDownloads) {
+                $this->home_sections[] = ["id" => "downloads", "name" => "Catalogs & Downloads", "active" => true, "order" => count($this->home_sections) + 1];
+                Setting::updateOrCreate(['key' => 'home_sections'], ['value' => json_encode($this->home_sections)]);
+            }
+
             // Sort by order just in case
             usort($this->home_sections, fn($a, $b) => $a['order'] <=> $b['order']);
         } else {
@@ -62,8 +75,9 @@ class SettingIndex extends Component
                 ["id" => "export-markets", "name" => "Export Markets", "active" => true, "order" => 4],
                 ["id" => "certifications", "name" => "Certifications", "active" => true, "order" => 5],
                 ["id" => "gallery", "name" => "Gallery", "active" => true, "order" => 6],
-                ["id" => "news", "name" => "Latest News", "active" => true, "order" => 7],
-                ["id" => "contact", "name" => "Contact Us", "active" => true, "order" => 8]
+                ["id" => "downloads", "name" => "Catalogs & Downloads", "active" => true, "order" => 7],
+                ["id" => "news", "name" => "Latest News", "active" => true, "order" => 8],
+                ["id" => "contact", "name" => "Contact Us", "active" => true, "order" => 9]
             ];
             Setting::updateOrCreate(['key' => 'home_sections'], ['value' => json_encode($this->home_sections)]);
         }
@@ -72,8 +86,9 @@ class SettingIndex extends Component
     protected function rules(): array
     {
         return [
+            'company_name'        => 'required|string|max:255',
             'whatsapp_number'     => 'required|string|max:30',
-            'contact_email'       => 'required|email|max:100',
+            'contact_email'       => 'required|email|max:255',
             'company_address'     => 'required|string|max:500',
             'google_map_url'      => 'nullable|url|max:1000',
             'google_analytics_id' => 'nullable|string|max:50',
@@ -92,6 +107,7 @@ class SettingIndex extends Component
         $this->validate();
 
         $settings = [
+            'company_name'        => $this->company_name,
             'whatsapp_number'     => $this->whatsapp_number,
             'contact_email'       => $this->contact_email,
             'company_address'     => $this->company_address,

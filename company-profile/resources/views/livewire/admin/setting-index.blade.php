@@ -21,6 +21,12 @@
         </div>
 
         <div style="margin-bottom: 15px;">
+            <label><strong>Company Name *</strong></label>
+            <input type="text" wire:model="company_name" style="width: 100%; padding: 8px;" required>
+            @error('company_name') <span style="color:red">{{ $message }}</span> @enderror
+        </div>
+
+        <div style="margin-bottom: 15px;">
             <label><strong>Company Address *</strong></label>
             <textarea wire:model="company_address" rows="3" style="width: 100%; padding: 8px;" required></textarea>
             @error('company_address') <span style="color:red">{{ $message }}</span> @enderror

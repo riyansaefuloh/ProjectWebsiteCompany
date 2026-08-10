@@ -101,7 +101,7 @@
                     <td style="padding: 10px; border: 1px solid #d1d5db;">{{ $gallery->items->count() }} photos</td>
                     <td style="padding: 10px; border: 1px solid #d1d5db;">
                         <button wire:click="edit('{{ $gallery->id }}')" style="padding: 5px 10px; background: #f59e0b; color: white; border: none; border-radius: 4px; cursor: pointer;">Edit / Add Photos</button>
-                        <button wire:click="delete('{{ $gallery->id }}')" onclick="return confirm('Are you sure you want to delete this entire album?')" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                        <button wire:click="delete('{{ $gallery->id }}')" wire:confirm="Are you sure you want to delete this entire album?" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
                     </td>
                 </tr>
             @empty
