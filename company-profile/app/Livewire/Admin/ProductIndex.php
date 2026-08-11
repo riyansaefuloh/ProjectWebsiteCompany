@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Product;
@@ -237,6 +238,8 @@ class ProductIndex extends Component
         $this->activeTab = 'en';
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $products = Product::with(['category.translations', 'translations', 'certifications'])

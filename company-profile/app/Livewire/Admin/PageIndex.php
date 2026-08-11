@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\Page;
 use App\Models\PageTranslation;
@@ -24,6 +25,8 @@ class PageIndex extends Component
     public $title_id, $content_id;
     public $title_en, $content_en;
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $pages = Page::where('slug', 'like', '%' . $this->search . '%')

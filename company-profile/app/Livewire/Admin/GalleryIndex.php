@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use App\Models\Gallery;
@@ -20,6 +21,8 @@ class GalleryIndex extends Component
     public $videoUrl = '';
     public $editingGallery = null;
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $galleries = Gallery::where('name', 'like', '%' . $this->search . '%')

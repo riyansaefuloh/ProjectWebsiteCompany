@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\User;
 use App\Models\Role;
@@ -99,6 +100,8 @@ class UserIndex extends Component
         $this->selectedRole = 'admin-cms';
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $users = User::with('roles')

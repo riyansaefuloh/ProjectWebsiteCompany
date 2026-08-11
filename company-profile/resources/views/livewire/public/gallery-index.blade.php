@@ -1,7 +1,7 @@
 <div>
     <div style="background: #e2e8f0; padding: 40px; text-align: center; margin-bottom: 30px;">
-        <h1>Our Gallery</h1>
-        <p>A glimpse into our facilities, events, and activities.</p>
+        <h1>{{ __('site.page_gallery') }}</h1>
+        <p>{{ __('site.page_gallery_sub') }}</p>
         <div class="frontend-task">
             [FRONTEND TASK: Berikan styling Hero Banner khusus halaman Gallery]
         </div>
@@ -36,17 +36,17 @@
                                     <img src="{{ $item->getFirstMediaUrl('gallery', 'webp') }}" alt="Gallery Image" style="width: 100%; height: 150px; object-fit: cover;">
                                 </div>
                             @else
-                                <div style="border: 1px solid #ccc; padding: 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; height: 150px; background: #eee; font-size: 12px;">No Image</div>
+                                <div style="border: 1px solid #ccc; padding: 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; height: 150px; background: #eee; font-size: 12px;">{{ __('site.no_image') }}</div>
                             @endif
                         @endif
                     @empty
-                        <p style="grid-column: span 4; color: #888;">No photos in this album.</p>
+                        <p style="grid-column: span 4; color: #888;">{{ __('site.no_photos_in_album') }}</p>
                     @endforelse
                 </div>
             </div>
         @empty
             <div style="padding: 40px; text-align: center; border: 1px dashed #ccc; color: #666;">
-                No galleries available yet.
+                {{ __('site.no_galleries') }}
             </div>
         @endforelse
     </div>

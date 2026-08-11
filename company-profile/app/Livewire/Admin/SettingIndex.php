@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Storage;
@@ -197,6 +198,8 @@ class SettingIndex extends Component
         Setting::updateOrCreate(['key' => 'home_sections'], ['value' => json_encode($this->home_sections)]);
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         return view('livewire.admin.setting-index');

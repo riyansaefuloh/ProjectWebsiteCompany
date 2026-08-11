@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Download;
@@ -98,6 +99,8 @@ class DownloadIndex extends Component
         $this->pdfFile = null;
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $downloads = Download::when($this->search, function ($q) {

@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithFileUploads;
 use App\Models\Certification;
 use Illuminate\Support\Str;
@@ -159,6 +160,8 @@ class CertificationIndex extends Component
         $this->existingPdfUrl = null;
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         // 1. Query Sertifikat yang mendekati Kedaluwarsa (<= 30 hari ke depan)

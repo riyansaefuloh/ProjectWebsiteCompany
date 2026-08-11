@@ -53,7 +53,7 @@ class LoginController extends Controller
         }
 
         // 7. Catat percobaan gagal ke rate limiter
-        RateLimiter::hit($throttleKey, decay: 60);
+        RateLimiter::hit($throttleKey, 60);
 
         // 8. Jika gagal, kembalikan dengan error
         throw ValidationException::withMessages([

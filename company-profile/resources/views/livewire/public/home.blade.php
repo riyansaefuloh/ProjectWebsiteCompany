@@ -1,7 +1,7 @@
 <div>
     @if(empty($homeSections))
         <div style="padding: 40px; text-align: center; border: 1px dashed #ccc; margin: 30px;">
-            <p>No Home Sections are active. Please configure them in Global Settings.</p>
+            <p>{{ __('site.no_home_sections') }}</p>
         </div>
     @endif
 
@@ -16,8 +16,8 @@
                             {!! $heroPage->translated_content !!}
                         </div>
                     @else
-                        <h2>Welcome to Our Company</h2>
-                        <p>Please create a Static Page with the title "Hero" in the Admin CMS to populate this banner.</p>
+                        <h2>{{ __('site.welcome_company') }}</h2>
+                        <p>{{ __('site.hero_empty') }}</p>
                     @endif
                     <div class="frontend-task" style="margin-top:20px;">
                         [FRONTEND TASK: Hias struktur teks dinamis di atas menjadi Slider/Carousel dengan gambar latar (background image).]
@@ -28,7 +28,7 @@
             @case('products')
                 <!-- FEATURED PRODUCTS SECTION -->
                 <div style="margin-bottom: 50px; border-left: 5px solid #10b981; padding-left: 20px;">
-                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ $section['name'] }}</h2>
+                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ __('site.home_section_products') }}</h2>
                     <div class="frontend-task">
                         [FRONTEND TASK: Buat Product Grid yang estetis (Responsive). Data sudah siap dari Backend (6 limit).]
                     </div>
@@ -39,14 +39,14 @@
                                 @if($product->getFirstMediaUrl('gallery', 'webp'))
                                     <img src="{{ $product->getFirstMediaUrl('gallery', 'webp') }}" alt="{{ $product->translated_name }}" style="width: 100%; height: 200px; object-fit: cover;">
                                 @else
-                                    <div style="width: 100%; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center;">No Image</div>
+                                    <div style="width: 100%; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center;">{{ __('site.no_image') }}</div>
                                 @endif
                                 <h3 style="margin: 10px 0 5px 0;">{{ $product->translated_name }}</h3>
                                 <p style="font-size: 14px; color: #666; margin: 0;">{{ Str::limit($product->translated_description, 60) }}</p>
-                                <a href="{{ route('products.show', $product->slug) }}" style="display: inline-block; margin-top: 10px; color: #2563eb;">View Details &rarr;</a>
+                                <a href="{{ route('products.show', $product->slug) }}" style="display: inline-block; margin-top: 10px; color: #2563eb;">{{ __('site.view_details') }} &rarr;</a>
                             </div>
                         @empty
-                            <p>No featured products found.</p>
+                            <p>{{ __('site.no_featured_products') }}</p>
                         @endforelse
                     </div>
                 </div>
@@ -55,7 +55,7 @@
             @case('export_markets')
                 <!-- EXPORT MARKETS SECTION -->
                 <div style="margin-bottom: 50px; background: #f8fafc; padding: 30px; border-radius: 8px; border-left: 5px solid #f59e0b;">
-                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ $section['name'] }}</h2>
+                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ __('site.home_section_export_markets') }}</h2>
                     <div class="frontend-task">
                         [FRONTEND TASK: Ganti list statis ini menjadi Interactive Vector Map (misal jVectorMap). Highlight negara berdasarkan country_code di bawah ini.]
                     </div>
@@ -73,7 +73,7 @@
             @case('news')
                 <!-- LATEST NEWS SECTION -->
                 <div style="margin-bottom: 50px; border-left: 5px solid #8b5cf6; padding-left: 20px;">
-                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ $section['name'] }}</h2>
+                    <h2 style="border-bottom: 2px solid #ccc; padding-bottom: 10px;">{{ __('site.home_section_news') }}</h2>
                     <div class="frontend-task">
                         [FRONTEND TASK: Buat News Cards yang elegan. Data sudah siap dengan limit 3.]
                     </div>
@@ -84,14 +84,14 @@
                                 @if($news->getFirstMediaUrl('covers', 'webp'))
                                     <img src="{{ $news->getFirstMediaUrl('covers', 'webp') }}" alt="{{ $news->translated_title }}" style="width: 100%; height: 150px; object-fit: cover;">
                                 @else
-                                    <div style="width: 100%; height: 150px; background: #eee; display: flex; align-items: center; justify-content: center;">No Image</div>
+                                    <div style="width: 100%; height: 150px; background: #eee; display: flex; align-items: center; justify-content: center;">{{ __('site.no_image') }}</div>
                                 @endif
                                 <h4 style="margin: 10px 0 5px 0;">{{ $news->translated_title }}</h4>
                                 <p style="font-size: 12px; color: #888; margin-bottom: 5px;">{{ $news->published_at ? $news->published_at->format('M d, Y') : '' }}</p>
-                                <a href="{{ route('news.show', $news->slug) }}" style="font-size: 14px; color: #2563eb;">Read Article &rarr;</a>
+                                <a href="{{ route('news.show', $news->slug) }}" style="font-size: 14px; color: #2563eb;">{{ __('site.read_article') }} &rarr;</a>
                             </div>
                         @empty
-                            <p>No news found.</p>
+                            <p>{{ __('site.no_news_found') }}</p>
                         @endforelse
                     </div>
                 </div>
@@ -100,9 +100,9 @@
             @default
                 <!-- OTHER SECTIONS -->
                 <div style="margin-bottom: 50px; padding: 20px; border: 1px dashed #94a3b8; background: #f1f5f9;">
-                    <h2>[{{ $section['name'] }}]</h2>
+                    <h2>[{{ __('site.home_section_' . str_replace('-', '_', $section['id'])) }}]</h2>
                     <div class="frontend-task">
-                        [FRONTEND TASK: Buat UI untuk seksi {{ $section['name'] }} di sini.]
+                        [FRONTEND TASK: Buat UI untuk seksi {{ __('site.home_section_' . str_replace('-', '_', $section['id'])) }} di sini.]
                     </div>
                 </div>
                 @break

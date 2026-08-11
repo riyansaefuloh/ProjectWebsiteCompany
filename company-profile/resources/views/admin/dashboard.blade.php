@@ -1,3 +1,4 @@
+<x-layouts.app title="CMS Admin Dashboard">
 <div style="font-family: sans-serif; padding: 30px; max-width: 1000px; margin: 0 auto;">
 
     {{-- ================================================== --}}
@@ -298,3 +299,4 @@
     </form>
 
 </div>
+</x-layouts.app>

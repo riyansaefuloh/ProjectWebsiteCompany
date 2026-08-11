@@ -10,6 +10,9 @@ use App\Mail\InquiryReceivedMail;
 use App\Mail\InquiryAutoReplyMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Artesaos\SEOTools\Facades\SEOMeta;
+use Artesaos\SEOTools\Facades\OpenGraph;
+use Artesaos\SEOTools\Facades\TwitterCard;
 
 class InquiryForm extends Component
 {
@@ -48,18 +51,51 @@ class InquiryForm extends Component
 
     public function mount(?string $productId = null): void
     {
-        // Jika form dibuka dari Halaman Detail Produk, prefill product_id
+        $appName = config('app.name');
+
+        SEOMeta::setTitle('Contact Us / Wholesale Inquiry - ' . $appName);
+        SEOMeta::setDescription('Get in touch with us for bulk coffee export orders, pricing, shipping terms (FOB/CIF), and wholesale inquiries. We respond within 24 hours.');
+        SEOMeta::setCanonical(route('inquiry.index'));
+
+        OpenGraph::setTitle('Contact Us / Wholesale Inquiry - ' . $appName);
+        OpenGraph::setDescription('Send us your wholesale inquiry. We offer competitive FOB/CIF pricing for coffee export.');
+        OpenGraph::setUrl(route('inquiry.index'));
+        OpenGraph::setType('website');
+
+        TwitterCard::setTitle('Contact Us - ' . $appName);
+        TwitterCard::setDescription('Wholesale coffee export inquiry. We respond within 24 hours.');
+
+       // Jika form dibuka dari Halaman Detail Produk, prefill product_id
         if ($productId) {
             $this->product_id = $productId;
         }
     }
 
-    public function submit(): void
+    public function executeRecaptcha(): void
+    {
+        $this->dispatch('request-recaptcha');
+    }
+
+    public function submit(string $recaptchaToken): void
     {
         // 1. Anti-Spam Honeypot Check
         if (!empty($this->website_hp)) {
             // Jika bot mengisi honeypot, abaikan secara diam-diam
             return;
+        }
+
+        // 1.5. reCAPTCHA v3 Validation (Bypass if not configured in .env for local testing)
+        if (!empty(env('RECAPTCHA_SECRET_KEY'))) {
+            $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'response' => $recaptchaToken,
+                'remoteip' => request()->ip(),
+            ]);
+
+            if (!$response->successful() || !$response->json('success') || $response->json('score') < 0.5) {
+                $this->addError('message', 'reCAPTCHA validation failed. You appear to be a bot.');
+                return;
+            }
         }
 
         // 2. Rate Limiting Check (Maksimal 3 inquiry per 10 menit per IP)

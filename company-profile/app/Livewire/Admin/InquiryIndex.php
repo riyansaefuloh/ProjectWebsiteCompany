@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\Inquiry;
 use App\Models\User;
@@ -51,6 +52,8 @@ class InquiryIndex extends Component
         session()->flash('message', 'Inquiry status updated successfully!');
     }
 
+    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
+    #[Layout('components.layouts.app')]
     public function render()
     {
         $inquiries = Inquiry::with(['product.translations', 'assignedSales'])

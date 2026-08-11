@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Frontend Developer: Please replace this with proper SEO tags -->
-    <title>Company Profile - Frontend Wireframe</title>
+    {{-- SEO Meta Tags: Title, Description, Canonical, OG, Twitter Card --}}
+    {!! SEOMeta::generate() !!}
+    {!! OpenGraph::generate() !!}
+    {!! Twitter::generate() !!}
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     @livewireStyles
     @php
@@ -78,15 +80,15 @@
             $navLinks = [];
             foreach($activeSections as $sec) {
                 switch($sec['id']) {
-                    case 'hero': $navLinks['Home'] = route('home'); break;
-                    case 'about': $navLinks['About Us'] = route('about'); break;
-                    case 'products': $navLinks['Products'] = route('products.index'); break;
-                    case 'export-markets': $navLinks['Export Markets'] = route('export-markets.index'); break;
-                    case 'certifications': $navLinks['Certifications'] = route('certifications.index'); break;
-                    case 'gallery': $navLinks['Gallery'] = route('gallery.index'); break;
-                    case 'downloads': $navLinks['Downloads'] = route('downloads.index'); break;
-                    case 'news': $navLinks['News'] = route('news.index'); break;
-                    case 'contact': $navLinks['Contact Us'] = route('inquiry.index'); break;
+                    case 'hero': $navLinks[__('site.nav_home')] = route('home'); break;
+                    case 'about': $navLinks[__('site.nav_about')] = route('about'); break;
+                    case 'products': $navLinks[__('site.nav_products')] = route('products.index'); break;
+                    case 'export-markets': $navLinks[__('site.nav_export_markets')] = route('export-markets.index'); break;
+                    case 'certifications': $navLinks[__('site.nav_certifications')] = route('certifications.index'); break;
+                    case 'gallery': $navLinks[__('site.nav_gallery')] = route('gallery.index'); break;
+                    case 'downloads': $navLinks[__('site.nav_downloads')] = route('downloads.index'); break;
+                    case 'news': $navLinks[__('site.nav_news')] = route('news.index'); break;
+                    case 'contact': $navLinks[__('site.nav_contact')] = route('inquiry.index'); break;
                 }
             }
         @endphp
@@ -105,14 +107,14 @@
             [FRONTEND TASK: Rapihkan UI footer ini. Variabel data ($globalSettings) sudah di-*supply* oleh Backend dari Global Settings CMS!]
         </div>
         <div style="margin-bottom: 20px;">
-            <strong>Hubungi Kami:</strong><br>
-            Email: {{ $email }} <br>
-            WhatsApp: {{ $whatsapp }} <br>
-            Alamat: {{ $address }}
+            <strong>{{ __('site.footer_contact') }}:</strong><br>
+            {{ __('site.footer_email') }}: {{ $email }} <br>
+            {{ __('site.footer_whatsapp') }}: {{ $whatsapp }} <br>
+            {{ __('site.footer_address') }}: {{ $address }}
         </div>
         
         <div style="margin-bottom: 20px;">
-            <strong>Informasi Lainnya:</strong><br>
+            <strong>{{ __('site.footer_other_info') }}:</strong><br>
             @foreach($staticPages as $p)
                 <a href="{{ route('page.show', $p->slug) }}" style="color:#aaa; text-decoration:none; margin:0 10px;">{{ $p->translated_title }}</a>
             @endforeach
@@ -123,7 +125,7 @@
             @if(isset($globalSettings['instagram_url'])) <a href="{{ $globalSettings['instagram_url'] }}" style="color:white; margin:0 5px;">Instagram</a> @endif
             @if(isset($globalSettings['linkedin_url'])) <a href="{{ $globalSettings['linkedin_url'] }}" style="color:white; margin:0 5px;">LinkedIn</a> @endif
         </div>
-        <p style="margin-top: 30px;">&copy; {{ date('Y') }} {{ $companyName }}. All rights reserved.</p>
+        <p style="margin-top: 30px;">&copy; {{ date('Y') }} {{ $companyName }}. {{ __('site.footer_rights') }}</p>
     </div>
 
     @livewireScripts

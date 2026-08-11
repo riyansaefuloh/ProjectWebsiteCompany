@@ -1,7 +1,7 @@
 <div>
     <div style="background: #e2e8f0; padding: 40px; text-align: center; margin-bottom: 30px;">
-        <h1>About Us</h1>
-        <p>Discover our story and mission.</p>
+        <h1>{{ __('site.nav_about') }}</h1>
+        <p></p>
         <div class="frontend-task">
             [FRONTEND TASK: Berikan styling Hero Banner khusus halaman About Us]
         </div>
@@ -18,7 +18,7 @@
             </div>
         @else
             <div style="padding: 40px; text-align: center; border: 1px dashed #ccc; color: #666;">
-                Halaman "About Us" belum dibuat di CMS. Silakan buat halaman statis dengan slug "about-us".
+                {{ __('site.about_empty') }}
             </div>
         @endif
     </div>
