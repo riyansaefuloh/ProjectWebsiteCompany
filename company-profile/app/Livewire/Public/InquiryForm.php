@@ -65,8 +65,9 @@ class InquiryForm extends Component
         TwitterCard::setTitle('Contact Us - ' . $appName);
         TwitterCard::setDescription('Wholesale coffee export inquiry. We respond within 24 hours.');
 
-       // Jika form dibuka dari Halaman Detail Produk, prefill product_id
-        if ($productId) {
+        $productId = $productId ?: request()->query('product');
+
+        if ($productId && \App\Models\Product::where('id', $productId)->where('status', 'published')->exists()) {
             $this->product_id = $productId;
         }
     }
@@ -84,7 +85,6 @@ class InquiryForm extends Component
             return;
         }
 
-        // 1.5. reCAPTCHA v3 Validation (Bypass if not configured in .env for local testing)
         if (!empty(env('RECAPTCHA_SECRET_KEY'))) {
             $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret' => env('RECAPTCHA_SECRET_KEY'),
@@ -133,8 +133,6 @@ class InquiryForm extends Component
             'ip_address'   => request()->ip(),
         ]);
 
-        // 4. Kirim Email Async (Laravel Queue)
-        // A. Kirim notifikasi ke Sales Team
         $salesEmail = config('mail.from.address', 'sales@exportercompany.com');
         Mail::to($salesEmail)->queue(new InquiryReceivedMail($inquiry));
 
@@ -149,7 +147,16 @@ class InquiryForm extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        $products = \App\Models\Product::where('status', 'published')->with('translations')->get();
-        return view('livewire.public.inquiry-form', compact('products'));
+        $products = \App\Models\Product::where('status', 'published')
+            ->with('translations')
+            ->orderBy('sort_order')
+            ->get();
+
+        $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
+
+        return view('livewire.public.inquiry-form', [
+            'products' => $products,
+            'settings' => $settings,
+        ]);
     }
 }

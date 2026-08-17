@@ -17,15 +17,17 @@ class NewsShow extends Component
     {
         $this->news = News::where('slug', $slug)
             ->where('status', 'published')
-            ->with(['translations', 'media', 'author'])
+            ->with(['translations', 'media', 'author', 'category', 'tags'])
             ->firstOrFail();
 
         $appName   = config('app.name');
         $locale    = app()->getLocale();
         $title     = $this->news->getTranslation('title', $locale) ?? $this->news->getTranslation('title', 'en');
-        $body      = strip_tags($this->news->getTranslation('body', $locale) ?? $this->news->getTranslation('body', 'en') ?? '');
+
+        $body      = strip_tags($this->news->getTranslation('content', $locale) ?? $this->news->getTranslation('content', 'en') ?? '');
         $shortDesc = mb_substr($body, 0, 160);
-        $imageUrl  = $this->news->getFirstMediaUrl('featured_image') ?: null;
+        $imageUrl  = $this->news->getFirstMediaUrl('covers', 'webp')
+                  ?: ($this->news->getFirstMediaUrl('covers') ?: null);
 
         // Meta
         SEOMeta::setTitle($title . ' - ' . $appName);
@@ -52,6 +54,19 @@ class NewsShow extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        return view('livewire.public.news-show');
+        $related = News::where('status', 'published')
+            ->where('id', '!=', $this->news->id)
+            ->with(['translations', 'media', 'category'])
+            ->when($this->news->news_category_id, fn ($q) => $q->orderByRaw(
+                'CASE WHEN news_category_id = ? THEN 0 ELSE 1 END',
+                [$this->news->news_category_id]
+            ))
+            ->orderByDesc('published_at')
+            ->limit(3)
+            ->get();
+
+        return view('livewire.public.news-show', [
+            'related' => $related,
+        ]);
     }
 }

@@ -18,9 +18,15 @@ class ProductIndex extends Component
     public $search = '';
     public $category = '';
 
+    public $sort = 'featured';
+
+    /** Nilai `sort` yang diterima. Nilai di luar daftar ini diabaikan. */
+    public const SORT_OPTIONS = ['featured', 'newest', 'name_asc', 'name_desc'];
+
     protected $queryString = [
         'search'   => ['except' => ''],
         'category' => ['except' => ''],
+        'sort'     => ['except' => 'featured'],
     ];
 
     public function mount(): void
@@ -50,28 +56,57 @@ class ProductIndex extends Component
         $this->resetPage();
     }
 
+    public function updatingSort()
+    {
+        $this->resetPage();
+    }
+
+    public function selectCategory(string $slug = ''): void
+    {
+        $this->category = $slug;
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->reset(['search', 'category']);
+        $this->resetPage();
+    }
+
     #[Layout('components.layouts.public')]
     public function render()
     {
         $categories = Category::where('status', 'active')
+            ->withCount(['products' => fn ($q) => $q->where('status', 'published')])
             ->with('translations')
+            ->orderBy('sort_order')
             ->get();
 
-        $products = Product::where('status', 'published')
-            ->when($this->search, function ($query) {
-                $query->search($this->search);
+        $sort = in_array($this->sort, self::SORT_OPTIONS, true) ? $this->sort : 'featured';
+
+        $query = Product::where('status', 'published')
+            ->when($this->search, fn ($q) => $q->search($this->search))
+            ->when($this->category, function ($q) {
+                $q->whereHas('category', fn ($c) => $c->where('slug', $this->category));
             })
-            ->when($this->category, function ($query) {
-                $query->whereHas('category', function($q) {
-                    $q->where('slug', $this->category);
-                });
-            })
-            ->with(['translations', 'media', 'category.translations'])
-            ->paginate(12);
+            ->with(['translations', 'media', 'category.translations']);
+
+        if (in_array($sort, ['name_asc', 'name_desc'], true)) {
+            $query->select('products.*')
+                ->leftJoin('product_translations as pt', function ($join) {
+                    $join->on('pt.product_id', '=', 'products.id')
+                         ->where('pt.locale', '=', app()->getLocale());
+                })
+                ->orderBy('pt.name', $sort === 'name_asc' ? 'asc' : 'desc');
+        } elseif ($sort === 'newest') {
+            $query->orderByDesc('created_at');
+        } else {
+            $query->orderByDesc('is_featured')->orderBy('sort_order');
+        }
 
         return view('livewire.public.product-index', [
             'categories' => $categories,
-            'products'   => $products,
+            'products'   => $query->paginate(12),
         ]);
     }
 }

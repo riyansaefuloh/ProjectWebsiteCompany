@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Download;
 use App\Models\Inquiry;
+use App\Models\Product;
 use App\Services\PdfCatalogService;
+use Artesaos\SEOTools\Facades\OpenGraph;
+use Artesaos\SEOTools\Facades\SEOMeta;
+use Artesaos\SEOTools\Facades\TwitterCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,13 +22,26 @@ class DownloadController extends Controller
      */
     public function showCatalogForm()
     {
-        return view('public.download-catalog');
+        $appName = config('app.name');
+
+        SEOMeta::setTitle(__('site.offline_catalog') . ' - ' . $appName);
+        SEOMeta::setDescription(__('site.offline_catalog_sub'));
+        SEOMeta::setCanonical(route('download.catalog.form'));
+
+        OpenGraph::setTitle(__('site.offline_catalog') . ' - ' . $appName);
+        OpenGraph::setDescription(__('site.offline_catalog_sub'));
+        OpenGraph::setUrl(route('download.catalog.form'));
+        OpenGraph::setType('website');
+
+        TwitterCard::setTitle(__('site.offline_catalog') . ' - ' . $appName);
+        TwitterCard::setDescription(__('site.offline_catalog_sub'));
+
+        return view('public.download-catalog', [
+            'productCount'  => Product::where('status', 'published')->count(),
+            'categoryCount' => Category::where('status', 'active')->count(),
+        ]);
     }
 
-    /**
-     * Download Katalog PDF Dinamis dengan Lead Capture Gate.
-     * PRD Bab 7.9: "Buyer memasukkan email sebelum mengunduh katalog"
-     */
     public function downloadCatalog(Request $request, PdfCatalogService $pdfService): Response
     {
         // 1. Validasi email (Lead Capture Gate — PRD Bab 7.9)
@@ -51,7 +69,6 @@ class DownloadController extends Controller
      */
     public function downloadFile(Request $request, Download $download)
     {
-        // 1. Jika file butuh email (require_email = true) dan email belum diisi di request
         if ($download->require_email && !$request->has('email')) {
             $request->validate([
                 'email' => 'required|email',

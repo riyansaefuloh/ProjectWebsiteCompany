@@ -1,84 +1,106 @@
+@php
+    $image = $product->getFirstMediaUrl('gallery', 'webp')
+          ?: $product->getFirstMediaUrl('gallery');
+@endphp
+
 <div>
-    @push('seo')
-    <script type="application/ld+json">
-    {!! json_encode(\App\Services\JsonLdService::productSchema($product), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
-    </script>
-    @endpush
+    <section class="pb-20 pt-12 md:pt-16 lg:pb-24 lg:pt-20">
+        <div class="shell">
 
-    <div style="max-width: 1000px; margin: 0 auto; padding: 20px;">
-        <div class="frontend-task" style="margin-bottom: 20px;">
-            [FRONTEND TASK: Desain halaman detail produk. Buat layout Grid/Flexbox di mana galeri foto ada di sebelah kiri dan deskripsi + tombol CTA ada di sebelah kanan.]
-        </div>
-
-        <a href="{{ route('products.index') }}" style="color: #2563eb; text-decoration: none;">{{ __('site.back_to_products') }}</a>
-
-        <div style="display: flex; gap: 40px; margin-top: 20px;">
-            <!-- Kolom Kiri: Galeri WebP -->
-            <div style="flex: 1;">
-                <div class="frontend-task" style="margin-bottom: 10px;">
-                    [FRONTEND TASK: Buat image slider/carousel interaktif di sini untuk galeri produk]
-                </div>
-                
-                @php $media = $product->getMedia('gallery'); @endphp
-                @if($media->count() > 0)
-                    <!-- Gambar Utama -->
-                    <img src="{{ $media[0]->getUrl('webp') }}" alt="{{ $product->translated_name }}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
-                    
-                    <!-- Thumbnail -->
-                    <div style="display: flex; gap: 10px; margin-top: 10px; overflow-x: auto;">
-                        @foreach($media->skip(1) as $image)
-                            <img src="{{ $image->getUrl('webp') }}" alt="thumbnail" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; border: 1px solid #ccc; cursor: pointer;">
-                        @endforeach
-                    </div>
-                @else
-                    <div style="width: 100%; height: 400px; background: #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">{{ __('site.no_image_available') }}</div>
-                @endif
-            </div>
-
-            <!-- Kolom Kanan: Detail & Specs -->
-            <div style="flex: 1;">
-                <span style="background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">
-                    {{ $product->category ? $product->category->translated_name : __('site.uncategorized') }}
+            <a href="{{ route('products.index') }}" class="link-arrow">
+                <span class="rotate-180">
+                    <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </span>
-                
-                <h1 style="margin-top: 10px; margin-bottom: 5px;">{{ $product->translated_name }}</h1>
-                <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
-                    {{ __('site.hs_code') }}: {{ $product->hs_code ?? '-' }} | {{ __('site.origin') }}: {{ $product->origin ?? '-' }}
-                </p>
+                {{ __('site.page_products') }}
+            </a>
 
-                <!-- Tombol CTA -->
-                <div style="margin-bottom: 30px;">
-                    <a href="{{ route('inquiry.index', ['product_id' => $product->id]) }}" style="display: inline-block; padding: 12px 25px; background: #10b981; color: white; text-decoration: none; font-weight: bold; border-radius: 6px;">
-                        {{ __('site.request_quotation') }}
-                    </a>
+            {{-- ══════════════════════════════════════════════════════════ --}}
+            <div class="mt-8 grid items-start gap-10 lg:mt-10 lg:grid-cols-12 lg:gap-14">
+
+                {{-- ── KIRI: foto ──────────────────────────────────────────── --}}
+                <div class="lg:sticky lg:top-[92px] lg:col-span-6">
+                    <div class="overflow-hidden rounded-panel bg-mist">
+
+                        @if($product->certifications->isNotEmpty())
+                            <div class="flex flex-wrap items-center gap-2.5 px-6 pt-6 sm:px-8 sm:pt-8">
+                                @foreach($product->certifications as $cert)
+                                    <a href="{{ route('certifications.index') }}"
+                                       class="chip transition-colors hover:border-brand hover:text-brand">
+                                        <span class="mr-2 h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
+                                        {{ $cert->translated_name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="flex items-center justify-center px-6 py-10 sm:px-10 lg:py-12">
+                            @if($image)
+                                <img src="{{ $image }}" alt="{{ $product->translated_name }}" fetchpriority="high"
+                                     class="max-h-[320px] w-auto max-w-full object-contain sm:max-h-[400px] lg:max-h-[460px]">
+                            @else
+                                <x-site.image-placeholder icon="h-16 w-16"
+                                    class="h-[320px] w-full bg-transparent sm:h-[400px] lg:h-[460px]" />
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
-                <h3>{{ __('site.description') }}</h3>
-                <p style="line-height: 1.6; color: #444;">{{ $product->translated_description }}</p>
+                {{-- ── KANAN: nama, deskripsi, spesifikasi, ajakan ──────────── --}}
+                <div class="lg:col-span-6">
 
-                @if($product->specifications->count() > 0)
-                    <h3 style="margin-top: 30px;">{{ __('site.specifications') }}</h3>
-                    <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
-                        @foreach($product->specifications as $spec)
-                            <tr style="border-bottom: 1px solid #eee;">
-                                <td style="padding: 10px; background: #f8fafc; width: 40%; font-weight: bold;">{{ $spec->translated_name }}</td>
-                                <td style="padding: 10px;">{{ $spec->translated_value }}</td>
-                            </tr>
-                        @endforeach
-                    </table>
-                @endif
+                    @if($product->category)
+                        <a href="{{ route('products.index', ['category' => $product->category->slug]) }}"
+                           class="eyebrow transition-colors hover:text-brand-deep">
+                            {{ $product->category->translated_name }}
+                        </a>
+                    @endif
 
-                @if($product->certifications->count() > 0)
-                    <h3 style="margin-top: 30px;">{{ __('site.certifications') }}</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        @foreach($product->certifications as $cert)
-                            <span style="border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 4px; font-size: 12px; background: #f1f5f9;">
-                                🏆 {{ $cert->translated_name }}
+                    <h1 class="display mt-5 max-w-[18ch] text-[30px] sm:text-[36px] lg:text-[42px]">
+                        {{ $product->translated_name }}
+                    </h1>
+
+                    @if($product->translated_description)
+                        <div class="rich mt-6 max-w-[54ch]">{!! $product->translated_description !!}</div>
+                    @endif
+
+                    {{-- ── Lembar spesifikasi ──────────────────────────────── --}}
+                    @if($facts->isNotEmpty())
+                        <div class="mt-9">
+                            <p class="eyebrow">{{ __('site.specifications') }}</p>
+
+                            <dl class="mt-4 divide-y divide-line border-y border-line">
+                                @foreach($facts as $fact)
+                                    <div class="flex items-baseline justify-between gap-6 py-3.5">
+                                        <dt class="shrink-0 text-[13px] text-ink-muted">{{ $fact['label'] }}</dt>
+                                        <dd class="text-right text-[14px] font-bold text-ink">{{ $fact['value'] }}</dd>
+                                    </div>
+                                @endforeach
+                            </dl>
+                        </div>
+                    @endif
+
+                    <div class="mt-9 flex flex-wrap items-center gap-3">
+                        <a href="{{ route('inquiry.index', ['product' => $product->id]) }}"
+                           class="btn-pill btn-pill-brand">
+                            {{ __('site.cta_request_quote') }}
+                            <span>
+                                <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </span>
-                        @endforeach
+                        </a>
+
+                        @if($waLink)
+                            <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+                                <x-icon.whatsapp size="h-4 w-4" class="shrink-0" />
+                                {{ __('site.cta_whatsapp') }}
+                            </a>
+                        @endif
                     </div>
-                @endif
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>

@@ -1,82 +1,158 @@
+@php
+    $hasFilters = filled($search) || filled($category);
+@endphp
+
 <div>
-    <div style="background: #e2e8f0; padding: 40px; text-align: center; margin-bottom: 30px;">
-        <h1>{{ __('site.page_products') }}</h1>
-        <p>{{ __('site.page_products_sub') }}</p>
-        <div class="frontend-task">
-            [FRONTEND TASK: Buat header yang indah dengan background pattern atau image]
-        </div>
-    </div>
+    {{-- ══════════════════════════════════════════════════════════════════
+         HEADER HALAMAN
+         ══════════════════════════════════════════════════════════════════ --}}
+    <section class="pb-10 pt-14 md:pt-16 lg:pb-12 lg:pt-20">
+        <div class="shell">
+            <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
+                <div class="lg:col-span-7">
+                    <p class="eyebrow">{{ __('site.home_section_products') }}</p>
+                    <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
+                        {{ __('site.page_products') }}
+                    </h1>
+                    <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_products_sub') }}</p>
+                </div>
 
-    <div style="display: flex; gap: 30px;">
-        <!-- Sidebar Filter -->
-        <div style="width: 250px; background: white; padding: 20px; border: 1px solid #ddd; border-radius: 6px; height: fit-content;">
-            <div class="frontend-task">
-                [FRONTEND TASK: Styling form pencarian dan filter dropdown ini agar responsif di mobile]
-            </div>
-            
-            <h3 style="margin-top: 0;">{{ __('site.filter') }}</h3>
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">{{ __('site.search_products') }}</label>
-                <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('site.search_placeholder') }}" style="width: 100%; padding: 8px; box-sizing: border-box;">
-            </div>
-
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">{{ __('site.category') }}</label>
-                <select wire:model.live="category" style="width: 100%; padding: 8px; box-sizing: border-box;">
-                    <option value="">{{ __('site.all_categories') }}</option>
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->slug }}">{{ $cat->translated_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-                <h3 style="margin-top: 0;">{{ __('site.offline_catalog') }}</h3>
-                <p style="font-size: 13px; color: #666; margin-bottom: 15px;">{{ __('site.offline_catalog_sub') }}</p>
-                <a href="{{ route('download.catalog.form') }}" style="display: block; width: 100%; text-align: center; background: #dc2626; color: white; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: bold; box-sizing: border-box;">
-                    📥 {{ __('site.download_pdf') }}
-                </a>
+                {{-- ── Unduhan katalog PDF ────────────────────────────────── --}}
+                <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
+                    <div class="rounded-corner border border-line bg-mist p-6">
+                        <p class="font-display text-[16px] font-extrabold tracking-[-0.01em] text-ink">
+                            {{ __('site.offline_catalog') }}
+                        </p>
+                        <p class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                            {{ __('site.offline_catalog_sub') }}
+                        </p>
+                        <a href="{{ route('download.catalog.form') }}" class="btn btn-brand btn-sm mt-5">
+                            {{ __('site.download_pdf') }}
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Product Grid -->
-        <div style="flex: 1;">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
-                @forelse($products as $product)
-                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: white;">
-                        @if($product->getFirstMediaUrl('gallery', 'webp'))
-                            <img src="{{ $product->getFirstMediaUrl('gallery', 'webp') }}" alt="{{ $product->translated_name }}" style="width: 100%; height: 200px; object-fit: cover;">
-                        @else
-                            <div style="width: 100%; height: 200px; background: #eee; display: flex; align-items: center; justify-content: center;">{{ __('site.no_image') }}</div>
+    {{-- ══════════════════════════════════════════════════════════════════ --}}
+    <section class="sticky top-[76px] z-30 border-y border-line bg-canvas/95 py-4 backdrop-blur">
+        <div class="shell">
+            {{-- Baris atas: pencarian + urutan. --}}
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+
+                <div class="relative flex-1">
+                    <label for="product-search" class="sr-only">{{ __('site.search_products') }}</label>
+                    <svg class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint"
+                         viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <circle cx="7.2" cy="7.2" r="4.8" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="m10.8 10.8 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+
+                    <input id="product-search" type="search"
+                           wire:model.live.debounce.300ms="search"
+                           placeholder="{{ __('site.search_placeholder') }}"
+                           class="field mt-0 rounded-full pl-11 pr-4">
+                </div>
+
+                <div class="shrink-0">
+                    <label for="product-sort" class="sr-only">{{ __('site.sort_by') }}</label>
+                    <select id="product-sort" wire:model.live="sort"
+                            class="field field-select mt-0 w-full rounded-full sm:w-[13rem]">
+                        <option value="featured">{{ __('site.sort_featured') }}</option>
+                        <option value="newest">{{ __('site.sort_newest') }}</option>
+                        <option value="name_asc">{{ __('site.sort_name_asc') }}</option>
+                        <option value="name_desc">{{ __('site.sort_name_desc') }}</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- ── Baris bawah: kategori sebagai deretan pill ──────────────── --}}
+            <fieldset class="mt-3 flex flex-wrap items-center gap-2">
+                <legend class="sr-only">{{ __('site.category') }}</legend>
+
+                <button type="button" wire:click="selectCategory('')"
+                        aria-pressed="{{ $category === '' ? 'true' : 'false' }}"
+                        @class([
+                            'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                            'border-brand bg-brand text-white' => $category === '',
+                            'border-line text-ink-muted hover:border-line-strong hover:text-ink' => $category !== '',
+                        ])>
+                    {{ __('site.all_categories') }}
+                </button>
+
+                @foreach($categories as $cat)
+                    @php $isActive = $category === $cat->slug; @endphp
+
+                    <button type="button" wire:click="selectCategory('{{ $cat->slug }}')"
+                            aria-pressed="{{ $isActive ? 'true' : 'false' }}"
+                            @class([
+                                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                                'border-brand bg-brand text-white' => $isActive,
+                                'border-line text-ink-muted hover:border-line-strong hover:text-ink' => ! $isActive,
+                            ])>
+                        {{ $cat->translated_name }}
+
+                        <span @class([
+                            'text-[12px] font-semibold',
+                            'text-white/60' => $isActive,
+                            'text-ink-faint' => ! $isActive,
+                        ])>{{ $cat->products_count }}</span>
+                    </button>
+                @endforeach
+            </fieldset>
+        </div>
+    </section>
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         HASIL
+         ══════════════════════════════════════════════════════════════════ --}}
+    <section class="pb-20 pt-8 lg:pb-24">
+        <div class="shell">
+
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <p class="text-[14px] text-ink-muted" aria-live="polite">
+                    {{ trans_choice('site.products_count', $products->total(), ['count' => $products->total()]) }}
+                </p>
+
+                @if($hasFilters)
+                    <button type="button" wire:click="resetFilters"
+                            class="inline-flex items-center gap-2 text-[13px] font-bold text-brand transition-colors hover:text-brand-deep">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                        </svg>
+                        {{ __('site.reset_filters') }}
+                    </button>
+                @endif
+            </div>
+
+            <div wire:loading.class="opacity-40" class="transition-opacity duration-200">
+                @if($products->isNotEmpty())
+                    <ul class="mt-8 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach($products as $product)
+                            <li class="flex" wire:key="product-{{ $product->id }}">
+                                <x-site.product-card :product="$product" class="w-full" />
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <div class="mt-12">
+                        {{ $products->links('vendor.pagination.site') }}
+                    </div>
+                @else
+                    <div class="mt-8 rounded-corner border border-dashed border-line px-6 py-20 text-center">
+                        <p class="font-display text-[18px] font-extrabold text-ink">
+                            {{ __('site.no_products_found') }}
+                        </p>
+
+                        @if($hasFilters)
+                            <button type="button" wire:click="resetFilters" class="btn btn-outline mt-6">
+                                {{ __('site.reset_filters') }}
+                            </button>
                         @endif
-                        
-                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="background: #2563eb; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">
-                                {{ $product->category ? $product->category->translated_name : __('site.uncategorized') }}
-                            </span>
-                            @if($product->is_featured)
-                                <span style="background: #f59e0b; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px;">{{ __('site.featured') }}</span>
-                            @endif
-                        </div>
-
-                        <h3 style="margin: 10px 0 5px 0;">{{ $product->translated_name }}</h3>
-                        <p style="font-size: 14px; color: #666; margin: 0;">{{ Str::limit($product->translated_description, 60) }}</p>
-                        <a href="{{ route('products.show', $product->slug) }}" style="display: inline-block; margin-top: 10px; color: #2563eb; font-weight: bold;">{{ __('site.view_specs') }} &rarr;</a>
                     </div>
-                @empty
-                    <div style="grid-column: span 3; padding: 40px; text-align: center; border: 1px dashed #ccc; color: #666;">
-                        {{ __('site.no_products_found') }}
-                    </div>
-                @endforelse
-            </div>
-
-            <!-- Pagination -->
-            <div class="frontend-task">
-                [FRONTEND TASK: Styling Tailwind/Bootstrap pagination links]
-            </div>
-            <div>
-                {{ $products->links() }}
+                @endif
             </div>
         </div>
-    </div>
+    </section>
 </div>

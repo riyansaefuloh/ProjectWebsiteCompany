@@ -31,11 +31,41 @@ class GalleryIndex extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        // Assuming Gallery has items with media
-        $galleries = Gallery::with('items.media')->get();
+        $albums = Gallery::with('items.media')->get()
+            ->map(function ($gallery) {
+                $images = $gallery->items
+                    ->filter(fn ($item) => $item->type !== 'video')
+                    ->map(fn ($item) => $item->getFirstMediaUrl('gallery', 'webp')
+                                     ?: $item->getFirstMediaUrl('gallery'))
+                    ->filter()
+                    ->values();
+
+                $thumb = $gallery->items
+                    ->map(fn ($item) => $item->getFirstMediaUrl('gallery', 'thumb'))
+                    ->filter()
+                    ->first();
+
+                $video = $gallery->items
+                    ->filter(fn ($item) => $item->type === 'video')
+                    ->pluck('video_url')
+                    ->filter()
+                    ->first();
+
+                return (object) [
+                    'id'     => $gallery->id,
+                    'name'   => $gallery->name,
+                    'images' => $images,
+                    'count'  => $images->count(),
+                    'cover'  => $thumb ?: $images->first(),
+                    'video'  => $video,
+                ];
+            })
+            ->filter(fn ($album) => $album->count > 0 || filled($album->video))
+            ->values();
 
         return view('livewire.public.gallery-index', [
-            'galleries' => $galleries,
+            'featured' => $albums->first(),
+            'albums'   => $albums->skip(1)->values(),
         ]);
     }
 }

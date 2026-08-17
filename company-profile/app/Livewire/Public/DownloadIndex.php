@@ -5,6 +5,7 @@ namespace App\Livewire\Public;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Download;
+use App\Models\Inquiry;
 use Illuminate\Support\Facades\Storage;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
@@ -43,26 +44,57 @@ class DownloadIndex extends Component
     {
         $download = Download::findOrFail($id);
 
-        if ($download->require_email && empty($this->email)) {
-            $this->selectedDownloadId = $id;
-            $this->addError('email', 'Email is required to download this file.');
+        if ($download->require_email) {
+            if (blank($this->email)) {
+                $this->selectedDownloadId = $id;
+                $this->addError('email', __('site.download_email_required'));
+                return;
+            }
+
+            $this->validate(['email' => 'required|email|max:150']);
+        }
+
+        if (!Storage::disk('public')->exists($download->file_path)) {
+            $this->addError('email', __('site.download_file_missing'));
             return;
         }
 
-        // Increment download count
+        if ($download->require_email) {
+            $this->captureLead($download);
+        }
+
         $download->increment('download_count');
 
         // Reset state
         $this->selectedDownloadId = null;
         $this->email = '';
 
-        // If the physical file doesn't exist, show an error message
-        if (!Storage::disk('public')->exists($download->file_path)) {
-            $this->addError('email', 'The requested file is not available on the server.');
+        $filename = \Illuminate\Support\Str::slug($download->title) . '.pdf';
+        return response()->download(Storage::disk('public')->path($download->file_path), $filename);
+    }
+
+    private function captureLead(Download $download): void
+    {
+        $note = 'Downloaded file: ' . $download->title;
+
+        $alreadyLogged = Inquiry::where('email', $this->email)
+            ->where('message', $note)
+            ->exists();
+
+        if ($alreadyLogged) {
             return;
         }
 
-        $filename = \Illuminate\Support\Str::slug($download->title) . '.pdf';
-        return response()->download(Storage::disk('public')->path($download->file_path), $filename);
+        Inquiry::create([
+            'name'         => 'Download Lead',
+            'company'      => 'Download Lead Gate',
+            'email'        => $this->email,
+
+            'country_code' => 'ZZ',
+
+            'message'      => $note,
+            'status'       => 'new',
+            'ip_address'   => request()->ip(),
+        ]);
     }
 }

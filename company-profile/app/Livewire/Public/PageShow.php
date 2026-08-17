@@ -15,7 +15,9 @@ class PageShow extends Component
 
     public function mount($slug): void
     {
-        $this->page = Page::where('slug', $slug)->firstOrFail();
+        $this->page = Page::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
 
         $appName  = config('app.name');
         $locale   = app()->getLocale();
@@ -39,6 +41,12 @@ class PageShow extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        return view('livewire.public.page-show');
+        $otherPages = Page::where('status', 'published')
+            ->whereNotIn('slug', ['about-us', 'hero', $this->page->slug])
+            ->get();
+
+        return view('livewire.public.page-show', [
+            'otherPages' => $otherPages,
+        ]);
     }
 }

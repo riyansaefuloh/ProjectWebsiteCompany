@@ -1,53 +1,120 @@
-<div>
-    <div style="background: #e2e8f0; padding: 40px; text-align: center; margin-bottom: 30px;">
-        <h1>{{ __('site.page_gallery') }}</h1>
-        <p>{{ __('site.page_gallery_sub') }}</p>
-        <div class="frontend-task">
-            [FRONTEND TASK: Berikan styling Hero Banner khusus halaman Gallery]
-        </div>
-    </div>
+<div x-data="{
+        images: [],
+        index: 0,
+        album: '',
+        open(list, name) {
+            this.images = list;
+            this.album = name;
+            this.index = 0;
+        },
+        close() {
+            this.images = [];
+        },
+        /* Perpindahan MEMUTAR: dari foto terakhir kembali ke pertama.
+           Berbeda dari garis waktu Sejarah yang dijepit di ujung, album tidak
+           punya arah maju-mundur yang bermakna — memutar justru menghemat
+           satu ketukan bagi yang ingin melihat ulang. */
+        next() { this.index = (this.index + 1) % this.images.length; },
+        prev() { this.index = (this.index - 1 + this.images.length) % this.images.length; }
+     }"
+     x-on:keydown.escape.window="close()"
+     x-on:keydown.arrow-right.window="images.length && next()"
+     x-on:keydown.arrow-left.window="images.length && prev()">
 
-    <div style="max-width: 1200px; margin: 0 auto;">
-        <div class="frontend-task" style="margin-bottom: 30px;">
-            [FRONTEND TASK: Buat Photo Grid masonry/lightbox. Looping album dan fotonya dari data backend di bawah ini.]
+    {{-- ══════════════════════════════════════════════════════════════════
+         HEADER HALAMAN
+         ══════════════════════════════════════════════════════════════════ --}}
+    <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
+        <div class="shell">
+            <div class="max-w-[46rem]">
+                <p class="eyebrow">{{ __('site.nav_gallery') }}</p>
+                <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
+                    {{ __('site.page_gallery') }}
+                </h1>
+                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_gallery_sub') }}</p>
+            </div>
         </div>
+    </section>
 
-        @forelse($galleries as $gallery)
-            <div style="margin-bottom: 40px; padding: 20px; background: white; border: 1px solid #ddd; border-radius: 8px;">
-                <h2 style="margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;">{{ $gallery->name }}</h2>
-                
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px;">
-                    @forelse($gallery->items as $item)
-                        @if($item->type === 'video')
-                            @php
-                                $embedUrl = $item->video_url;
-                                // Simple logic to convert youtube watch link to embed link with autoplay & mute & NO CONTROLS
-                                if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $item->video_url, $matches)) {
-                                    $videoId = $matches[1];
-                                    $embedUrl = 'https://www.youtube.com/embed/' . $videoId . '?autoplay=1&mute=1&loop=1&playlist=' . $videoId . '&controls=0&modestbranding=1&rel=0&playsinline=1';
-                                }
-                            @endphp
-                            <div style="border: 1px solid #ccc; border-radius: 4px; overflow: hidden; height: 160px;">
-                                <iframe src="{{ $embedUrl }}" width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy"></iframe>
-                            </div>
-                        @else
-                            @if($item->getFirstMediaUrl('gallery', 'webp'))
-                                <div style="border: 1px solid #ccc; padding: 5px; border-radius: 4px;">
-                                    <img src="{{ $item->getFirstMediaUrl('gallery', 'webp') }}" alt="Gallery Image" style="width: 100%; height: 150px; object-fit: cover;">
-                                </div>
-                            @else
-                                <div style="border: 1px solid #ccc; padding: 5px; border-radius: 4px; display: flex; align-items: center; justify-content: center; height: 150px; background: #eee; font-size: 12px;">{{ __('site.no_image') }}</div>
-                            @endif
-                        @endif
-                    @empty
-                        <p style="grid-column: span 4; color: #888;">{{ __('site.no_photos_in_album') }}</p>
-                    @endforelse
-                </div>
+    {{-- ══════════════════════════════════════════════════════════════════
+         ALBUM SOROTAN
+         ══════════════════════════════════════════════════════════════════ --}}
+    @if($featured)
+        <section class="pb-6">
+            <div class="shell">
+                <x-site.gallery-album :album="$featured" ratio="aspect-[16/9]" :priority="true" />
             </div>
-        @empty
-            <div style="padding: 40px; text-align: center; border: 1px dashed #ccc; color: #666;">
-                {{ __('site.no_galleries') }}
-            </div>
-        @endforelse
+        </section>
+    @endif
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         ALBUM LAINNYA
+         ══════════════════════════════════════════════════════════════════ --}}
+    <section class="pb-20 pt-6 lg:pb-24">
+        <div class="shell">
+            @if($albums->isNotEmpty())
+                <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($albums as $album)
+                        <li>
+                            <x-site.gallery-album :album="$album" ratio="aspect-[4/3]" />
+                        </li>
+                    @endforeach
+                </ul>
+            @elseif(!$featured)
+                <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
+                    {{ __('site.no_gallery_items') }}
+                </p>
+            @endif
+        </div>
+    </section>
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         LIGHTBOX
+         ══════════════════════════════════════════════════════════════════ --}}
+    <div x-show="images.length" x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-on:click="close()"
+         class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-ink/90 p-4 backdrop-blur-sm"
+         role="dialog" aria-modal="true">
+
+        <p class="absolute left-5 top-6 text-[13px] font-bold text-white/80">
+            <span x-text="album"></span>
+            <span class="ml-2 text-white/45" x-text="`${index + 1} / ${images.length}`"></span>
+        </p>
+
+        <button type="button" x-on:click="close()"
+                aria-label="{{ __('site.close') }}"
+                class="absolute right-5 top-5 inline-flex h-11 w-11 items-center justify-center rounded-full
+                       border border-white/30 text-white transition-colors hover:border-white hover:bg-white/10">
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+        </button>
+
+        <div class="flex w-full max-w-[1100px] items-center gap-3 sm:gap-5" x-on:click.stop>
+
+            <button type="button" x-show="images.length > 1" x-on:click="prev()"
+                    aria-label="{{ __('site.close') }}"
+                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                           border border-white/30 text-white transition-colors hover:border-white hover:bg-white/10">
+                <svg class="h-4 w-4 rotate-180" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+
+            <img x-bind:src="images[index]" x-bind:alt="album"
+                 class="mx-auto max-h-[80vh] w-auto max-w-full rounded-corner object-contain">
+
+            <button type="button" x-show="images.length > 1" x-on:click="next()"
+                    aria-label="{{ __('site.close') }}"
+                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full
+                           border border-white/30 text-white transition-colors hover:border-white hover:bg-white/10">
+                <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
     </div>
 </div>

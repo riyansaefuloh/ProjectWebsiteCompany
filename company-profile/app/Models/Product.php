@@ -54,7 +54,6 @@ class Product extends Model implements HasMedia
     }
 
     
-    //  Relasi ke data translasi bahasa (menyimpan Nama & Deskripsi produk dalam ID/EN).
     
     public function translations(): HasMany
     {
@@ -70,17 +69,11 @@ class Product extends Model implements HasMedia
     }
 
     
-    //  Relasi Banyak-ke-Banyak (Many-to-Many) ke tabel Sertifikasi.
-    //  Pivot Table: product_certification
      
     public function certifications(): BelongsToMany
     {
         return $this->belongsToMany(Certification::class, 'product_certification');
     }
-        /**
-     * Scope query untuk pencarian PostgreSQL Full-Text Search (FTS) dengan fallback.
-     * Penggunaan di Controller/Livewire: Product::search($searchTerm)->get();
-     */
     public function scopeSearch($query, string $term)
     {
         if (empty(trim($term))) {
@@ -89,16 +82,17 @@ class Product extends Model implements HasMedia
 
         $driver = \DB::connection()->getDriverName();
 
-        // Jika menggunakan PostgreSQL, gunakan FTS tsvector & plainto_tsquery
         if ($driver === 'pgsql') {
-            return $query->whereHas('translations', function ($q) use ($term) {
-                $q->whereRaw(
-                    "to_tsvector('english', name || ' ' || COALESCE(description, '')) @@ plainto_tsquery('english', ?)",
-                    [$term]
-                );
-            })
-            ->orWhere('hs_code', 'ILIKE', "%{$term}%")
-            ->orWhere('origin', 'ILIKE', "%{$term}%");
+            return $query->where(function ($q) use ($term) {
+                $q->whereHas('translations', function ($transQ) use ($term) {
+                    $transQ->whereRaw(
+                        "to_tsvector('english', name || ' ' || COALESCE(description, '')) @@ plainto_tsquery('english', ?)",
+                        [$term]
+                    );
+                })
+                ->orWhere('hs_code', 'ILIKE', "%{$term}%")
+                ->orWhere('origin', 'ILIKE', "%{$term}%");
+            });
         }
 
         // Fallback untuk driver selain PostgreSQL (SQLite / MySQL)
@@ -112,14 +106,8 @@ class Product extends Model implements HasMedia
         });
     }
 
-    /**
-     * Daftarkan konversi media otomatis — PRD Bab 5:
-     * "Semua gambar dikonversi otomatis ke WebP via medialibrary"
-     * Konversi dijalankan di background via Laravel Queue.
-     */
     public function registerMediaConversions(?Media $media = null): void
     {
-        // Konversi utama: WebP full-size (kualitas 85 — seimbang antara ukuran & kualitas)
         $this->addMediaConversion('webp')
             ->format('webp')
             ->quality(85)

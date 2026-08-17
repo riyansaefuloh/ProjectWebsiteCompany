@@ -5,6 +5,8 @@ namespace App\Livewire\Public;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Page;
+use App\Models\Setting;
+use App\Models\Certification;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
@@ -33,6 +35,17 @@ class About extends Component
         TwitterCard::setTitle('About Us - ' . $appName);
         TwitterCard::setDescription($desc);
 
-        return view('livewire.public.about', ['page' => $page]);
+        $settings = Setting::pluck('value', 'key')->toArray();
+
+        $certifications = Certification::where('status', 'active')
+            ->with('translations')
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('livewire.public.about', [
+            'page'           => $page,
+            'settings'       => $settings,
+            'certifications' => $certifications,
+        ]);
     }
 }

@@ -51,9 +51,9 @@ Route::group([
     Route::get('/page/{slug}', PageShow::class)->name('page.show');
 
     Route::get('/inquiry', InquiryForm::class)->name('inquiry.index');
-    // GET → tampilkan form email untuk download katalog
+
+    // ── Katalog PDF dinamis ──────────────────────────────────────────────
     Route::get('/download/catalog-pdf', [DownloadController::class, 'showCatalogForm'])->name('download.catalog.form');
-    // POST → proses email + generate PDF
     Route::post('/download/catalog-pdf', [DownloadController::class, 'downloadCatalog'])->name('download.catalog');
     Route::get('/download/file/{download}', [DownloadController::class, 'downloadFile'])->name('download.file');
 });
@@ -70,7 +70,6 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // ==========================================
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     
-    // Admin Dashboard — menggunakan DashboardController untuk data statistik & alert
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     // Livewire Admin Products (Super Admin & Admin CMS)

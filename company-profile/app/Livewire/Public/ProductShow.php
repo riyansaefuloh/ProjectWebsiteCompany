@@ -5,6 +5,7 @@ namespace App\Livewire\Public;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Product;
+use App\Models\Setting;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
@@ -57,6 +58,35 @@ class ProductShow extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        return view('livewire.public.product-show');
+        $locale = app()->getLocale();
+
+        $specs = $this->product->specifications
+            ->filter(fn ($spec) => blank($spec->locale) || $spec->locale === $locale)
+            ->sortBy('sort_order')
+            ->values();
+
+        $facts = collect([
+            ['label' => __('site.origin'),           'value' => $this->product->origin],
+            ['label' => __('site.hs_code'),          'value' => $this->product->hs_code],
+            ['label' => __('site.moq'),              'value' => $this->product->moq],
+            ['label' => __('site.indicative_price'), 'value' => $this->product->indicative_price
+                ? number_format((float) $this->product->indicative_price, 2) . ' USD'
+                : null],
+        ])
+        ->concat($specs->map(fn ($spec) => [
+            'label' => $spec->spec_key,
+            'value' => $spec->spec_value,
+        ]))
+        ->filter(fn ($row) => filled($row['value']))
+        ->values();
+
+        $whatsapp = Setting::where('key', 'whatsapp_number')->value('value');
+
+        return view('livewire.public.product-show', [
+            'facts'  => $facts,
+            'waLink' => $whatsapp
+                ? 'https://wa.me/' . preg_replace('/\D+/', '', $whatsapp)
+                : null,
+        ]);
     }
 }
