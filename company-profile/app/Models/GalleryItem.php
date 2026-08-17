@@ -36,15 +36,16 @@ class GalleryItem extends Model implements HasMedia
         // WebP full-size untuk lightbox galeri
         $this->addMediaConversion('webp')
             ->format('webp')
-            ->quality(85)
+            ->quality(90)  // dinaikkan dari 85 → 90 agar lebih tajam di lightbox
             ->nonQueued();
 
-        // Thumbnail WebP 500x375px — untuk grid galeri publik
+        // Thumbnail WebP untuk grid galeri publik
+        // dinaikkan dari 500x375 → 1200x900 agar tidak blur di layar besar/retina
         $this->addMediaConversion('thumb')
             ->format('webp')
-            ->width(500)
-            ->height(375)
-            ->quality(80)
+            ->width(1200)
+            ->height(900)
+            ->quality(88)  // dinaikkan dari 80 → 88
             ->nonQueued();
     }
 

@@ -10,10 +10,18 @@
         close() {
             this.images = [];
         },
-        /* Perpindahan MEMUTAR: dari foto terakhir kembali ke pertama.
-           Berbeda dari garis waktu Sejarah yang dijepit di ujung, album tidak
-           punya arah maju-mundur yang bermakna — memutar justru menghemat
-           satu ketukan bagi yang ingin melihat ulang. */
+        // [PERUBAHAN: YouTube Support] — Fungsi deteksi apakah item adalah video YouTube
+        isYoutube(src) {
+            return typeof src === 'string' && src.startsWith('youtube:');
+        },
+        // [PERUBAHAN: YouTube Support] — Konversi URL YouTube biasa ke format embed
+        // Mendukung: youtube.com/watch?v=xxx, youtu.be/xxx, youtube.com/shorts/xxx
+        youtubeEmbed(src) {
+            const url = src.replace('youtube:', '');
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+            return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0` : url;
+        },
+        /* Perpindahan MEMUTAR: dari foto terakhir kembali ke pertama. */
         next() { this.index = (this.index + 1) % this.images.length; },
         prev() { this.index = (this.index - 1 + this.images.length) % this.images.length; }
      }"
@@ -104,8 +112,28 @@
                 </svg>
             </button>
 
-            <img x-bind:src="images[index]" x-bind:alt="album"
-                 class="mx-auto max-h-[80vh] w-auto max-w-full rounded-corner object-contain">
+            {{-- ══════════════════════════════════════════════════════════════════
+                 [PERUBAHAN: YouTube Support]
+                 Dulu: hanya <img> biasa untuk foto
+                 Sekarang: cek dulu apakah item adalah YouTube (prefix 'youtube:')
+                 - Jika ya  → render <iframe> YouTube embedded (autoplay)
+                 - Jika tidak → render <img> seperti biasa
+                 ══════════════════════════════════════════════════════════════════ --}}
+            <template x-if="isYoutube(images[index])">
+                <div class="mx-auto w-full max-w-[900px] aspect-video">
+                    <iframe
+                        :src="youtubeEmbed(images[index])"
+                        class="w-full h-full rounded-corner"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </template>
+            <template x-if="!isYoutube(images[index])">
+                <img x-bind:src="images[index]" x-bind:alt="album"
+                     class="mx-auto max-h-[80vh] w-auto max-w-full rounded-corner object-contain">
+            </template>
 
             <button type="button" x-show="images.length > 1" x-on:click="next()"
                     aria-label="{{ __('site.close') }}"

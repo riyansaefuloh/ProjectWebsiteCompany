@@ -33,34 +33,43 @@ class GalleryIndex extends Component
     {
         $albums = Gallery::with('items.media')->get()
             ->map(function ($gallery) {
-                $images = $gallery->items
+                // [PERUBAHAN: YouTube Support] — Pisahkan foto dan video
+                $photos = $gallery->items
                     ->filter(fn ($item) => $item->type !== 'video')
                     ->map(fn ($item) => $item->getFirstMediaUrl('gallery', 'webp')
                                      ?: $item->getFirstMediaUrl('gallery'))
                     ->filter()
                     ->values();
 
+                // [PERUBAHAN: YouTube Support] — Ambil video URL, beri prefix 'youtube:'
+                // agar frontend bisa membedakan antara gambar biasa dan video YouTube
+                $videos = $gallery->items
+                    ->filter(fn ($item) => $item->type === 'video' && filled($item->video_url))
+                    ->map(fn ($item) => 'youtube:' . $item->video_url)
+                    ->values();
+
+                // [PERUBAHAN: YouTube Support] — Gabungkan: video tampil pertama, foto setelahnya
+                $items = $videos->merge($photos)->values();
+
                 $thumb = $gallery->items
                     ->map(fn ($item) => $item->getFirstMediaUrl('gallery', 'thumb'))
                     ->filter()
                     ->first();
 
-                $video = $gallery->items
-                    ->filter(fn ($item) => $item->type === 'video')
-                    ->pluck('video_url')
-                    ->filter()
-                    ->first();
+                // [PERUBAHAN: YouTube Support] — Fallback cover ke foto jika tidak ada thumbnail
+                $firstPhoto = $photos->first();
+                $hasVideo   = $videos->isNotEmpty();
 
                 return (object) [
                     'id'     => $gallery->id,
                     'name'   => $gallery->name,
-                    'images' => $images,
-                    'count'  => $images->count(),
-                    'cover'  => $thumb ?: $images->first(),
-                    'video'  => $video,
+                    'images' => $items,   // [PERUBAHAN] dulu hanya $images (foto), sekarang gabungan foto+video
+                    'count'  => $items->count(),
+                    'cover'  => $thumb ?: $firstPhoto,
+                    'video'  => $hasVideo ? $videos->first() : null, // [PERUBAHAN] dulu tidak dipakai jika ada foto
                 ];
             })
-            ->filter(fn ($album) => $album->count > 0 || filled($album->video))
+            ->filter(fn ($album) => $album->count > 0)
             ->values();
 
         return view('livewire.public.gallery-index', [
