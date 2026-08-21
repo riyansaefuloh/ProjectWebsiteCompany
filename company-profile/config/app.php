@@ -83,6 +83,20 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bahasa Panel Admin
+    |--------------------------------------------------------------------------
+    |
+    | Rute /admin berada di luar grup laravel-localization, jadi bahasanya
+    | tidak ikut awalan URL seperti sisi publik. Nilai ini yang dipakai
+    | middleware SetPanelLocale supaya pesan validasi di panel berbahasa sama
+    | dengan tulisan di layarnya.
+    |
+    */
+
+    'panel_locale' => env('APP_PANEL_LOCALE', 'id'),
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*

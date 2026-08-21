@@ -10,21 +10,21 @@
         <div class="shell">
             <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                 <div class="lg:col-span-7">
-                    <p class="eyebrow">{{ __('site.home_section_products') }}</p>
+                    <p class="eyebrow">{{ $isi('eyebrow', 'site.home_section_products') }}</p>
                     <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                        {{ __('site.page_products') }}
+                        {{ $isi('title', 'site.page_products') }}
                     </h1>
-                    <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_products_sub') }}</p>
+                    <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_products_sub') }}</p>
                 </div>
 
                 {{-- ── Unduhan katalog PDF ────────────────────────────────── --}}
                 <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
                     <div class="rounded-corner border border-line bg-mist p-6">
                         <p class="font-display text-[16px] font-extrabold tracking-[-0.01em] text-ink">
-                            {{ __('site.offline_catalog') }}
+                            {{ $isi('catalog_title', 'site.offline_catalog') }}
                         </p>
                         <p class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                            {{ __('site.offline_catalog_sub') }}
+                            {{ $isi('catalog_body', 'site.offline_catalog_sub') }}
                         </p>
                         <a href="{{ route('download.catalog.form') }}" class="btn btn-brand btn-sm mt-5">
                             {{ __('site.download_pdf') }}
@@ -142,7 +142,7 @@
                 @else
                     <div class="mt-8 rounded-corner border border-dashed border-line px-6 py-20 text-center">
                         <p class="font-display text-[18px] font-extrabold text-ink">
-                            {{ __('site.no_products_found') }}
+                            {{ $isi('empty', 'site.no_products_found') }}
                         </p>
 
                         @if($hasFilters)

@@ -80,14 +80,23 @@ class Product extends Model implements HasMedia
             return $query;
         }
 
-        $driver = \DB::connection()->getDriverName();
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
 
-        if ($driver === 'pgsql') {
-            return $query->where(function ($q) use ($term) {
-                $q->whereHas('translations', function ($transQ) use ($term) {
+        /*
+         * Kamus 'simple' dan pencocokan awalan — lihat App\Support\PencarianTeks.
+         * Kata pencarian yang habis sesudah dibersihkan jatuh ke LIKE di bawah.
+         */
+        $kueri = \App\Support\PencarianTeks::kueriAwalan($term);
+
+        if ($driver === 'pgsql' && $kueri !== null) {
+            $kamus = \App\Support\PencarianTeks::kamus();
+
+            return $query->where(function ($q) use ($term, $kueri, $kamus) {
+                $q->whereHas('translations', function ($transQ) use ($kueri, $kamus) {
                     $transQ->whereRaw(
-                        "to_tsvector('english', name || ' ' || COALESCE(description, '')) @@ plainto_tsquery('english', ?)",
-                        [$term]
+                        "to_tsvector('{$kamus}', name || ' ' || COALESCE(description, ''))"
+                        . " @@ to_tsquery('{$kamus}', ?)",
+                        [$kueri]
                     );
                 })
                 ->orWhere('hs_code', 'ILIKE', "%{$term}%")

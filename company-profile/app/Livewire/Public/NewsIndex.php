@@ -106,6 +106,10 @@ class NewsIndex extends Component
         }
 
         return view('livewire.public.news-index', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('news'),
+
             'news'       => $query->paginate(9),
             'categories' => $categories,
             'featured'   => $featured,

@@ -108,12 +108,22 @@ class ProductIndex extends Component
 
     public function create(): void
     {
+        /*
+         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
+         *
+         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
+         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
+         * data lain menampilkan pesan merah milik data yang tadi.
+         */
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $product = Product::with(['translations', 'specifications', 'certifications'])->findOrFail($id);
         $this->editingId = $product->id;
         $this->category_id = $product->category_id;

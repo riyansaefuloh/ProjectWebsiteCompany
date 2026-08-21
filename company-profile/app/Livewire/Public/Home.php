@@ -47,28 +47,11 @@ class Home extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        $featuredProducts = Product::where('status', 'published')
-            ->where('is_featured', true)
-            ->with(['translations', 'media', 'category.translations'])
-            ->orderBy('sort_order')
-            ->limit(6)
-            ->get();
-
-        $latestNews = News::where('status', 'published')
-            ->with(['translations', 'media'])
-            ->orderBy('published_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        $exportMarkets = ExportMarket::where('is_active', true)
-            ->with('translations')
-            ->get();
-
-        $certifications = Certification::where('status', 'active')
-            ->with(['translations', 'media'])
-            ->orderBy('sort_order')
-            ->get();
-
+        /*
+         * Susunan bagiannya dibaca lebih dulu: berapa produk unggulan yang
+         * diambil ditentukan oleh pengaturan bagian produk, jadi kuerinya tidak
+         * bisa dirakit sebelum pengaturannya diketahui.
+         */
         $settings = Setting::pluck('value', 'key')->toArray();
 
         $homeSections = json_decode($settings['home_sections'] ?? '[]', true) ?: [];
@@ -89,9 +72,85 @@ class Home extends Component
             return $sec;
         }, $activeSections);
 
-        $heroPage = \App\Models\Page::where('slug', 'hero')->first();
+        /*
+         * Nama bagian ditulis dua gaya di proyek ini: 'export-markets' di dalam
+         * JSON yang tersimpan, dan 'export_markets' di @case bladenya — karena
+         * baris di atas mengganti tanda hubungnya supaya jadi nama @case yang
+         * sah. Tiga penutup di bawah menyamakannya sendiri, jadi pemanggilnya
+         * boleh menulis yang mana saja tanpa diam-diam kehilangan isinya.
+         */
+        $samakan = fn (string $bagian) => str_replace('-', '_', $bagian);
 
-        $establishedYear = (int) ($settings['established_year'] ?? date('Y'));
+        /*
+         * Pengaturan bukan-teks tiap bagian. Kunci yang tidak tercatat berarti
+         * "ikut bawaan", jadi bawaannya ditulis di pemanggilnya.
+         */
+        $opsiBagian = collect($activeSections)
+            ->mapWithKeys(fn ($sec) => [$sec['id'] => $sec['opsi'] ?? []])
+            ->all();
+
+        $opsi = fn (string $bagian, string $nama, $bawaan)
+            => $opsiBagian[$samakan($bagian)][$nama] ?? $bawaan;
+
+        $featuredProducts = Product::where('status', 'published')
+            ->where('is_featured', true)
+            ->with(['translations', 'media', 'category.translations'])
+            ->orderBy('sort_order')
+            ->limit(max(1, (int) $opsi('products', 'jumlah', 6)))
+            ->get();
+
+        $latestNews = News::where('status', 'published')
+            ->with(['translations', 'media'])
+            ->orderBy('published_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        $exportMarkets = ExportMarket::where('is_active', true)
+            ->with('translations')
+            ->get();
+
+        $certifications = Certification::where('status', 'active')
+            ->with(['translations', 'media'])
+            ->orderBy('sort_order')
+            ->get();
+
+        /*
+         * Isi tiap bagian dibaca dari larik yang sama dengan urutannya.
+         *
+         * Dibungkus jadi satu penutup supaya bladenya cukup menulis
+         * $isi('hero', 'title') dan tidak perlu tahu apa-apa soal bentuk
+         * JSON-nya. Bahasa yang aktif dicoba lebih dulu, lalu bahasa cadangan,
+         * lalu barulah teks bawaan di berkas bahasa.
+         *
+         * Bawaannya WAJIB ada: beranda tidak boleh pernah tergambar hampa
+         * hanya karena satu kolom di panel belum diisi.
+         */
+        $bahasa   = app()->getLocale();
+        $cadangan = config('app.fallback_locale', 'en');
+
+        $isiBagian = collect($activeSections)
+            ->mapWithKeys(fn ($sec) => [$sec['id'] => $sec['isi'] ?? []])
+            ->all();
+
+        $isi = function (string $bagian, string $nama, string $bawaan) use ($isiBagian, $bahasa, $cadangan, $samakan) {
+            $sumber = $isiBagian[$samakan($bagian)] ?? [];
+
+            foreach ([$bahasa, $cadangan] as $lokal) {
+                $nilai = $sumber[$lokal][$nama] ?? null;
+
+                if (filled($nilai)) {
+                    return $nilai;
+                }
+            }
+
+            return __($bawaan);
+        };
+
+        $gambarBagian = collect($activeSections)
+            ->mapWithKeys(fn ($sec) => [$samakan($sec['id']) => $sec['image'] ?? null])
+            ->all();
+
+        $establishedYear = \App\Support\IsiHalaman::tahunBerdiri();
         $yearsOfExperience = max(1, (int) date('Y') - $establishedYear);
 
         return view('livewire.public.home', [
@@ -100,7 +159,8 @@ class Home extends Component
             'exportMarkets'     => $exportMarkets,
             'certifications'    => $certifications,
             'homeSections'      => $activeSections,
-            'heroPage'          => $heroPage,
+            'isi'               => $isi,
+            'gambarBagian'      => $gambarBagian,
             'settings'          => $settings,
             'yearsOfExperience' => $yearsOfExperience,
         ]);

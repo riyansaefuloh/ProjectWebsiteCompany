@@ -715,6 +715,50 @@
                                             @enderror
                                         </div>
                                     @endforeach
+
+                                    {{-- ── Harga indikatif ──────────────────────
+                                         Kolom indicative_price dan currency sudah lama
+                                         ada di basis data, punya aturan validasi, dan
+                                         ikut disimpan — tapi tidak pernah punya isian di
+                                         sini. Akibatnya seluruh produk permanen bernilai
+                                         null / USD, tak peduli apa harganya.
+
+                                         Opsional, sesuai PRD 7.5: tidak semua komoditas
+                                         pantas dipasang harganya di halaman terbuka. --}}
+                                    <div>
+                                        <label for="produk-indicative_price"
+                                               class="block text-[12px] font-semibold text-ink-faint">
+                                            Harga indikatif
+                                        </label>
+
+                                        <div class="mt-2 flex gap-2">
+                                            <div class="w-[110px] shrink-0">
+                                                <x-admin.select model="currency" :value="$currency"
+                                                                label="Mata uang" :nullable="false"
+                                                                :options="collect(['USD', 'EUR', 'IDR', 'SGD', 'JPY', 'CNY'])
+                                                                    ->map(fn ($k) => ['nilai' => $k, 'label' => $k])->all()" />
+                                            </div>
+
+                                            <input type="number" step="0.01" min="0"
+                                                   wire:model="indicative_price" id="produk-indicative_price"
+                                                   placeholder="mis. 4250.00"
+                                                   class="admin-control tabular-nums">
+                                        </div>
+
+                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                            Perkiraan harga per satuan, dasar FOB. Dikosongkan berarti
+                                            halaman produk publik tidak menampilkan harga sama sekali —
+                                            pembeli diarahkan mengirim inquiry.
+                                        </p>
+
+                                        @error('indicative_price')
+                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                        @enderror
+
+                                        @error('currency')
+                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
 
                                 {{-- ── Incoterms ────────────────────────────────
@@ -915,8 +959,12 @@
                                                               border-line px-3.5 py-2.5 transition-colors
                                                               hover:border-line-strong
                                                               has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
+                                                    {{-- in_array longgar, bukan ketat: nilai yang
+                                                         kembali dari peramban selalu untai, sedang
+                                                         yang dari basis data bisa bertipe lain. --}}
                                                     <input type="checkbox" wire:model="selectedCertifications"
                                                            value="{{ $cert->id }}"
+                                                           @checked(in_array($cert->id, $selectedCertifications))
                                                            class="h-4 w-4 shrink-0 cursor-pointer accent-brand">
 
                                                     <span class="min-w-0 truncate text-[13px] text-ink"
@@ -1132,7 +1180,13 @@
                                         </span>
 
                                         <span class="relative mt-0.5 inline-flex shrink-0 items-center">
+                                            {{-- @checked() WAJIB. wire:model yang tertunda tidak
+                                                 memancarkan atribut checked, sedangkan seluruh
+                                                 gambar sakelar ini bergantung pada peer-checked.
+                                                 Tanpa itu, membuka produk unggulan untuk diubah
+                                                 menampilkan sakelar mati, lalu tersimpan mati. --}}
                                             <input type="checkbox" role="switch" wire:model="is_featured"
+                                                   @checked($is_featured)
                                                    class="peer sr-only">
 
                                             {{-- Jalurnya --}}

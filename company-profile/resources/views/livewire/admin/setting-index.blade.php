@@ -19,17 +19,6 @@
         }
 
         /*
-         * Semua tampilan publik — kaki situs, meta halaman, dan formulir
-         * inquiry — kini membaca 'contact_email' lebih dulu, yaitu isian di
-         * halaman ini, dan baru jatuh ke 'company_email' kalau kosong.
-         *
-         * 'company_email' masih menyimpan alamat lamanya. Selama isinya beda,
-         * itu alamat cadangan yang akan muncul begitu isian di atas dikosongkan
-         * — perlu disebut, karena dari panel kunci itu tidak kelihatan.
-         */
-        $emailBentrok = filled($emailSitus) && $emailSitus !== $contact_email;
-
-        /*
          * Perbandingannya memakai ANGKANYA saja, sama seperti yang dilakukan
          * kaki situs: "+62 812-3456-7890" dan "6281234567890" itu nomor yang
          * sama, cuma beda cara menulisnya.
@@ -182,31 +171,6 @@
                                 <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
                             @enderror
 
-                            {{-- Keadaan yang perlu disebut, bukan disembunyikan:
-                                 kunci lama masih menyimpan alamat yang lain, dan
-                                 alamat itu yang dipakai kalau isian di atas kosong. --}}
-                            @if($emailBentrok)
-                                <div class="mt-2 flex items-start gap-2.5 rounded-control
-                                            border border-status-new/30 bg-status-new/5 px-3.5 py-2.5">
-                                    <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
-                                                 rounded-full bg-status-new text-white">
-                                        <svg class="h-2.5 w-2.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <path d="M8 4.4v4.4M8 11.4v.2" stroke="currentColor"
-                                                  stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                    </span>
-
-                                    <p class="min-w-0 text-[12px] leading-relaxed text-ink-muted">
-                                        Seluruh situs publik sekarang memakai isian di atas.
-                                        Tapi kunci lama
-                                        <span class="font-semibold text-ink">company_email</span>
-                                        masih menyimpan
-                                        <span class="font-semibold text-ink">{{ $emailSitus }}</span>,
-                                        dan alamat itulah yang muncul kalau isian di atas
-                                        dikosongkan.
-                                    </p>
-                                </div>
-                            @endif
                         </div>
 
                         {{-- Dua nomor berdampingan: keduanya tampil di kaki situs
@@ -274,6 +238,42 @@
                                 </p>
                             </div>
                         @endif
+
+                        {{-- ── Jam operasional ───────────────────────────────
+                             Ketiganya sudah lama digambar kaki situs dan halaman
+                             kontak, tapi belum pernah punya isian di panel — jadi
+                             bloknya tidak pernah muncul karena tidak ada yang bisa
+                             mengisinya selain lewat basis data langsung. --}}
+                        <div class="border-t border-line pt-4">
+                            <span class="block text-[12px] font-semibold text-ink-faint">Jam operasional</span>
+
+                            <div class="mt-2 grid gap-4 sm:grid-cols-3">
+                                @foreach([
+                                    ['prop' => 'hours_weekday',  'id' => 'set-jam-1', 'label' => 'Senin–Jumat', 'contoh' => '08.00 – 17.00 WIB'],
+                                    ['prop' => 'hours_saturday', 'id' => 'set-jam-2', 'label' => 'Sabtu',       'contoh' => '08.00 – 13.00 WIB'],
+                                    ['prop' => 'hours_sunday',   'id' => 'set-jam-3', 'label' => 'Minggu',      'contoh' => 'Tutup'],
+                                ] as $jam)
+                                    <div>
+                                        <label for="{{ $jam['id'] }}" class="block text-[12px] text-ink-muted">
+                                            {{ $jam['label'] }}
+                                        </label>
+
+                                        <input type="text" wire:model="{{ $jam['prop'] }}" id="{{ $jam['id'] }}"
+                                               placeholder="{{ $jam['contoh'] }}"
+                                               class="admin-control mt-1.5">
+
+                                        @error($jam['prop'])
+                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                Baris yang dikosongkan tidak digambar. Kalau ketiganya kosong,
+                                blok jam operasional tidak muncul sama sekali di situs publik.
+                            </p>
+                        </div>
                     </div>
                 </section>
 

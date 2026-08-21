@@ -70,12 +70,22 @@ class CategoryIndex extends Component
 
     public function create(): void
     {
+        /*
+         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
+         *
+         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
+         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
+         * data lain menampilkan pesan merah milik data yang tadi.
+         */
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $category = Category::with('translations')->findOrFail($id);
         $this->editingId = $category->id;
         $this->name_en = $category->getTranslation('name', 'en') ?? '';

@@ -105,6 +105,10 @@ class ProductIndex extends Component
         }
 
         return view('livewire.public.product-index', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('products'),
+
             'categories' => $categories,
             'products'   => $query->paginate(12),
         ]);

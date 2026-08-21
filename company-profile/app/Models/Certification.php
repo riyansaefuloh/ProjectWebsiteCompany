@@ -24,7 +24,7 @@ class Certification extends Model implements HasMedia
         'certificate_number',
         'issued_at',
         'expires_at',
-        'file_path',
+        // 'file_path' dibuang: PDF sertifikat ditangani koleksi media 'pdfs'.
         'status',
         'sort_order',
     ];

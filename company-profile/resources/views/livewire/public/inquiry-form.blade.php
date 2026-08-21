@@ -39,11 +39,11 @@
                     <div class="card p-8 sm:p-10">
 
                         <h1 class="max-w-[16ch] display text-[28px] sm:text-[32px]">
-                            {{ __('site.inquiry_headline') }}
+                            {{ $isi('headline', 'site.inquiry_headline') }}
                         </h1>
 
                         <p class="lede mt-5 max-w-[42ch] text-[14px]">
-                            {{ __('site.inquiry_intro') }}
+                            {{ $isi('intro', 'site.inquiry_intro') }}
                         </p>
 
                         <dl class="mt-10 grid gap-x-6 gap-y-8 sm:grid-cols-2">
@@ -159,10 +159,10 @@
                                 </span>
 
                                 <h2 class="mt-7 font-display text-[22px] font-extrabold tracking-[-0.02em] text-white sm:text-[26px]">
-                                    {{ __('site.inquiry_success') }}
+                                    {{ $isi('success_title', 'site.inquiry_success') }}
                                 </h2>
                                 <p class="mx-auto mt-4 max-w-[42ch] text-[15px] leading-relaxed text-white/70">
-                                    {{ __('site.inquiry_thank_you') }}
+                                    {{ $isi('success_body', 'site.inquiry_thank_you') }}
                                 </p>
 
                                 @if($whatsappUrl)
@@ -176,13 +176,13 @@
                                 <p class="mt-8">
                                     <button type="button" wire:click="$set('isSubmitted', false)"
                                             class="text-[13px] font-bold text-brand-soft underline underline-offset-4 transition-colors hover:text-white">
-                                        {{ __('site.send_another') }}
+                                        {{ $isi('send_another', 'site.send_another') }}
                                     </button>
                                 </p>
                             </div>
                         @else
-                            <h2 class="font-display text-[20px] font-extrabold tracking-[-0.02em] text-white sm:text-[23px]">{{ __('site.inquiry_form_title') }}</h2>
-                            <p class="mt-2.5 text-[13px] text-white/60">{{ __('site.inquiry_form_intro') }}</p>
+                            <h2 class="font-display text-[20px] font-extrabold tracking-[-0.02em] text-white sm:text-[23px]">{{ $isi('form_title', 'site.inquiry_form_title') }}</h2>
+                            <p class="mt-2.5 text-[13px] text-white/60">{{ $isi('form_intro', 'site.inquiry_form_intro') }}</p>
 
                             <form wire:submit.prevent="executeRecaptcha" class="mt-8">
 
@@ -292,9 +292,9 @@
             {{-- ── Peta lokasi ────────────────────────────────────────────── --}}
             @if($mapUrl)
                 <div class="mt-6">
-                    <p class="eyebrow">{{ __('site.find_us') }}</p>
+                    <p class="eyebrow">{{ $isi('map_title', 'site.find_us') }}</p>
                     <div class="mt-4 overflow-hidden rounded-panel border border-line">
-                        <iframe src="{{ $mapUrl }}" title="{{ __('site.find_us') }}"
+                        <iframe src="{{ $mapUrl }}" title="{{ $isi('map_title', 'site.find_us') }}"
                                 class="block h-[320px] w-full border-0 sm:h-[420px]"
                                 allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>

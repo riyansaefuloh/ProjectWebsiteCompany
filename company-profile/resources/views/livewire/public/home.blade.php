@@ -9,8 +9,18 @@
         @switch($section['id'])
             @case('hero')
                 @php
-                    $heroImage = !empty($settings['hero_image'])
-                        ? \Illuminate\Support\Facades\Storage::url($settings['hero_image'])
+                    /* Seluruh teks hero datang dari menu Halaman → Susunan
+                       beranda → Ubah isi. Yang belum diisi jatuh ke teks bawaan
+                       di berkas bahasa, jadi bagian ini tidak pernah kosong. */
+                    $heroBody = $isi('hero', 'body', 'site.hero_body');
+
+                    /* Fotonya menempel pada bagiannya sendiri. Kunci pengaturan
+                       lama 'hero_image' tetap dibaca sebagai cadangan supaya
+                       foto yang sudah terlanjur diunggah tidak hilang. */
+                    $heroAlamat = $gambarBagian['hero'] ?? ($settings['hero_image'] ?? null);
+
+                    $heroImage = !empty($heroAlamat)
+                        ? \Illuminate\Support\Facades\Storage::url($heroAlamat)
                         : null;
                 @endphp
 
@@ -19,20 +29,24 @@
                     <div class="shell">
 
                         <h1 class="display max-w-[19ch] text-[34px] leading-[1.15] sm:text-[42px] md:text-[48px] lg:text-[56px]">
-                            {{ $heroPage?->translated_title ?: __('site.hero_title') }}
+                            {{ $isi('hero', 'title', 'site.hero_title') }}
                         </h1>
 
-                        @if($heroPage?->translated_content)
-                            <div class="rich mt-7 max-w-[54ch]">{!! $heroPage->translated_content !!}</div>
+                        {{-- Deskripsinya ditulis lewat penyunting teks kaya, jadi
+                             isinya HTML. Teks bawaannya kalimat polos — karena itu
+                             dibedakan: yang mengandung tag digambar sebagai .rich,
+                             yang polos tetap sebagai satu paragraf .lede. --}}
+                        @if($heroBody !== strip_tags($heroBody))
+                            <div class="rich mt-7 max-w-[54ch]">{!! $heroBody !!}</div>
                         @else
-                            <p class="lede mt-7 max-w-[54ch]">{{ __('site.hero_body') }}</p>
+                            <p class="lede mt-7 max-w-[54ch]">{{ $heroBody }}</p>
                         @endif
 
                         <div class="mt-10 flex flex-col gap-8 lg:mt-14 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
 
                             <div class="flex flex-wrap items-center gap-3">
                                 <a href="{{ route('inquiry.index') }}" class="btn-pill btn-pill-brand">
-                                    {{ __('site.cta_request_quote') }}
+                                    {{ $isi('hero', 'cta_primary', 'site.cta_request_quote') }}
                                     <span>
                                         <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -41,7 +55,7 @@
                                 </a>
 
                                 <a href="{{ route('products.index') }}" class="btn btn-outline btn-arrow">
-                                    {{ __('site.cta_explore_products') }}
+                                    {{ $isi('hero', 'cta_secondary', 'site.cta_explore_products') }}
                                     <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                         <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -54,7 +68,7 @@
                                           stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 <span class="font-display text-[18px] font-extrabold leading-snug tracking-[-0.02em] text-ink sm:text-[20px]">
-                                    {{ __('site.hero_descriptor') }}
+                                    {{ $isi('hero', 'descriptor', 'site.hero_descriptor') }}
                                 </span>
                             </p>
                         </div>
@@ -80,7 +94,7 @@
                                     {{ $yearsOfExperience }}+
                                 </span>
                                 <span class="mt-3 text-[13px] font-bold leading-none text-ink sm:text-[15px]">
-                                    {{ __('site.hero_years') }}
+                                    {{ $isi('hero', 'years_label', 'site.hero_years') }}
                                 </span>
                             </div>
                         </div>
@@ -141,22 +155,37 @@
                 @break
 
             @case('products')
+                @php
+                    /* Teksnya datang dari Halaman → Susunan beranda → Ubah isi.
+                       Yang belum diisi jatuh ke bawaan di berkas bahasa. */
+                    $produkBody = $isi('products', 'body', 'site.products_body');
+                @endphp
+
                 <section class="section border-t border-line">
                     <div class="shell">
 
                         <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                             <div class="lg:col-span-7">
-                                <p class="eyebrow">{{ __('site.home_section_products') }}</p>
+                                <p class="eyebrow">{{ $isi('products', 'eyebrow', 'site.home_section_products') }}</p>
                                 <h2 class="display mt-5 max-w-[18ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                                    {{ __('site.products_title') }}
+                                    {{ $isi('products', 'title', 'site.products_title') }}
                                 </h2>
                             </div>
 
                             <div class="lg:col-span-5 lg:self-end">
-                                <p class="lede max-w-[46ch]">{{ __('site.products_body') }}</p>
+                                {{-- Deskripsinya ditulis lewat penyunting teks kaya,
+                                     jadi bisa mengandung tag. Yang mengandung tag
+                                     digambar sebagai .rich; yang polos tetap satu
+                                     paragraf .lede — sebuah <p> di dalam <p> itu
+                                     susunan yang tidak sah. --}}
+                                @if($produkBody !== strip_tags($produkBody))
+                                    <div class="rich max-w-[46ch]">{!! $produkBody !!}</div>
+                                @else
+                                    <p class="lede max-w-[46ch]">{{ $produkBody }}</p>
+                                @endif
 
                                 <a href="{{ route('products.index') }}" class="btn btn-outline btn-arrow mt-7">
-                                    {{ __('site.cta_explore_products') }}
+                                    {{ $isi('products', 'cta', 'site.cta_explore_products') }}
                                     <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                         <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -174,7 +203,7 @@
                             </ul>
                         @else
                             <p class="lede mt-12 rounded-corner border border-dashed border-line px-6 py-14 text-center">
-                                {{ __('site.no_featured_products') }}
+                                {{ $isi('products', 'empty', 'site.no_featured_products') }}
                             </p>
                         @endif
                     </div>
@@ -182,15 +211,34 @@
                 @break
 
             @case('export_markets')
+                @php
+                    $pasarBody = $isi('export-markets', 'body', 'site.markets_body');
+
+                    /* Judulnya boleh memuat :count. Penggantiannya dilakukan di sini,
+                       bukan lewat __(), karena teks yang diketik pemakai tidak
+                       melewati berkas bahasa sama sekali — tanpa baris ini, judul
+                       buatan sendiri akan tergambar apa adanya beserta ":count". */
+                    $pasarJudul = str_replace(
+                        ':count',
+                        (string) $exportMarkets->count(),
+                        $isi('export-markets', 'title', 'site.markets_title')
+                    );
+                @endphp
+
                 <section class="section border-t border-line">
                     <div class="shell">
 
                         <div class="mx-auto max-w-[46rem] text-center">
-                            <p class="eyebrow">{{ __('site.home_section_export_markets') }}</p>
+                            <p class="eyebrow">{{ $isi('export-markets', 'eyebrow', 'site.home_section_export_markets') }}</p>
                             <h2 class="display mx-auto mt-5 max-w-[20ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                                {{ __('site.markets_title', ['count' => $exportMarkets->count()]) }}
+                                {{ $pasarJudul }}
                             </h2>
-                            <p class="lede mx-auto mt-5 max-w-[52ch]">{{ __('site.markets_body') }}</p>
+
+                            @if($pasarBody !== strip_tags($pasarBody))
+                                <div class="rich mx-auto mt-5 max-w-[52ch]">{!! $pasarBody !!}</div>
+                            @else
+                                <p class="lede mx-auto mt-5 max-w-[52ch]">{{ $pasarBody }}</p>
+                            @endif
                         </div>
 
                         @if($exportMarkets->isNotEmpty())
@@ -200,7 +248,7 @@
 
                             <div class="mt-10 flex justify-center">
                                 <a href="{{ route('export-markets.index') }}" class="btn btn-outline btn-arrow">
-                                    {{ __('site.cta_explore_markets') }}
+                                    {{ $isi('export-markets', 'cta', 'site.cta_explore_markets') }}
                                     <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                         <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -208,7 +256,7 @@
                             </div>
                         @else
                             <p class="lede mt-12 rounded-corner border border-dashed border-line px-6 py-14 text-center">
-                                {{ __('site.no_export_markets') }}
+                                {{ $isi('export-markets', 'empty', 'site.no_export_markets') }}
                             </p>
                         @endif
                     </div>
@@ -220,12 +268,17 @@
                  ══════════════════════════════════════════════════════════ --}}
             @case('about')
                 @php
-                    $pillars = [
-                        ['icon' => 'quality',    'title' => __('site.pillar_1_title'), 'body' => __('site.pillar_1_body')],
-                        ['icon' => 'capacity',   'title' => __('site.pillar_2_title'), 'body' => __('site.pillar_2_body')],
-                        ['icon' => 'compliance', 'title' => __('site.pillar_3_title'), 'body' => __('site.pillar_3_body')],
-                        ['icon' => 'logistics',  'title' => __('site.pillar_4_title'), 'body' => __('site.pillar_4_body')],
-                    ];
+                    /* Ikonnya tetap: ia bagian dari rancangan, bukan isi yang
+                       diketik. Judul dan keterangannya boleh diganti dari panel. */
+                    $pillars = collect(['quality', 'capacity', 'compliance', 'logistics'])
+                        ->map(fn ($ikon, $i) => [
+                            'icon'  => $ikon,
+                            'title' => $isi('about', 'pillar_' . ($i + 1) . '_title', 'site.pillar_' . ($i + 1) . '_title'),
+                            'body'  => $isi('about', 'pillar_' . ($i + 1) . '_body',  'site.pillar_' . ($i + 1) . '_body'),
+                        ])
+                        ->all();
+
+                    $tentangBody = $isi('about', 'body', 'site.pillars_body');
                 @endphp
 
                 <section class="section border-t border-line">
@@ -233,14 +286,18 @@
 
                         <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                             <div class="lg:col-span-6">
-                                <p class="eyebrow">{{ __('site.pillars_eyebrow') }}</p>
+                                <p class="eyebrow">{{ $isi('about', 'eyebrow', 'site.pillars_eyebrow') }}</p>
                                 <h2 class="display mt-5 max-w-[16ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                                    {{ __('site.pillars_title') }}
+                                    {{ $isi('about', 'title', 'site.pillars_title') }}
                                 </h2>
                             </div>
 
                             <div class="lg:col-span-5 lg:col-start-8 lg:self-end">
-                                <p class="lede max-w-[46ch]">{{ __('site.pillars_body') }}</p>
+                                @if($tentangBody !== strip_tags($tentangBody))
+                                    <div class="rich max-w-[46ch]">{!! $tentangBody !!}</div>
+                                @else
+                                    <p class="lede max-w-[46ch]">{{ $tentangBody }}</p>
+                                @endif
                             </div>
                         </div>
 
@@ -278,9 +335,9 @@
             @case('news')
                 <section class="section bg-forest">
                     <div class="shell">
-                        <p class="eyebrow eyebrow-invert">{{ __('site.news_eyebrow') }}</p>
+                        <p class="eyebrow eyebrow-invert">{{ $isi('news', 'eyebrow', 'site.news_eyebrow') }}</p>
                         <h2 class="mt-5 max-w-[20ch] font-display text-[28px] font-extrabold leading-[1.22] tracking-[-0.02em] text-white sm:text-[34px] lg:text-[40px]">
-                            {{ __('site.news_title') }}
+                            {{ $isi('news', 'title', 'site.news_title') }}
                         </h2>
 
                         @if($latestNews->isNotEmpty())
@@ -329,7 +386,7 @@
                                                 @endif
 
                                                 <a href="{{ route('news.show', $article->slug) }}" class="link-arrow link-arrow-invert mt-auto pt-6">
-                                                    {{ __('site.read_article') }}
+                                                    {{ $isi('news', 'read_label', 'site.read_article') }}
                                                     <span>
                                                         <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                                             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -357,11 +414,11 @@
                                     <div class="absolute inset-0 -z-10 bg-gradient-to-t from-forest via-forest/70 to-forest/20" aria-hidden="true"></div>
 
                                     <p class="max-w-[16ch] font-display text-[22px] font-extrabold leading-snug tracking-[-0.02em] text-white sm:text-[25px]">
-                                        {{ __('site.news_promo_title') }}
+                                        {{ $isi('news', 'promo_title', 'site.news_promo_title') }}
                                     </p>
 
                                     <span class="btn-pill btn-pill-invert mt-7 self-start">
-                                        {{ __('site.cta_see_more_news') }}
+                                        {{ $isi('news', 'cta', 'site.cta_see_more_news') }}
                                         <span>
                                             <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                                 <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -372,7 +429,7 @@
                             </div>
                         @else
                             <p class="mt-12 rounded-corner border border-dashed border-forest-line px-6 py-14 text-center text-[15px] text-white/60">
-                                {{ __('site.no_news_found') }}
+                                {{ $isi('news', 'empty', 'site.no_news_found') }}
                             </p>
                         @endif
                     </div>
@@ -387,9 +444,16 @@
                     $whatsapp = $settings['whatsapp_number'] ?? '';
                     $waLink = $whatsapp ? 'https://wa.me/' . preg_replace('/\D+/', '', $whatsapp) : null;
 
-                    $ctaImage = !empty($settings['cta_image'])
-                        ? \Illuminate\Support\Facades\Storage::url($settings['cta_image'])
+                /* Fotonya menempel pada bagiannya sendiri. Kunci pengaturan lama
+                   'cta_image' tetap dibaca sebagai cadangan supaya foto yang
+                   sudah terlanjur diunggah tidak hilang. */
+                    $ctaAlamat = $gambarBagian['contact'] ?? ($settings['cta_image'] ?? null);
+
+                    $ctaImage = !empty($ctaAlamat)
+                        ? \Illuminate\Support\Facades\Storage::url($ctaAlamat)
                         : null;
+
+                    $kontakBody = $isi('contact', 'body', 'site.cta_body');
                 @endphp
 
                 <section class="pb-16 pt-16 md:pb-20 md:pt-20 lg:pb-24 lg:pt-24">
@@ -403,16 +467,20 @@
                             @endif
 
                             <h2 class="mx-auto max-w-[18ch] font-display text-[28px] font-extrabold leading-[1.2] tracking-[-0.02em] text-white sm:text-[34px] lg:text-[42px]">
-                                {{ __('site.cta_title') }}
+                                {{ $isi('contact', 'title', 'site.cta_title') }}
                             </h2>
 
-                            <p class="mx-auto mt-6 max-w-[56ch] text-[15px] leading-relaxed text-white/70 sm:text-[16px]">
-                                {{ __('site.cta_body') }}
-                            </p>
+                            @if($kontakBody !== strip_tags($kontakBody))
+                                <div class="rich rich-invert mx-auto mt-6 max-w-[56ch] text-white/70">{!! $kontakBody !!}</div>
+                            @else
+                                <p class="mx-auto mt-6 max-w-[56ch] text-[15px] leading-relaxed text-white/70 sm:text-[16px]">
+                                    {{ $kontakBody }}
+                                </p>
+                            @endif
 
                             <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
                                 <a href="{{ route('inquiry.index') }}" class="btn-pill">
-                                    {{ __('site.cta_request_quote') }}
+                                    {{ $isi('contact', 'cta_primary', 'site.cta_request_quote') }}
                                     <span>
                                         <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
@@ -424,7 +492,7 @@
                                     <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
                                        class="btn btn-outline-invert">
                                         <x-icon.whatsapp size="h-4 w-4" class="shrink-0" />
-                                        {{ __('site.cta_whatsapp') }}
+                                        {{ $isi('contact', 'cta_whatsapp', 'site.cta_whatsapp') }}
                                     </a>
                                 @endif
                             </div>

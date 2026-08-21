@@ -25,6 +25,13 @@ class NewsIndex extends Component
      */
     public string $selectedStatus = '';
 
+    /*
+     * Penyaring kategori. Namanya selectedCategory, bukan category, karena
+     * news_category_id di bawah sudah dipakai sebagai isian modalnya — satu
+     * properti tidak bisa merangkap dua peran.
+     */
+    public string $selectedCategory = '';
+
     public bool $showModal = false;
     public ?string $editingId = null;
 
@@ -38,7 +45,7 @@ class NewsIndex extends Component
      */
     public function updating($property, $value): void
     {
-        if (in_array($property, ['search', 'selectedStatus'], true)) {
+        if (in_array($property, ['search', 'selectedStatus', 'selectedCategory'], true)) {
             $this->resetPage();
         }
     }
@@ -268,6 +275,9 @@ class NewsIndex extends Component
             ->when($this->selectedStatus, function ($q) {
                 $q->where('status', $this->selectedStatus);
             })
+            ->when($this->selectedCategory, function ($q) {
+                $q->where('news_category_id', $this->selectedCategory);
+            })
             ->latest()
             ->paginate(10);
 
@@ -275,6 +285,11 @@ class NewsIndex extends Component
             'newsList'   => $newsList,
             'categories' => NewsCategory::orderBy('name')->get(),
             'tags'       => NewsTag::orderBy('name')->get(),
+
+            // Dipakai penyaring di kepala halaman. Namanya dibedakan dari
+            // 'categories' di atas supaya jelas mana yang untuk modal dan
+            // mana yang untuk penyaring.
+            'daftarKategori' => NewsCategory::orderBy('name')->get(),
         ]);
     }
 }

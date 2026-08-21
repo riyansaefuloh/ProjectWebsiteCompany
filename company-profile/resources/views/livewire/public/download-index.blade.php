@@ -5,11 +5,11 @@
     <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
         <div class="shell">
             <div class="max-w-[46rem]">
-                <p class="eyebrow">{{ __('site.nav_downloads') }}</p>
+                <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_downloads') }}</p>
                 <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ __('site.page_downloads') }}
+                    {{ $isi('title', 'site.page_downloads') }}
                 </h1>
-                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_downloads_sub') }}</p>
+                <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_downloads_sub') }}</p>
             </div>
         </div>
     </section>
@@ -64,7 +64,7 @@
                                             {{ __('site.field_email') }} *
                                         </label>
                                         <p class="mt-1.5 text-[12px] leading-relaxed text-ink-muted">
-                                            {{ __('site.download_gated_note') }}
+                                            {{ $isi('gated_note', 'site.download_gated_note') }}
                                         </p>
 
                                         <input id="dl-email-{{ $download->id }}" type="email"
@@ -94,7 +94,7 @@
                 </ul>
             @else
                 <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                    {{ __('site.no_downloads') }}
+                    {{ $isi('empty', 'site.no_downloads') }}
                 </p>
             @endif
         </div>

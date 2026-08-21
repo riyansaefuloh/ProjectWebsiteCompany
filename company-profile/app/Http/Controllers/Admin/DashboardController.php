@@ -62,20 +62,38 @@ class DashboardController extends Controller
         // 5. 📊 GRAFIK INQUIRY PER BULAN (PRD Bab 8.1)
         // Data 12 bulan terakhir untuk line/bar chart
         // =============================================
-        $inquiryPerMonth = Inquiry::select(
-                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
-                DB::raw('COUNT(*) as total')
-            )
-            ->where('created_at', '>=', Carbon::now()->subMonths(11)->startOfMonth())
-            ->groupBy(DB::raw("TO_CHAR(created_at, 'YYYY-MM')"))
-            ->orderBy('month', 'asc')
-            ->get();
+        $awal = Carbon::now()->subMonths(11)->startOfMonth();
 
-        // Format untuk Chart.js: { labels: [...], data: [...] }
-        $chartMonthLabels = $inquiryPerMonth->pluck('month')->map(function ($m) {
-            return Carbon::createFromFormat('Y-m', $m)->format('M Y'); // contoh: "Aug 2026"
-        })->toArray();
-        $chartMonthData = $inquiryPerMonth->pluck('total')->toArray();
+        /*
+         * Dikelompokkan lewat PHP, bukan TO_CHAR di basis data.
+         *
+         * TO_CHAR hanya ada di PostgreSQL — kueri ini dulu mati begitu
+         * dijalankan di sqlite, dan itu salah satu sebab uji dasbor tidak
+         * pernah bisa jalan. Jumlah inquiry setahun terlalu sedikit untuk
+         * membuat pengelompokan di PHP jadi soal.
+         */
+        $hitungan = Inquiry::where('created_at', '>=', $awal)
+            ->pluck('created_at')
+            ->groupBy(fn ($tanggal) => Carbon::parse($tanggal)->format('Y-m'))
+            ->map->count();
+
+        /*
+         * Duabelas bulan digambar SEMUANYA, termasuk yang nol.
+         *
+         * Sebelumnya hanya bulan yang ada inquiry-nya yang masuk. Bulan kosong
+         * tidak muncul sebagai nol — ia lenyap dari sumbunya, sehingga garisnya
+         * menyambungkan Maret langsung ke Agustus seolah keduanya bersebelahan.
+         * Trennya jadi terbaca naik padahal datar.
+         */
+        $chartMonthLabels = [];
+        $chartMonthData   = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $bulan = $awal->copy()->addMonths($i);
+
+            $chartMonthLabels[] = $bulan->format('M Y');       // contoh: "Aug 2026"
+            $chartMonthData[]   = (int) ($hitungan[$bulan->format('Y-m')] ?? 0);
+        }
 
         // =============================================
         // 6. 🌍 GRAFIK INQUIRY PER NEGARA (PRD Bab 8.1)

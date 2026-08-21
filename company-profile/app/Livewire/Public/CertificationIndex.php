@@ -36,6 +36,10 @@ class CertificationIndex extends Component
             ->orderBy('sort_order')
             ->get();
 
-        return view('livewire.public.certification-index', compact('certifications'));
+        return view('livewire.public.certification-index', array_merge(compact('certifications'), [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('certifications'),
+        ]));
     }
 }

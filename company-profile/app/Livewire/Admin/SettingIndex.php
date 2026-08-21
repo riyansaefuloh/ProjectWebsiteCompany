@@ -39,24 +39,52 @@ class SettingIndex extends Component
     public ?string $existing_logo = null;
     public ?string $existing_favicon = null;
 
+    /*
+     * Jam operasional. Ketiganya sudah lama digambar kaki situs dan halaman
+     * kontak, tapi tidak punya isian di panel — satu-satunya cara mengisinya
+     * adalah lewat basis data langsung. Itu sebabnya blok "Jam operasional"
+     * tidak pernah muncul di situs.
+     */
+    public string $hours_weekday = '';
+    public string $hours_saturday = '';
+    public string $hours_sunday = '';
+
     public function mount(): void
     {
-        // Load existing settings from DB (key-value)
-        $this->company_name = Setting::where('key', 'company_name')->value('value') ?? 'PT. Indo Export Global';
-        $this->whatsapp_number = Setting::where('key', 'whatsapp_number')->value('value') ?? '6289670475275';
-        $this->company_phone = Setting::where('key', 'company_phone')->value('value') ?? '';
-        $this->contact_email = Setting::where('key', 'contact_email')->value('value') ?? 'arjunapandawa088@gmail.com';
-        $this->company_address = Setting::where('key', 'company_address')->value('value') ?? 'Jl. Jenderal Sudirman No. 123, Jakarta, Indonesia';
-        $this->google_map_url = Setting::where('key', 'google_map_url')->value('value');
-        $this->google_analytics_id = Setting::where('key', 'google_analytics_id')->value('value') ?? '';
+        $nilai = Setting::pluck('value', 'key');
 
-        $this->timezone = Setting::where('key', 'timezone')->value('value') ?? 'Asia/Jakarta';
-        $this->facebook_url = Setting::where('key', 'facebook_url')->value('value') ?? '';
-        $this->instagram_url = Setting::where('key', 'instagram_url')->value('value') ?? '';
-        $this->linkedin_url = Setting::where('key', 'linkedin_url')->value('value') ?? '';
-        
-        $this->existing_logo = Setting::where('key', 'logo')->value('value');
-        $this->existing_favicon = Setting::where('key', 'favicon')->value('value');
+        $this->company_name    = $nilai['company_name'] ?? 'PT. Indo Export Global';
+        $this->whatsapp_number = $nilai['whatsapp_number'] ?? '';
+        $this->company_phone   = $nilai['company_phone'] ?? '';
+        $this->company_address = $nilai['company_address'] ?? '';
+
+        /*
+         * TIDAK ADA alamat cadangan yang ditulis di kode.
+         *
+         * Sebelumnya baris ini berakhir dengan alamat Gmail pribadi seseorang
+         * yang ditulis langsung di kode, dan alamat itu tampil di kaki situs
+         * setiap kali kuncinya kosong. Cadangan semacam itu tidak pernah
+         * kelihatan salah dari panel, karena isiannya tampak terisi wajar.
+         *
+         * Yang dipakai sekarang: isian ini, lalu kunci lama company_email
+         * kalau isian ini belum pernah ada. Sesudah sekali Simpan, save() di
+         * bawah menyamakan keduanya dan alamat bayangannya lenyap.
+         */
+        $this->contact_email = ($nilai['contact_email'] ?? '') ?: ($nilai['company_email'] ?? '');
+
+        $this->google_map_url      = $nilai['google_map_url'] ?? null;
+        $this->google_analytics_id = $nilai['google_analytics_id'] ?? '';
+        $this->timezone            = $nilai['timezone'] ?? 'Asia/Jakarta';
+        $this->facebook_url        = $nilai['facebook_url'] ?? '';
+        $this->instagram_url       = $nilai['instagram_url'] ?? '';
+        $this->linkedin_url        = $nilai['linkedin_url'] ?? '';
+
+        $this->hours_weekday  = $nilai['hours_weekday'] ?? '';
+        $this->hours_saturday = $nilai['hours_saturday'] ?? '';
+        $this->hours_sunday   = $nilai['hours_sunday'] ?? '';
+
+        $this->existing_logo    = $nilai['logo'] ?? null;
+        $this->existing_favicon = $nilai['favicon'] ?? null;
     }
 
     protected function rules(): array
@@ -73,6 +101,9 @@ class SettingIndex extends Component
             'facebook_url'        => 'nullable|url|max:255',
             'instagram_url'       => 'nullable|url|max:255',
             'linkedin_url'        => 'nullable|url|max:255',
+            'hours_weekday'       => 'nullable|string|max:60',
+            'hours_saturday'      => 'nullable|string|max:60',
+            'hours_sunday'        => 'nullable|string|max:60',
             'logo'                => 'nullable|image|max:2048',
             'favicon'             => 'nullable|image|max:1024',
         ];
@@ -87,6 +118,17 @@ class SettingIndex extends Component
             'whatsapp_number'     => $this->whatsapp_number,
             'company_phone'       => $this->company_phone,
             'contact_email'       => $this->contact_email,
+
+            /*
+             * Kunci lama ditulis dengan nilai yang SAMA, bukan dibiarkan.
+             *
+             * Beberapa bagian situs masih membacanya sebagai cadangan. Selama
+             * isinya boleh berbeda, satu layar bisa memuat dua alamat — dan
+             * dari panel keduanya tampak baik-baik saja karena hanya satu yang
+             * punya isian. Menyamakannya di sini membuat perbedaan itu mustahil.
+             */
+            'company_email'       => $this->contact_email,
+
             'company_address'     => $this->company_address,
             'google_map_url'      => $this->google_map_url,
             'google_analytics_id' => $this->google_analytics_id,
@@ -94,6 +136,9 @@ class SettingIndex extends Component
             'facebook_url'        => $this->facebook_url,
             'instagram_url'       => $this->instagram_url,
             'linkedin_url'        => $this->linkedin_url,
+            'hours_weekday'       => $this->hours_weekday,
+            'hours_saturday'      => $this->hours_saturday,
+            'hours_sunday'        => $this->hours_sunday,
         ];
 
         if ($this->logo) {
@@ -123,18 +168,11 @@ class SettingIndex extends Component
     public function render()
     {
         /*
-         * Dibaca APA ADANYA, tidak disimpan dan tidak diubah dari sini.
-         *
-         * Situs publik membaca 'contact_email' lebih dulu — yaitu isian di
-         * halaman ini — dan baru jatuh ke 'company_email' kalau kosong. Kunci
-         * kedua itu masih menyimpan alamat lamanya dan tidak punya isian di
-         * halaman ini, jadi ia tak terlihat sampai isian di atas dikosongkan.
-         *
-         * Ditarik supaya keadaan itu bisa disebut di layarnya, bukan jadi
-         * kejutan sesudah menekan Simpan.
+         * Kunci lama 'company_email' dulu ditarik ke sini supaya bisa
+         * diperingatkan di layar kalau isinya berbeda. Peringatan itu tidak
+         * diperlukan lagi: save() sekarang menulis kedua kunci dengan nilai
+         * yang sama, jadi keduanya tidak bisa lagi berbeda.
          */
-        return view('livewire.admin.setting-index', [
-            'emailSitus' => Setting::where('key', 'company_email')->value('value'),
-        ]);
+        return view('livewire.admin.setting-index');
     }
 }

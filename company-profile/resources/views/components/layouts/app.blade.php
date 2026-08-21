@@ -30,6 +30,7 @@
         ],
         'Konten' => [
             ['label' => 'Berita',   'ikon' => 'news',     'rute' => 'admin.news.index',      'izin' => 'manage news'],
+            ['label' => 'Kategori & Tag', 'ikon' => 'category', 'rute' => 'admin.news-taxonomy.index', 'izin' => 'manage news'],
             ['label' => 'Galeri',   'ikon' => 'gallery',  'rute' => 'admin.galleries.index', 'izin' => 'manage galleries'],
             ['label' => 'Halaman',  'ikon' => 'page',     'rute' => 'admin.pages.index',     'izin' => 'manage pages'],
             ['label' => 'Unduhan',  'ikon' => 'download', 'rute' => 'admin.downloads.index', 'izin' => 'manage downloads'],

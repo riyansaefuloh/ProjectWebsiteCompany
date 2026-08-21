@@ -100,12 +100,22 @@ class CertificationIndex extends Component
 
     public function create(): void
     {
+        /*
+         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
+         *
+         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
+         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
+         * data lain menampilkan pesan merah milik data yang tadi.
+         */
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $cert = Certification::with('translations')->findOrFail($id);
         $this->editingId = $cert->id;
         $this->name_en = $cert->getTranslation('name', 'en') ?? '';

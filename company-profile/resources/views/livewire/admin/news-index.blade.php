@@ -19,6 +19,15 @@
             ]);
         }
 
+        if (filled($selectedCategory)) {
+            $penyaringAktif->push([
+                'label' => 'Kategori',
+                'nilai' => optional($daftarKategori->firstWhere('id', $selectedCategory))->name
+                    ?? 'Tidak dikenal',
+                'props' => ['selectedCategory'],
+            ]);
+        }
+
         $bersihkan = function (array $props) {
             $akhir = array_pop($props);
 
@@ -83,14 +92,14 @@
          .card membawa overflow-hidden. --}}
     <div class="card mb-6 overflow-visible">
 
-        {{-- Dua kendali, jadi keduanya berbagi satu baris — pencarian dua
-             pertiga, status sepertiga. Susunan yang sama dengan halaman
-             Kategori dan Sertifikasi.
+        {{-- Tiga kendali: pencarian separuh, lalu status dan kategori.
 
-             Penyaring kategori belum ada di sini: satu pun kategori berita
-             belum dibuat, dan menu pilih yang isinya kosong cuma jadi kendali
-             mati. Ia menyusul begitu kategorinya ada. --}}
-        <div class="grid gap-4 p-5 lg:grid-cols-3">
+             Penyaring kategori dulu sengaja ditunda karena satu pun kategori
+             berita belum bisa dibuat — menu pilih yang isinya kosong cuma jadi
+             kendali mati. Sekarang kategorinya punya halaman kelola sendiri,
+             jadi penyaringnya ikut dipasang, dan tetap disembunyikan selama
+             daftarnya masih kosong. --}}
+        <div class="grid gap-4 p-5 lg:grid-cols-4">
 
             <div class="relative lg:col-span-2">
                 <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
@@ -117,6 +126,14 @@
                                 ['nilai' => 'published', 'label' => 'Terbit'],
                                 ['nilai' => 'draft',     'label' => 'Draf'],
                             ]" />
+
+            @if($daftarKategori->isNotEmpty())
+                <x-admin.select model="selectedCategory" :value="$selectedCategory"
+                                label="Saring menurut kategori" placeholder="Semua kategori"
+                                :options="$daftarKategori->map(fn ($k) => [
+                                    'nilai' => $k->id, 'label' => $k->name,
+                                ])->all()" />
+            @endif
         </div>
 
         @if($penyaringAktif->isNotEmpty())
@@ -146,7 +163,7 @@
 
                 @if($penyaringAktif->count() > 1)
                     <button type="button"
-                            x-on:click="{{ $bersihkan(['search', 'selectedStatus']) }}"
+                            x-on:click="{{ $bersihkan(['search', 'selectedStatus', 'selectedCategory']) }}"
                             class="ml-auto shrink-0 text-[12px] font-semibold text-brand underline-offset-4 hover:underline">
                         Hapus semua
                     </button>
@@ -381,7 +398,7 @@
                                                 statusnya ke "semua".
                                             </p>
 
-                                            <button type="button" x-on:click="{{ $bersihkan(['search', 'selectedStatus']) }}"
+                                            <button type="button" x-on:click="{{ $bersihkan(['search', 'selectedStatus', 'selectedCategory']) }}"
                                                     class="admin-btn admin-btn-quiet mt-5">
                                                 <x-icon.admin name="close" size="h-3.5 w-3.5" />
                                                 Hapus penyaring
@@ -587,38 +604,37 @@
 
                                     {{-- Isi artikel — mengikuti tab.
 
-                                         Kotak tulis biasa, bukan penyunting kaya. Yang lama
-                                         memuat TinyMCE lewat tag skrip di dalam modal, dan
+                                         Penyunting kaya. Percobaan sebelumnya memuat TinyMCE
+                                         lewat tag skrip di dalam modal dan tidak pernah hidup:
                                          skrip yang disisipkan Livewire lewat morph DOM tidak
-                                         pernah dijalankan peramban — jadi penyuntingnya
-                                         memang tidak pernah hidup, dan isian ini sejak awal
-                                         berupa kotak tulis polos.
+                                         pernah dijalankan peramban.
 
-                                         Tag itu sengaja ditulis tanpa kurung siku: penyunting
-                                         kode tidak mengenal komentar Blade, jadi kurung siku
-                                         di sini terbaca sebagai tag pembuka yang tidak pernah
-                                         ditutup — dan seluruh sisa berkas ikut dianggap
-                                         JavaScript, merah semua. --}}
+                                         Yang sekarang dibundel lewat Vite dan didaftarkan
+                                         sebagai komponen Alpine, jadi sudah termuat sejak awal
+                                         halaman dan tidak ada skrip yang perlu disisipkan
+                                         belakangan. Lihat resources/js/editor.js. --}}
                                     <div>
                                         <label class="block text-[12px] font-semibold text-ink-faint">
                                             Isi artikel <span class="text-brand">*</span>
                                         </label>
 
                                         <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
-                                            <textarea wire:model="content_en" rows="16"
-                                                      aria-label="Isi artikel dalam bahasa Inggris"
-                                                      placeholder="Tulis isi artikelnya di sini…"
-                                                      class="admin-control resize-y leading-relaxed"></textarea>
+                                            <x-admin.editor model="content_en" :value="$content_en"
+                                                            :kunci="$editingId ?? 'baru'"
+                                                            label="Isi artikel dalam bahasa Inggris"
+                                                            placeholder="Tulis isi artikelnya di sini…" />
+
                                             @error('content_en')
                                                 <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
 
                                         <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
-                                            <textarea wire:model="content_id" rows="16"
-                                                      aria-label="Isi artikel dalam bahasa Indonesia"
-                                                      placeholder="Tulis isi artikelnya di sini…"
-                                                      class="admin-control resize-y leading-relaxed"></textarea>
+                                            <x-admin.editor model="content_id" :value="$content_id"
+                                                            :kunci="$editingId ?? 'baru'"
+                                                            label="Isi artikel dalam bahasa Indonesia"
+                                                            placeholder="Tulis isi artikelnya di sini…" />
+
                                             @error('content_id')
                                                 <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
                                             @enderror
@@ -817,9 +833,9 @@
 
                                         {{-- Menunya selalu digambar, meski kategorinya masih
                                              kosong: baris "tambah kategori" di kakinya
-                                             satu-satunya jalan membuat kategori pertama —
-                                             kategori berita belum punya halaman kelolanya
-                                             sendiri. --}}
+                                             memungkinkan membuat kategori tanpa keluar dari
+                                             modal ini. Untuk mengganti nama atau menghapus,
+                                             tempatnya di menu Kategori &amp; Tag. --}}
                                         <x-admin.select model="news_category_id"
                                                         :value="$news_category_id" class="mt-2"
                                                         label="Kategori artikel" placeholder="Tanpa kategori"
@@ -863,8 +879,14 @@
                                                                   has-[:checked]:border-brand/40
                                                                   has-[:checked]:bg-brand-wash
                                                                   has-[:checked]:text-brand-deep">
+                                                        {{-- @checked() WAJIB — tanpa itu tag yang sudah
+                                                             melekat tampil tak tercentang saat berita
+                                                             dibuka untuk diubah, lalu tersapu habis
+                                                             begitu disimpan. --}}
                                                         <input type="checkbox" wire:model="selectedTags"
-                                                               value="{{ $tag->id }}" class="peer sr-only">
+                                                               value="{{ $tag->id }}"
+                                                               @checked(in_array($tag->id, $selectedTags))
+                                                               class="peer sr-only">
 
                                                         <span class="flex h-3.5 w-3.5 shrink-0 items-center justify-center
                                                                      rounded-[4px] border border-line-strong

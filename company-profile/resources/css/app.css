@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+/* Tema bawaan penyunting teks kaya.
+ *
+ * Diimpor DI SINI, bukan dari resources/js/editor.js. Kalau diimpor dari
+ * berkas JS, Vite menaruhnya di lembar gaya terpisah dan urutan muatnya
+ * terhadap lembar ini tidak dijamin — sementara penyesuaian warna di bagian
+ * .admin-editor di bawah harus datang SESUDAH tema ini untuk bisa menimpanya.
+ * Satu berkas, satu urutan, tidak ada kejutan. */
+@import 'quill/dist/quill.snow.css';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -618,6 +627,119 @@
     .frontend-task {
         @apply mb-4 rounded-control border border-dashed border-line-strong bg-mist
                px-4 py-3 text-[12px] leading-relaxed text-ink-muted;
+    }
+
+    /* ======================================================================
+       TEKS KAYA DI ATAS LATAR GELAP
+
+       .rich sendiri memakai warna tinta untuk latar terang. Dipasang apa
+       adanya di kartu ajakan yang berlatar hijau tua, tulisannya jadi gelap
+       di atas gelap dan praktis tidak terbaca.
+
+       Hanya warnanya yang ditimpa — jarak, ukuran, dan bentuk daftarnya tetap
+       ikut .rich, supaya isi yang sama tergambar dengan irama yang sama di
+       latar mana pun.
+       ====================================================================== */
+    .rich-invert p,
+    .rich-invert ul,
+    .rich-invert ol {
+        @apply text-white/70;
+    }
+
+    .rich-invert h2,
+    .rich-invert h3,
+    .rich-invert strong,
+    .rich-invert blockquote {
+        @apply text-white;
+    }
+
+    .rich-invert a {
+        @apply text-white underline decoration-white/40 hover:decoration-white;
+    }
+
+    .rich-invert blockquote {
+        @apply border-brand-soft;
+    }
+
+    /* ======================================================================
+       PENYUNTING TEKS KAYA (Quill)
+
+       Quill membawa temanya sendiri (quill.snow.css) yang memakai abu-abu
+       bawaannya. Di sini warnanya ditarik ke token panel supaya tepi, sudut,
+       dan warna teksnya sama dengan .admin-control di sebelahnya — kalau
+       tidak, kotak isian dan penyunting tampak berasal dari dua aplikasi.
+       ====================================================================== */
+    .admin-editor .ql-toolbar.ql-snow {
+        @apply rounded-t-control border border-line bg-mist/50 px-2 py-1.5;
+    }
+
+    .admin-editor .ql-container.ql-snow {
+        @apply rounded-b-control border border-t-0 border-line bg-canvas
+               font-sans text-[13px] leading-relaxed text-ink;
+    }
+
+    .admin-editor .ql-editor {
+        @apply px-3.5 py-3;
+    }
+
+    .admin-editor .ql-editor.ql-blank::before {
+        @apply not-italic text-ink-faint;
+    }
+
+    /* Tepi menyala saat disunting, sama seperti kendali lain. :focus-within
+       dipasang di wadahnya karena yang menerima fokus adalah div di dalam. */
+    .admin-editor:focus-within .ql-toolbar.ql-snow,
+    .admin-editor:focus-within .ql-container.ql-snow {
+        @apply border-brand;
+    }
+
+    .admin-editor .ql-snow .ql-stroke {
+        stroke: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-fill {
+        fill: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-picker {
+        color: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-active .ql-stroke,
+    .admin-editor .ql-snow button:hover .ql-stroke {
+        stroke: var(--color-brand);
+    }
+
+    .admin-editor .ql-snow .ql-active .ql-fill,
+    .admin-editor .ql-snow button:hover .ql-fill {
+        fill: var(--color-brand);
+    }
+
+    .admin-editor .ql-snow .ql-active,
+    .admin-editor .ql-snow .ql-picker-label:hover {
+        color: var(--color-brand);
+    }
+
+    /* Isi yang diketik: jarak antarparagraf dan daftar mengikuti .rich di
+       situs publik, supaya yang terlihat saat menulis mendekati hasilnya. */
+    .admin-editor .ql-editor h2 {
+        @apply mb-2 mt-4 font-ui text-[18px] font-bold text-ink first:mt-0;
+    }
+
+    .admin-editor .ql-editor h3 {
+        @apply mb-2 mt-4 font-ui text-[15px] font-bold text-ink first:mt-0;
+    }
+
+    .admin-editor .ql-editor p {
+        @apply mb-3 last:mb-0;
+    }
+
+    .admin-editor .ql-editor blockquote {
+        @apply my-3 border-l-2 border-brand pl-4 text-ink-muted;
+    }
+
+    .admin-editor .ql-editor a {
+        @apply text-brand underline underline-offset-2;
     }
 }
 

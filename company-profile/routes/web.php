@@ -28,6 +28,7 @@ use App\Livewire\Public\About;
 use App\Livewire\Public\PageShow;
 use App\Livewire\Admin\PageIndex;
 use App\Livewire\Admin\GalleryIndex;
+use App\Livewire\Admin\NewsTaxonomyIndex;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 // ==========================================
@@ -68,7 +69,9 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // ==========================================
 // 3. RUTE ADMIN (CMS LIVEWIRE) TERPROTEKSI AUTH & PERMISSION
 // ==========================================
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+// SetPanelLocale WAJIB ikut: tanpa itu panel berjalan dalam APP_LOCALE ('en')
+// dan seluruh pesan validasinya muncul berbahasa Inggris di layar Indonesia.
+Route::middleware(['auth', \App\Http\Middleware\SetPanelLocale::class])->prefix('admin')->group(function () {
     
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
 
@@ -96,6 +99,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/news', NewsIndex::class)
         ->middleware('permission:manage news')
         ->name('admin.news.index');
+
+    // Kategori & tag berita. Izinnya sama dengan Berita: yang boleh menulis
+    // artikel adalah yang boleh mengatur penggolongannya.
+    Route::get('/news-taxonomy', NewsTaxonomyIndex::class)
+        ->middleware('permission:manage news')
+        ->name('admin.news-taxonomy.index');
 
     // Livewire Admin Pages (Super Admin & Admin CMS)
     Route::get('/pages', PageIndex::class)
