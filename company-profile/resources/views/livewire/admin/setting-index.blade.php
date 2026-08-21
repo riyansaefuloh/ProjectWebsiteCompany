@@ -1,142 +1,474 @@
-<div style="font-family: sans-serif; padding: 20px; max-width: 600px;">
-    <h2>Global Website Settings</h2>
+<div class="mx-auto max-w-[1400px]">
 
-    @if (session()->has('message'))
-        <div style="background-color: #d1fae5; color: #065f46; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-            {{ session('message') }}
-        </div>
-    @endif
+    @php
+        /*
+         * Zona waktu yang masuk akal untuk eksportir Indonesia. Nilai yang
+         * sedang tersimpan selalu ikut disertakan meski di luar daftar —
+         * kalau tidak, menu pilihnya akan menampilkan pilihan pertama dan
+         * diam-diam mengganti zona waktunya begitu disimpan.
+         */
+        $zona = collect([
+            'Asia/Jakarta'  => 'Asia/Jakarta — WIB',
+            'Asia/Makassar' => 'Asia/Makassar — WITA',
+            'Asia/Jayapura' => 'Asia/Jayapura — WIT',
+            'UTC'           => 'UTC',
+        ]);
 
+        if (filled($timezone) && ! $zona->has($timezone)) {
+            $zona = $zona->prepend($timezone, $timezone);
+        }
+
+        /*
+         * Semua tampilan publik — kaki situs, meta halaman, dan formulir
+         * inquiry — kini membaca 'contact_email' lebih dulu, yaitu isian di
+         * halaman ini, dan baru jatuh ke 'company_email' kalau kosong.
+         *
+         * 'company_email' masih menyimpan alamat lamanya. Selama isinya beda,
+         * itu alamat cadangan yang akan muncul begitu isian di atas dikosongkan
+         * — perlu disebut, karena dari panel kunci itu tidak kelihatan.
+         */
+        $emailBentrok = filled($emailSitus) && $emailSitus !== $contact_email;
+
+        /*
+         * Perbandingannya memakai ANGKANYA saja, sama seperti yang dilakukan
+         * kaki situs: "+62 812-3456-7890" dan "6281234567890" itu nomor yang
+         * sama, cuma beda cara menulisnya.
+         */
+        $angka = fn ($n) => preg_replace('/\D+/', '', (string) $n);
+
+        $nomorKembar = filled($company_phone)
+            && $angka($company_phone) === $angka($whatsapp_number);
+    @endphp
+
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         KEPALA HALAMAN
+         ══════════════════════════════════════════════════════════════════ --}}
     <form wire:submit.prevent="save">
-        <div style="margin-bottom: 15px;">
-            <label><strong>WhatsApp Sales Number (International Format e.g. 6281234567890) </strong></label>
-            <input type="text" wire:model="whatsapp_number" style="width: 100%; padding: 8px;" >
-            @error('whatsapp_number') <span style="color:red">{{ $message }}</span> @enderror
+
+        <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+            <div class="min-w-0">
+                <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+                    Pengaturan
+                </h1>
+                {{-- Yang diatur di sini identitas dan sambungan situs, bukan
+                     isi halamannya. Isi halaman publik diatur di menu Halaman. --}}
+                <p class="mt-1.5 text-[13px] text-ink-muted">
+                    Identitas perusahaan, logo, kontak, tautan sosial, dan integrasi.
+                </p>
+            </div>
+
+            <button type="submit" wire:loading.attr="disabled" wire:target="save, logo, favicon"
+                    class="admin-btn admin-btn-brand shrink-0 disabled:opacity-60">
+                <svg wire:loading wire:target="save"
+                     class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                    <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                Simpan perubahan
+            </button>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Official Contact Email *</strong></label>
-            <input type="email" wire:model="contact_email" style="width: 100%; padding: 8px;" required>
-            @error('contact_email') <span style="color:red">{{ $message }}</span> @enderror
-        </div>
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Company Name *</strong></label>
-            <input type="text" wire:model="company_name" style="width: 100%; padding: 8px;" required>
-            @error('company_name') <span style="color:red">{{ $message }}</span> @enderror
-        </div>
+        {{-- ══════════════════════════════════════════════════════════════
+             PESAN SETELAH TERSIMPAN
+             ══════════════════════════════════════════════════════════════ --}}
+        @if(session()->has('message'))
+            <div x-data="{ tampil: true }" x-show="tampil" x-collapse
+                 class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
+                 role="status">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                    <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="m4 8.4 2.8 2.8L12 5.6" stroke="currentColor" stroke-width="1.8"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Company Address *</strong></label>
-            <textarea wire:model="company_address" rows="3" style="width: 100%; padding: 8px;" required></textarea>
-            @error('company_address') <span style="color:red">{{ $message }}</span> @enderror
-        </div>
+                <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+                    {{ session('message') }}
+                </p>
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Google Maps Embed URL (Optional)</strong></label>
-            <input type="url" wire:model="google_map_url" style="width: 100%; padding: 8px;" placeholder="https://www.google.com/maps/embed?...">
-            <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">Paste the src URL from Google Maps Embed (starts with https://www.google.com/maps/embed)</p>
-            @error('google_map_url') <span style="color:red">{{ $message }}</span> @enderror
-        </div>
+                <button type="button" x-on:click="tampil = false" aria-label="Tutup pesan"
+                        class="-mr-1 shrink-0 rounded-control p-1 text-brand/70 transition-colors hover:bg-brand/10 hover:text-brand-deep">
+                    <x-icon.admin name="close" size="h-4 w-4" />
+                </button>
+            </div>
+        @endif
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Google Analytics / GTM ID (e.g. G-XXXXXXX)</strong></label>
-            <input type="text" wire:model="google_analytics_id" style="width: 100%; padding: 8px;">
-        </div>
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Brand Primary Color *</strong></label>
-            <input type="color" wire:model="brand_color" style="height: 40px; width: 100px;">
-        </div>
+        {{-- ══════════════════════════════════════════════════════════════
+             DUA KOLOM
+             ══════════════════════════════════════════════════════════════ --}}
+        <div class="grid gap-6 lg:grid-cols-3">
 
-        <div style="margin-bottom: 15px;">
-            <label><strong>Timezone *</strong></label>
-            <select wire:model="timezone" style="width: 100%; padding: 8px;" required>
-                <option value="Asia/Jakarta">Asia/Jakarta (WIB)</option>
-                <option value="Asia/Makassar">Asia/Makassar (WITA)</option>
-                <option value="Asia/Jayapura">Asia/Jayapura (WIT)</option>
-                <option value="UTC">UTC</option>
-            </select>
-        </div>
+            {{-- ══ KIRI ══ --}}
+            <div class="space-y-6 lg:col-span-2">
 
-        <hr style="margin: 20px 0; border: 1px solid #e5e7eb;">
+                {{-- ── Identitas perusahaan ─────────────────────────── --}}
+                <section class="card p-6">
+                    <h2 class="mb-5 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
+                        Identitas perusahaan
+                    </h2>
 
-        <h3>Social Media Links</h3>
-        <div style="margin-bottom: 15px;">
-            <label>Facebook URL</label>
-            <input type="url" wire:model="facebook_url" style="width: 100%; padding: 8px;">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label>Instagram URL</label>
-            <input type="url" wire:model="instagram_url" style="width: 100%; padding: 8px;">
-        </div>
-        <div style="margin-bottom: 15px;">
-            <label>LinkedIn URL</label>
-            <input type="url" wire:model="linkedin_url" style="width: 100%; padding: 8px;">
-        </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="set-nama" class="block text-[12px] font-semibold text-ink-faint">
+                                Nama perusahaan <span class="text-brand">*</span>
+                            </label>
 
-        <hr style="margin: 20px 0; border: 1px solid #e5e7eb;">
+                            <input type="text" wire:model="company_name" id="set-nama"
+                                   class="admin-control mt-2">
 
-        <h3>Branding Assets</h3>
-        <div style="margin-bottom: 15px;">
-            <label><strong>Company Logo</strong></label><br>
-            @if($existing_logo)
-                <img src="{{ Storage::url($existing_logo) }}" style="height: 50px; margin-bottom: 10px; background: #eee; padding: 5px;">
-            @endif
-            <input type="file" wire:model="logo" accept="image/*" style="width: 100%; padding: 8px;">
-            @error('logo') <span style="color:red">{{ $message }}</span> @enderror
+                            @error('company_name')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="set-alamat" class="block text-[12px] font-semibold text-ink-faint">
+                                Alamat <span class="text-brand">*</span>
+                            </label>
+
+                            <textarea wire:model="company_address" id="set-alamat" rows="3"
+                                      class="admin-control mt-2 resize-none leading-relaxed"></textarea>
+
+                            @error('company_address')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="set-peta" class="block text-[12px] font-semibold text-ink-faint">
+                                Tautan sematan Google Maps
+                            </label>
+
+                            <input type="url" wire:model="google_map_url" id="set-peta"
+                                   placeholder="https://www.google.com/maps/embed?…"
+                                   class="admin-control mt-2">
+
+                            {{-- Yang dibutuhkan alamat SEMATAN, bukan tautan
+                                 biasa dari bilah alamat. Menempelkan yang salah
+                                 membuat peta di halaman kontak kosong tanpa
+                                 pesan apa pun. --}}
+                            <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                Ambil dari Google Maps → Bagikan → Sematkan peta → salin
+                                bagian <span class="font-semibold text-ink-muted">src</span>-nya.
+                                Diawali <span class="font-semibold text-ink-muted">https://www.google.com/maps/embed</span>.
+                            </p>
+
+                            @error('google_map_url')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                </section>
+
+                {{-- ── Kontak ───────────────────────────────────────── --}}
+                <section class="card p-6">
+                    <h2 class="mb-5 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
+                        Kontak
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="set-email" class="block text-[12px] font-semibold text-ink-faint">
+                                Email kontak <span class="text-brand">*</span>
+                            </label>
+
+                            <input type="email" wire:model="contact_email" id="set-email"
+                                   class="admin-control mt-2">
+
+                            @error('contact_email')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+
+                            {{-- Keadaan yang perlu disebut, bukan disembunyikan:
+                                 kunci lama masih menyimpan alamat yang lain, dan
+                                 alamat itu yang dipakai kalau isian di atas kosong. --}}
+                            @if($emailBentrok)
+                                <div class="mt-2 flex items-start gap-2.5 rounded-control
+                                            border border-status-new/30 bg-status-new/5 px-3.5 py-2.5">
+                                    <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
+                                                 rounded-full bg-status-new text-white">
+                                        <svg class="h-2.5 w-2.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <path d="M8 4.4v4.4M8 11.4v.2" stroke="currentColor"
+                                                  stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </span>
+
+                                    <p class="min-w-0 text-[12px] leading-relaxed text-ink-muted">
+                                        Seluruh situs publik sekarang memakai isian di atas.
+                                        Tapi kunci lama
+                                        <span class="font-semibold text-ink">company_email</span>
+                                        masih menyimpan
+                                        <span class="font-semibold text-ink">{{ $emailSitus }}</span>,
+                                        dan alamat itulah yang muncul kalau isian di atas
+                                        dikosongkan.
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Dua nomor berdampingan: keduanya tampil di kaki situs
+                             publik, dan yang membedakannya cuma cara menghubungi. --}}
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label for="set-wa" class="block text-[12px] font-semibold text-ink-faint">
+                                    Nomor WhatsApp <span class="text-brand">*</span>
+                                </label>
+
+                                <input type="text" wire:model.live.debounce.500ms="whatsapp_number" id="set-wa"
+                                       placeholder="6281234567890"
+                                       class="admin-control mt-2">
+
+                                <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                    Format internasional tanpa spasi — inilah yang dirangkai
+                                    jadi tautan wa.me.
+                                </p>
+
+                                @error('whatsapp_number')
+                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="set-telepon" class="block text-[12px] font-semibold text-ink-faint">
+                                    Nomor telepon
+                                </label>
+
+                                <input type="text" wire:model.live.debounce.500ms="company_phone" id="set-telepon"
+                                       placeholder="+62 21 1234 5678"
+                                       class="admin-control mt-2">
+
+                                <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                    Nomor yang ditelepon biasa. Dikosongkan berarti kaki situs
+                                    hanya menampilkan WhatsApp.
+                                </p>
+
+                                @error('company_phone')
+                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Kaki situs menyembunyikan telepon yang angkanya sama
+                             persis dengan WhatsApp — menampilkan nomor yang sama
+                             dua kali cuma membuat pembaca mengira salah satunya
+                             salah ketik. Perlu disebut, karena dari panel ini
+                             kedua isiannya tampak terisi normal. --}}
+                        @if($nomorKembar)
+                            <div class="flex items-start gap-2.5 rounded-control border border-status-new/30
+                                        bg-status-new/5 px-3.5 py-2.5">
+                                <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
+                                             rounded-full bg-status-new text-white">
+                                    <svg class="h-2.5 w-2.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                        <path d="M8 4.4v4.4M8 11.4v.2" stroke="currentColor"
+                                              stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+
+                                <p class="min-w-0 text-[12px] leading-relaxed text-ink-muted">
+                                    Kedua nomornya sama. Kaki situs publik akan menampilkan
+                                    <span class="font-semibold text-ink">satu nomor saja</span> —
+                                    beda keduanya supaya WhatsApp dan telepon tampil berdampingan.
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                </section>
+
+                {{-- ── Tautan sosial ────────────────────────────────── --}}
+                <section class="card p-6">
+                    <h2 class="mb-5 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
+                        Tautan sosial
+                    </h2>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        @foreach([
+                            ['prop' => 'facebook_url',  'id' => 'set-fb', 'label' => 'Facebook',  'contoh' => 'https://facebook.com/…'],
+                            ['prop' => 'instagram_url', 'id' => 'set-ig', 'label' => 'Instagram', 'contoh' => 'https://instagram.com/…'],
+                            ['prop' => 'linkedin_url',  'id' => 'set-li', 'label' => 'LinkedIn',  'contoh' => 'https://linkedin.com/company/…'],
+                        ] as $sosial)
+                            <div>
+                                <label for="{{ $sosial['id'] }}" class="block text-[12px] font-semibold text-ink-faint">
+                                    {{ $sosial['label'] }}
+                                </label>
+
+                                <input type="url" wire:model="{{ $sosial['prop'] }}" id="{{ $sosial['id'] }}"
+                                       placeholder="{{ $sosial['contoh'] }}"
+                                       class="admin-control mt-2">
+
+                                @error($sosial['prop'])
+                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
+                        Dikosongkan berarti ikonnya tidak digambar di kaki situs publik.
+                    </p>
+                </section>
+            </div>
+
+            {{-- ══ KANAN ══ --}}
+            <div class="space-y-6">
+
+                {{-- ── Logo & ikon ──────────────────────────────────── --}}
+                <section class="card p-6">
+                    <h2 class="mb-5 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
+                        Logo &amp; ikon
+                    </h2>
+
+                    <div class="space-y-5">
+                        @foreach([
+                            ['prop' => 'logo',    'id' => 'set-logo',    'lama' => $existing_logo,
+                             'label' => 'Logo',   'nisbah' => 'aspect-[3/1]', 'catatan' => 'PNG atau SVG berlatar tembus, maksimal 2 MB.'],
+                            ['prop' => 'favicon', 'id' => 'set-favicon', 'lama' => $existing_favicon,
+                             'label' => 'Favicon','nisbah' => 'aspect-square', 'catatan' => 'Persegi, minimal 64×64 piksel, maksimal 1 MB.'],
+                        ] as $berkas)
+                            <div>
+                                <span class="block text-[12px] font-semibold text-ink-faint">{{ $berkas['label'] }}</span>
+
+                                @php
+                                    /* Alamatnya dicek benar-benar ada di disk, bukan cuma
+                                       kolomnya terisi: <img> beralamat mati menggambar ikon
+                                       rusak, dan itu terbaca sebagai logonya yang rusak. */
+                                    $adaLama = filled($berkas['lama'])
+                                        && \Illuminate\Support\Facades\Storage::disk('public')->exists($berkas['lama']);
+                                @endphp
+
+                                <div class="mt-2 grid grid-cols-2 gap-3">
+                                    @if($adaLama)
+                                        <div class="{{ $berkas['nisbah'] }} flex items-center justify-center
+                                                    overflow-hidden rounded-control border border-line bg-mist/40 p-2">
+                                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($berkas['lama']) }}"
+                                                 alt="" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                    @elseif(filled($berkas['lama']))
+                                        <div class="{{ $berkas['nisbah'] }} flex flex-col items-center justify-center
+                                                    gap-1 rounded-control border border-status-rejected/30
+                                                    bg-status-rejected/5 px-2 text-center">
+                                            <span class="text-[11px] font-bold text-status-rejected">Berkas hilang</span>
+                                        </div>
+                                    @endif
+
+                                    {{-- Berkas yang baru dipilih tapi belum tersimpan.
+                                         temporaryUrl() dibungkus try: ia melempar galat
+                                         untuk berkas yang bukan gambar. --}}
+                                    @if($this->{$berkas['prop']})
+                                        @php
+                                            try {
+                                                $pratinjau = $this->{$berkas['prop']}->temporaryUrl();
+                                            } catch (\Throwable $e) {
+                                                $pratinjau = null;
+                                            }
+                                        @endphp
+
+                                        <div class="relative {{ $berkas['nisbah'] }} flex items-center justify-center
+                                                    overflow-hidden rounded-control border border-dashed
+                                                    border-brand/50 bg-brand-wash p-2">
+                                            @if($pratinjau)
+                                                <img src="{{ $pratinjau }}" alt=""
+                                                     class="max-h-full max-w-full object-contain">
+                                            @else
+                                                <span class="px-2 text-center text-[11px] leading-snug text-ink-muted">
+                                                    {{ $this->{$berkas['prop']}->getClientOriginalName() }}
+                                                </span>
+                                            @endif
+
+                                            <span class="absolute left-1.5 top-1.5 rounded-full bg-brand px-1.5
+                                                         text-[10px] font-bold text-white">Baru</span>
+                                        </div>
+                                    @endif
+
+                                    <label title="{{ $adaLama ? 'Ganti ' . $berkas['label'] : 'Pilih ' . $berkas['label'] }}"
+                                           class="{{ $berkas['nisbah'] }} flex cursor-pointer items-center justify-center
+                                                  rounded-control border-2 border-dashed border-line-strong
+                                                  bg-mist/40 text-ink-faint transition-colors
+                                                  hover:border-brand hover:bg-brand-wash hover:text-brand
+                                                  focus-within:border-brand focus-within:text-brand">
+
+                                        <input type="file" wire:model="{{ $berkas['prop'] }}" id="{{ $berkas['id'] }}"
+                                               accept="image/*"
+                                               aria-label="{{ $adaLama ? 'Ganti ' . $berkas['label'] : 'Pilih ' . $berkas['label'] }}"
+                                               class="sr-only">
+
+                                        <span wire:loading.remove wire:target="{{ $berkas['prop'] }}">
+                                            <svg class="h-7 w-7" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                                                <path d="M18 9v18M9 18h18" stroke="currentColor"
+                                                      stroke-width="2" stroke-linecap="round"/>
+                                            </svg>
+                                        </span>
+
+                                        <svg wire:loading wire:target="{{ $berkas['prop'] }}"
+                                             class="h-6 w-6 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
+                                                  stroke-width="1.6" stroke-linecap="round"/>
+                                        </svg>
+                                    </label>
+                                </div>
+
+                                <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">{{ $berkas['catatan'] }}</p>
+
+                                @error($berkas['prop'])
+                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                {{-- ── Integrasi ────────────────────────────────────── --}}
+                <section class="card p-6">
+                    <h2 class="mb-5 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
+                        Integrasi
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="set-ga" class="block text-[12px] font-semibold text-ink-faint">
+                                ID Google Analytics
+                            </label>
+
+                            <input type="text" wire:model="google_analytics_id" id="set-ga"
+                                   placeholder="G-XXXXXXXXXX"
+                                   class="admin-control mt-2 font-mono">
+
+                            <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                Dikosongkan berarti pelacakannya tidak dipasang sama sekali.
+                            </p>
+
+                            @error('google_analytics_id')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-ink-faint">
+                                Zona waktu <span class="text-brand">*</span>
+                            </label>
+
+                            {{-- :nullable="false" — situs selalu berada di satu zona
+                                 waktu; kekosongan bukan jawaban yang sah. --}}
+                            <x-admin.select model="timezone" :value="$timezone" class="mt-2"
+                                            label="Zona waktu situs" :nullable="false"
+                                            :options="$zona->map(fn ($label, $nilai) => [
+                                                'nilai' => $nilai, 'label' => $label,
+                                            ])->values()->all()" />
+
+                            <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                Menentukan cap waktu inquiry dan tanggal terbit berita.
+                            </p>
+
+                            @error('timezone')
+                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
-
-        <div style="margin-bottom: 25px;">
-            <label><strong>Favicon</strong></label><br>
-            @if($existing_favicon)
-                <img src="{{ Storage::url($existing_favicon) }}" style="height: 32px; margin-bottom: 10px; background: #eee; padding: 5px;">
-            @endif
-            <input type="file" wire:model="favicon" accept="image/*" style="width: 100%; padding: 8px;">
-            @error('favicon') <span style="color:red">{{ $message }}</span> @enderror
-        </div>
-
-        <button type="submit" style="padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-            Save Settings
-        </button>
     </form>
-
-    <hr style="margin: 30px 0; border: 1px solid #e5e7eb;">
-
-    <h2>Home Page Sections Order</h2>
-    <p style="font-size: 14px; color: #6b7280; margin-bottom: 15px;">
-        Manage the order and visibility of sections on the homepage. Changes here are saved instantly.
-    </p>
-
-    <div style="border: 1px solid #d1d5db; border-radius: 6px; overflow: hidden;">
-        <table border="0" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f3f4f6; text-align: left;">
-                    <th style="border-bottom: 1px solid #d1d5db; width: 60px;">Order</th>
-                    <th style="border-bottom: 1px solid #d1d5db;">Section Identifier</th>
-                    <th style="border-bottom: 1px solid #d1d5db;">Display Name</th>
-                    <th style="border-bottom: 1px solid #d1d5db; width: 100px;">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($home_sections as $sec)
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="text-align: center;">
-                            <button wire:click="moveSectionUp('{{ $sec['id'] }}')" style="padding: 2px 5px; cursor: pointer; border: 1px solid #ccc; background: white;">▲</button><br>
-                            <span style="font-weight: bold; font-size: 14px; display: inline-block; margin: 4px 0;">{{ $sec['order'] }}</span><br>
-                            <button wire:click="moveSectionDown('{{ $sec['id'] }}')" style="padding: 2px 5px; cursor: pointer; border: 1px solid #ccc; background: white;">▼</button>
-                        </td>
-                        <td><code>{{ $sec['id'] }}</code></td>
-                        <td>{{ $sec['name'] }}</td>
-                        <td>
-                            <button wire:click="toggleSectionActive('{{ $sec['id'] }}')" style="padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; background: {{ $sec['active'] ? '#10b981' : '#6b7280' }}; color: white; width: 100%;">
-                                {{ $sec['active'] ? 'Active' : 'Hidden' }}
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
 </div>

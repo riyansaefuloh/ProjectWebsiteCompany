@@ -14,6 +14,21 @@ class GalleryIndex extends Component
 
     public $search = '';
     public $isOpen = false;
+
+    /**
+     * Kembali ke halaman satu tiap kali pencariannya diubah.
+     *
+     * Tanpa ini, mencari saat sedang berada di halaman jauh meninggalkan nomor
+     * halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3 halaman
+     * menggambar tabel kosong beserta kalimat "tidak ada yang cocok", padahal
+     * hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if ($property === 'search') {
+            $this->resetPage();
+        }
+    }
     
     public $gallery_id;
     public $name;
@@ -25,8 +40,21 @@ class GalleryIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        $galleries = Gallery::where('name', 'like', '%' . $this->search . '%')
-            ->with('items.media')
+        /*
+         * when(), bukan LIKE '%%' tanpa syarat. Keduanya menghasilkan baris
+         * yang sama — galleries.name itu NOT NULL, jadi tidak ada baris yang
+         * diam-diam tersaring — tapi yang lama menempelkan kondisi ke setiap
+         * kueri tanpa alasan, dan bentuknya beda sendiri dari halaman admin
+         * lain yang semuanya memakai when().
+         *
+         * latest('updated_at') supaya album yang baru ditambahi media naik ke
+         * atas — kolom "Diperbarui" di tabelnya jadi berarti.
+         */
+        $galleries = Gallery::with('items.media')
+            ->when($this->search, function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
+            })
+            ->latest('updated_at')
             ->paginate(10);
 
         return view('livewire.admin.gallery-index', [
@@ -34,8 +62,17 @@ class GalleryIndex extends Component
         ]);
     }
 
+    /*
+     * Kantong galatnya ikut dikosongkan tiap kali modalnya dibuka.
+     *
+     * Kantong itu bertahan lintas permintaan: sekali percobaan simpan gagal,
+     * pesan merahnya masih menempel saat modalnya dibuka lagi untuk album yang
+     * lain, padahal isiannya sudah benar. Yang terbaca pemakai: galat yang
+     * tidak bisa dihilangkan.
+     */
     public function create()
     {
+        $this->resetValidation();
         $this->resetInputFields();
         $this->isOpen = true;
     }
@@ -89,6 +126,8 @@ class GalleryIndex extends Component
 
     public function edit($id)
     {
+        $this->resetValidation();
+
         $gallery = Gallery::with('items.media')->findOrFail($id);
         $this->gallery_id = $id;
         $this->name = $gallery->name;

@@ -12,9 +12,8 @@
     @php
         $globalSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
         $companyName = $globalSettings['company_name'] ?? config('app.name', 'Export Company');
-        $brandColor = $globalSettings['brand_color'] ?? '#333';
         $whatsapp = $globalSettings['whatsapp_number'] ?? '';
-        $email = $globalSettings['company_email'] ?? $globalSettings['contact_email'] ?? '';
+        $email = $globalSettings['contact_email'] ?? $globalSettings['company_email'] ?? '';
         $address = $globalSettings['company_address'] ?? '';
         $logo = $globalSettings['logo'] ?? '';
         $favicon = $globalSettings['favicon'] ?? '';

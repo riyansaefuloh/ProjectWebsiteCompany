@@ -12,8 +12,36 @@ class ExportMarketIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
+    /*
+     * Penyaring. Namanya diawali "selected" supaya tidak bentrok dengan isian
+     * modal di bawah — $region sudah dipakai untuk menyunting satu negara, dan
+     * satu properti tidak bisa merangkap dua peran.
+     *
+     * Nilai statusnya 'active'/'inactive', bukan '1'/'0': keduanya untai yang
+     * benar di mata PHP, jadi when() di render() tidak perlu penjagaan khusus
+     * seperti penyaring unggulan di halaman Produk.
+     */
+    public string $selectedStatus = '';
+    public string $selectedRegion = '';
+
     public bool $showModal = false;
     public ?string $editingId = null;
+
+    /**
+     * Kembali ke halaman satu tiap kali penyaringnya diubah.
+     *
+     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
+     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
+     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
+     * padahal hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if (in_array($property, ['search', 'selectedStatus', 'selectedRegion'], true)) {
+            $this->resetPage();
+        }
+    }
 
     // Form Fields (PRD Bab 9.1)
     public string $country_code = '';
@@ -40,14 +68,26 @@ class ExportMarketIndex extends Component
         ];
     }
 
+    /*
+     * Kantong galatnya ikut dikosongkan tiap kali modalnya dibuka.
+     *
+     * Kantong itu bertahan lintas permintaan: sekali percobaan simpan gagal,
+     * pesan merahnya — beserta titik merah di sakelar bahasanya — masih
+     * menempel saat modalnya dibuka lagi untuk negara yang lain, padahal
+     * isiannya sudah benar. Yang terbaca pemakai: galat yang tidak bisa
+     * dihilangkan.
+     */
     public function create(): void
     {
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $market = ExportMarket::with('translations')->findOrFail($id);
         $this->editingId = $market->id;
         $this->country_code = $market->country_code;
@@ -116,18 +156,42 @@ class ExportMarketIndex extends Component
     public function render()
     {
         $markets = ExportMarket::with('translations')
+            /*
+             * Ketiga syarat pencariannya dikurung sendiri.
+             *
+             * when() tidak membungkus isinya dalam tanda kurung, jadi tanpa $b
+             * ini SQL-nya jadi "(kode) OR (kawasan) OR nama AND is_active = ?"
+             * — dan AND mengikat lebih erat daripada OR, sehingga penyaring
+             * statusnya cuma berlaku untuk cabang terakhir.
+             */
             ->when($this->search, function ($q) {
-                $q->where('country_code', 'LIKE', "%{$this->search}%")
-                  ->orWhere('region', 'LIKE', "%{$this->search}%")
-                  ->orWhereHas('translations', function ($trans) {
-                      $trans->where('name', 'LIKE', "%{$this->search}%");
-                  });
+                $q->where(function ($b) {
+                    $b->where('country_code', 'LIKE', "%{$this->search}%")
+                      ->orWhere('region', 'LIKE', "%{$this->search}%")
+                      ->orWhereHas('translations', function ($trans) {
+                          $trans->where('name', 'LIKE', "%{$this->search}%");
+                      });
+                });
+            })
+            ->when($this->selectedStatus, function ($q) {
+                $q->where('is_active', $this->selectedStatus === 'active');
+            })
+            ->when($this->selectedRegion, function ($q) {
+                $q->where('region', $this->selectedRegion);
             })
             ->orderBy('sort_order', 'asc')
             ->paginate(10);
 
         return view('livewire.admin.export-market-index', [
             'markets' => $markets,
+
+            /*
+             * Kawasan yang benar-benar ada datanya, bukan ketujuh pilihan tetap
+             * di modalnya: menawarkan kawasan yang nol barisnya cuma memberi
+             * jalan buntu.
+             */
+            'regions' => ExportMarket::query()
+                ->select('region')->distinct()->orderBy('region')->pluck('region'),
         ]);
     }
 }

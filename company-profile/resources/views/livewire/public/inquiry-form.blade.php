@@ -1,6 +1,9 @@
 @php
     $address  = $settings['company_address'] ?? '';
-    $email    = $settings['company_email'] ?? $settings['contact_email'] ?? '';
+    /* Urutan kuncinya disamakan dengan kaki situs. Sebelumnya halaman ini
+       mendahulukan company_email sedangkan kaki situs contact_email, jadi satu
+       layar bisa memuat dua alamat yang berbeda. */
+    $email    = $settings['contact_email'] ?? $settings['company_email'] ?? '';
     $whatsapp = $settings['whatsapp_number'] ?? '';
     $phone    = $settings['company_phone'] ?? '';
     $mapUrl   = $settings['google_map_url'] ?? '';
@@ -55,26 +58,13 @@
                                 </div>
                             @endif
 
-                            @if(!empty($socials))
-                                <div>
-                                    <dt class="eyebrow">{{ __('site.label_social_media') }}</dt>
-                                    <dd class="mt-3.5">
-                                        <ul class="flex flex-wrap gap-2.5">
-                                            @foreach($socials as $social)
-                                                <li>
-                                                    <a href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer"
-                                                       aria-label="{{ $social['label'] }}"
-                                                       class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line
-                                                              text-ink-muted transition-colors hover:border-brand hover:text-brand">
-                                                        <x-icon.social :name="$social['icon']" />
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    </dd>
-                                </div>
-                            @endif
+                            {{-- Susunannya menirukan kaki situs: alamat + email di baris
+                                 atas, WhatsApp + telepon di baris bawah.
 
+                                 Keduanya berpasangan menurut caranya dihubungi — yang
+                                 ditulis di atas, yang ditelepon di bawah. Kedua nomor
+                                 pun jadi sebaris, jadi panjangnya yang beda-beda tidak
+                                 lagi membuat kolomnya tampak miring. --}}
                             @if($email)
                                 <div>
                                     <dt class="flex items-center gap-2">
@@ -87,24 +77,31 @@
                                 </div>
                             @endif
 
-                            @if($waLink || $phoneIsDistinct)
+                            @if($waLink)
                                 <div>
                                     <dt class="flex items-center gap-2">
                                         <x-icon.whatsapp size="h-4 w-4" class="shrink-0 text-brand" />
-                                        <span class="eyebrow">{{ __('site.label_contact') }}</span>
+                                        <span class="eyebrow">{{ __('site.label_whatsapp') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 space-y-2 text-[13px] leading-relaxed text-ink-muted">
-                                        @if($waLink)
-                                            <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
-                                               class="block transition-colors hover:text-brand">{{ $whatsapp }}</a>
-                                        @endif
-                                        @if($phoneIsDistinct)
-                                            <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}"
-                                               class="flex items-center gap-2 transition-colors hover:text-brand">
-                                                <x-icon.contact name="phone" class="shrink-0 text-ink-faint" />
-                                                {{ $phone }}
-                                            </a>
-                                        @endif
+                                    <dd class="mt-3.5 text-[13px] leading-relaxed text-ink-muted">
+                                        <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
+                                           class="transition-colors hover:text-brand">{{ $whatsapp }}</a>
+                                    </dd>
+                                </div>
+                            @endif
+
+                            {{-- Telepon: hanya kalau angkanya beda dari WhatsApp. Nomor
+                                 yang sama tergambar dua kali cuma membuat pembaca
+                                 mengira salah satunya salah ketik. --}}
+                            @if($phoneIsDistinct)
+                                <div>
+                                    <dt class="flex items-center gap-2">
+                                        <x-icon.contact name="phone" class="shrink-0 text-brand" />
+                                        <span class="eyebrow">{{ __('site.label_phone') }}</span>
+                                    </dt>
+                                    <dd class="mt-3.5 text-[13px] leading-relaxed text-ink-muted">
+                                        <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}"
+                                           class="transition-colors hover:text-brand">{{ $phone }}</a>
                                     </dd>
                                 </div>
                             @endif
@@ -119,6 +116,28 @@
                                         @foreach($hours as $dayLabel => $range)
                                             <span class="block">{{ rtrim($dayLabel, ':') }} · {{ $range }}</span>
                                         @endforeach
+                                    </dd>
+                                </div>
+                            @endif
+
+                            {{-- Media sosial turun ke bawah supaya empat blok kontak di
+                                 atasnya bisa berpasangan dua-dua seperti di kaki situs. --}}
+                            @if(!empty($socials))
+                                <div class="sm:col-span-2">
+                                    <dt class="eyebrow">{{ __('site.label_social_media') }}</dt>
+                                    <dd class="mt-3.5">
+                                        <ul class="flex flex-wrap gap-2.5">
+                                            @foreach($socials as $social)
+                                                <li>
+                                                    <a href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer"
+                                                       aria-label="{{ $social['label'] }}"
+                                                       class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line
+                                                              text-ink-muted transition-colors hover:border-brand hover:text-brand">
+                                                        <x-icon.social :name="$social['icon']" />
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
                                     </dd>
                                 </div>
                             @endif

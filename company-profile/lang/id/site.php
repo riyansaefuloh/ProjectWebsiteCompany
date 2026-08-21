@@ -131,6 +131,10 @@ return [
     'label_social_media'  => 'Media sosial',
     'label_open_hours'    => 'Jam operasional',
     'label_contact'       => 'Kontak',
+
+    // Dua nomor terpisah di halaman kontak, sebutannya sama dengan kaki situs.
+    'label_whatsapp'      => 'WhatsApp',
+    'label_phone'         => 'Telepon',
     'find_us'             => 'Temukan kami',
 
     'footer_contact'      => 'Hubungi Kami',

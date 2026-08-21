@@ -14,8 +14,32 @@ class UserIndex extends Component
     use WithPagination;
 
     public string $search = '';
+
+    /*
+     * Penyaring peran. Namanya filterRole, bukan selectedRole, karena
+     * $selectedRole di bawah sudah dipakai sebagai isian modalnya — satu
+     * properti tidak bisa merangkap dua peran: menyunting pengguna bakal ikut
+     * menyaring tabelnya.
+     */
+    public string $filterRole = '';
+
     public bool $showModal = false;
     public ?string $editingId = null;
+
+    /**
+     * Kembali ke halaman satu tiap kali penyaringnya diubah.
+     *
+     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
+     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
+     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
+     * padahal hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if (in_array($property, ['search', 'filterRole'], true)) {
+            $this->resetPage();
+        }
+    }
 
     // Form Fields
     public string $name = '';
@@ -37,14 +61,24 @@ class UserIndex extends Component
         ];
     }
 
+    /*
+     * Kantong galatnya ikut dikosongkan tiap kali modalnya dibuka.
+     *
+     * Kantong itu bertahan lintas permintaan: sekali percobaan simpan gagal,
+     * pesan merahnya masih menempel saat modalnya dibuka lagi untuk pengguna
+     * yang lain, padahal isiannya sudah benar.
+     */
     public function create(): void
     {
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $user = User::with('roles')->findOrFail($id);
         $this->editingId = $user->id;
         $this->name = $user->name;
@@ -105,16 +139,35 @@ class UserIndex extends Component
     public function render()
     {
         $users = User::with('roles')
+            /*
+             * Kedua syarat pencariannya dikurung sendiri.
+             *
+             * when() tidak membungkus isinya dalam tanda kurung, jadi tanpa $b
+             * ini SQL-nya jadi "(nama cocok) OR email cocok AND peran = ?" —
+             * dan AND mengikat lebih erat daripada OR, sehingga penyaring
+             * perannya cuma berlaku untuk cabang email.
+             */
             ->when($this->search, function ($q) {
-                $q->where('name', 'LIKE', "%{$this->search}%")
-                  ->orWhere('email', 'LIKE', "%{$this->search}%");
+                $q->where(function ($b) {
+                    $b->where('name', 'LIKE', "%{$this->search}%")
+                      ->orWhere('email', 'LIKE', "%{$this->search}%");
+                });
+            })
+            ->when($this->filterRole, function ($q) {
+                $q->whereHas('roles', fn ($r) => $r->where('name', $this->filterRole));
             })
             ->latest()
             ->paginate(10);
 
         return view('livewire.admin.user-index', [
             'users' => $users,
-            'roles' => Role::all(),
+            /*
+             * 'permissions' ikut dimuat karena modalnya menampilkan apa saja
+             * yang bisa dilakukan peran yang sedang dipilih. Memilih peran
+             * tanpa tahu akibatnya adalah cara paling gampang memberi akses
+             * yang tidak dimaksudkan.
+             */
+            'roles' => Role::with('permissions')->withCount('users')->orderBy('name')->get(),
         ]);
     }
 }

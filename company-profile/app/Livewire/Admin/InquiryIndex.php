@@ -28,6 +28,21 @@ class InquiryIndex extends Component
     public ?string $assigned_to = null;
     public ?string $internal_note = null;
 
+    /**
+     * Kembali ke halaman satu tiap kali penyaringnya diubah.
+     *
+     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
+     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
+     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
+     * padahal hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if (in_array($property, ['search', 'selectedStatus', 'selectedProduct', 'dateFrom', 'dateTo'], true)) {
+            $this->resetPage();
+        }
+    }
+
     public function viewDetails(string $id): void
     {
         $this->selectedInquiry = Inquiry::with(['product.translations', 'assignedSales'])->findOrFail($id);
