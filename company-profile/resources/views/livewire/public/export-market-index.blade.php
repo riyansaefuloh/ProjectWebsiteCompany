@@ -5,11 +5,11 @@
     <section class="pb-10 pt-14 md:pt-16 lg:pb-12 lg:pt-20">
         <div class="shell">
             <div class="max-w-[46rem]">
-                <p class="eyebrow">{{ __('site.home_section_export_markets') }}</p>
+                <p class="eyebrow">{{ $isi('eyebrow', 'site.home_section_export_markets') }}</p>
                 <h1 class="display mt-5 max-w-[18ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ __('site.page_export_markets') }}
+                    {{ $isi('title', 'site.page_export_markets') }}
                 </h1>
-                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_export_markets_sub') }}</p>
+                <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_export_markets_sub') }}</p>
             </div>
 
             {{-- ── Statistik ──────────────────────────────────────────────── --}}
@@ -40,7 +40,7 @@
                 <x-site.export-map :markets="$exportMarkets" :detailed="true" />
             @else
                 <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                    {{ __('site.no_export_markets') }}
+                    {{ $isi('empty', 'site.no_export_markets') }}
                 </p>
             @endif
         </div>

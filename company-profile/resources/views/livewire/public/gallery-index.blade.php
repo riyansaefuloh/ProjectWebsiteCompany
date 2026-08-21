@@ -35,11 +35,11 @@
     <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
         <div class="shell">
             <div class="max-w-[46rem]">
-                <p class="eyebrow">{{ __('site.nav_gallery') }}</p>
+                <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_gallery') }}</p>
                 <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ __('site.page_gallery') }}
+                    {{ $isi('title', 'site.page_gallery') }}
                 </h1>
-                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_gallery_sub') }}</p>
+                <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_gallery_sub') }}</p>
             </div>
         </div>
     </section>
@@ -70,7 +70,7 @@
                 </ul>
             @elseif(!$featured)
                 <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                    {{ __('site.no_gallery_items') }}
+                    {{ $isi('empty', 'site.no_gallery_items') }}
                 </p>
             @endif
         </div>

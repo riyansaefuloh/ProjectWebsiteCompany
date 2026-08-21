@@ -14,6 +14,14 @@ class CategoryIndex extends Component
     use WithPagination, WithFileUploads;
 
     public string $search = '';
+
+    /*
+     * Penyaring status. Namanya selectedStatus, bukan status, karena $status
+     * di bawah sudah dipakai sebagai isian modalnya — satu properti tidak bisa
+     * merangkap dua peran: menyunting kategori bakal ikut menyaring tabelnya.
+     */
+    public string $selectedStatus = '';
+
     public bool $showModal = false;
     public ?string $editingId = null;
 
@@ -31,6 +39,21 @@ class CategoryIndex extends Component
     public ?string $existingImage = null;
     public string $activeTab = 'en';
 
+    /**
+     * Kembali ke halaman satu tiap kali penyaringnya diubah.
+     *
+     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
+     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
+     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
+     * padahal hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if (in_array($property, ['search', 'selectedStatus'], true)) {
+            $this->resetPage();
+        }
+    }
+
     protected function rules(): array
     {
         return [
@@ -47,12 +70,22 @@ class CategoryIndex extends Component
 
     public function create(): void
     {
+        /*
+         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
+         *
+         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
+         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
+         * data lain menampilkan pesan merah milik data yang tadi.
+         */
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $category = Category::with('translations')->findOrFail($id);
         $this->editingId = $category->id;
         $this->name_en = $category->getTranslation('name', 'en') ?? '';
@@ -141,11 +174,16 @@ class CategoryIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        $categories = Category::with('translations')
+        // 'media' ikut dimuat di depan karena tabelnya menampilkan gambar tiap
+        // kategori. Tanpa ini, tiap baris menembak kuerinya sendiri.
+        $categories = Category::with(['translations', 'media'])
             ->when($this->search, function ($q) {
                 $q->whereHas('translations', function ($trans) {
                     $trans->where('name', 'LIKE', "%{$this->search}%");
                 });
+            })
+            ->when($this->selectedStatus, function ($q) {
+                $q->where('status', $this->selectedStatus);
             })
             ->orderBy('sort_order', 'asc')
             ->paginate(10);

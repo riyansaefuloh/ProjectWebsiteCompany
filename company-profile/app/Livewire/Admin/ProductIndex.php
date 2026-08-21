@@ -18,6 +18,16 @@ class ProductIndex extends Component
     // Filter & Search State
     public string $search = '';
     public string $selectedCategory = '';
+    public string $selectedStatus = '';
+
+    /*
+     * Penyaring unggulan. Untai, bukan boolean: '' berarti "semua", '1'
+     * berarti unggulan saja, '0' berarti yang bukan unggulan.
+     *
+     * Nilai '0' inilah yang menuntut kehati-hatian di kuerinya — lihat
+     * catatan di render().
+     */
+    public string $selectedFeatured = '';
 
     // Modal & Edit State
     public bool $showModal = false;
@@ -47,6 +57,21 @@ class ProductIndex extends Component
     public $imageFiles = [];
     public $existingMedia = [];
     public string $activeTab = 'en';
+
+    /**
+     * Kembali ke halaman satu tiap kali penyaringnya diubah.
+     *
+     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
+     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
+     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
+     * padahal hasilnya ada, cuma tidak di halaman itu.
+     */
+    public function updating($property, $value): void
+    {
+        if (in_array($property, ['search', 'selectedCategory', 'selectedStatus', 'selectedFeatured'], true)) {
+            $this->resetPage();
+        }
+    }
 
     protected function rules(): array
     {
@@ -83,12 +108,22 @@ class ProductIndex extends Component
 
     public function create(): void
     {
+        /*
+         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
+         *
+         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
+         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
+         * data lain menampilkan pesan merah milik data yang tadi.
+         */
+        $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit(string $id): void
     {
+        $this->resetValidation();
+
         $product = Product::with(['translations', 'specifications', 'certifications'])->findOrFail($id);
         $this->editingId = $product->id;
         $this->category_id = $product->category_id;
@@ -242,12 +277,29 @@ class ProductIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        $products = Product::with(['category.translations', 'translations', 'certifications'])
+        // 'media' ikut dimuat di depan karena tabelnya kini menampilkan gambar
+        // tiap produk. Tanpa ini, tiap baris menembak kuerinya sendiri —
+        // sepuluh baris jadi sepuluh kueri tambahan di tiap muat halaman.
+        $products = Product::with(['category.translations', 'translations', 'certifications', 'media'])
             ->when($this->search, function ($q) {
                 $q->search($this->search);
             })
             ->when($this->selectedCategory, function ($q) {
                 $q->where('category_id', $this->selectedCategory);
+            })
+            ->when($this->selectedStatus, function ($q) {
+                $q->where('status', $this->selectedStatus);
+            })
+            /*
+             * !== '', BUKAN when($this->selectedFeatured, ...).
+             *
+             * when() memakai kebenaran nilainya, dan untai '0' itu palsu di
+             * PHP — jadi pilihan "bukan unggulan" tidak akan pernah menyaring
+             * apa pun, dan diam-diam menampilkan seluruh produk seolah tidak
+             * ada penyaring yang menyala.
+             */
+            ->when($this->selectedFeatured !== '', function ($q) {
+                $q->where('is_featured', $this->selectedFeatured === '1');
             })
             ->latest()
             ->paginate(10);

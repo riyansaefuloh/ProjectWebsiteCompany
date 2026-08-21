@@ -69,8 +69,17 @@ class ProductShow extends Component
             ['label' => __('site.origin'),           'value' => $this->product->origin],
             ['label' => __('site.hs_code'),          'value' => $this->product->hs_code],
             ['label' => __('site.moq'),              'value' => $this->product->moq],
+            /*
+             * Mata uangnya diambil dari kolomnya, bukan dipatok 'USD'.
+             *
+             * Sebelumnya tulisan USD ditulis langsung di sini sementara kolom
+             * currency ikut disimpan — jadi harga yang dicatat dalam EUR pun
+             * tetap tergambar sebagai USD di halaman terbuka. Untuk halaman
+             * yang dibaca pembeli luar negeri, itu bukan salah ketik kecil.
+             */
             ['label' => __('site.indicative_price'), 'value' => $this->product->indicative_price
-                ? number_format((float) $this->product->indicative_price, 2) . ' USD'
+                ? number_format((float) $this->product->indicative_price, 2)
+                    . ' ' . ($this->product->currency ?: 'USD')
                 : null],
         ])
         ->concat($specs->map(fn ($spec) => [

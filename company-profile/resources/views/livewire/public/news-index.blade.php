@@ -5,11 +5,11 @@
     <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
         <div class="shell">
             <div class="max-w-[46rem]">
-                <p class="eyebrow">{{ __('site.news_eyebrow') }}</p>
+                <p class="eyebrow">{{ $isi('eyebrow', 'site.news_eyebrow') }}</p>
                 <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ __('site.page_news') }}
+                    {{ $isi('title', 'site.page_news') }}
                 </h1>
-                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_news_sub') }}</p>
+                <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_news_sub') }}</p>
             </div>
         </div>
     </section>
@@ -41,7 +41,7 @@
                             <span class="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1.5
                                          text-[11px] font-bold uppercase tracking-[0.1em] text-brand">
                                 <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
-                                {{ __('site.featured_article') }}
+                                {{ $isi('featured', 'site.featured_article') }}
                             </span>
 
                             @if($featured->category)
@@ -74,7 +74,7 @@
                         @endif
 
                         <a href="{{ route('news.show', $featured->slug) }}" class="link-arrow mt-7">
-                            {{ __('site.read_article') }}
+                            {{ $isi('read_label', 'site.read_article') }}
                             <span>
                                 <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                     <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -92,7 +92,7 @@
         <div class="shell">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div class="relative flex-1">
-                    <label for="news-search" class="sr-only">{{ __('site.page_news') }}</label>
+                    <label for="news-search" class="sr-only">{{ $isi('title', 'site.page_news') }}</label>
                     <svg class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint"
                          viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <circle cx="7.2" cy="7.2" r="4.8" stroke="currentColor" stroke-width="1.5"/>
@@ -227,7 +227,7 @@
                                         @endif
 
                                         <a href="{{ route('news.show', $article->slug) }}" class="link-arrow mt-auto pt-6">
-                                            {{ __('site.read_article') }}
+                                            {{ $isi('read_label', 'site.read_article') }}
                                             <span>
                                                 <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                                     <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -246,7 +246,7 @@
                 @else
                     <div class="mt-8 rounded-corner border border-dashed border-line px-6 py-20 text-center">
                         <p class="font-display text-[18px] font-extrabold text-ink">
-                            {{ __('site.no_news_found') }}
+                            {{ $isi('empty', 'site.no_news_found') }}
                         </p>
 
                         @if($hasFilters)

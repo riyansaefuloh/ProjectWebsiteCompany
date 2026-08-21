@@ -26,7 +26,9 @@ class InquirySystemTest extends TestCase
             ->set('country_code', 'US')
             ->set('volume', '2 x 40ft container')
             ->set('message', 'We would like to request a quote for green coffee beans.')
-            ->call('submit')
+            // Token dikirim seperti yang dilakukan formulirnya. Sewaktu
+            // RECAPTCHA_SECRET_KEY kosong, sisi peladen melewati verifikasinya.
+            ->call('submit', 'token-uji')
             ->assertSet('isSubmitted', true);
 
         $this->assertDatabaseHas('inquiries', [

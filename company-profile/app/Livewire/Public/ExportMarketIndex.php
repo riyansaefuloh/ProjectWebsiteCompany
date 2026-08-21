@@ -56,6 +56,10 @@ class ExportMarketIndex extends Component
         $stats = array_values(array_filter($stats, fn ($stat) => filled($stat['value'])));
 
         return view('livewire.public.export-market-index', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('export-markets'),
+
             'exportMarkets' => $exportMarkets,
             'stats'         => $stats,
         ]);

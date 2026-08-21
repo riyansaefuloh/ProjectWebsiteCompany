@@ -73,6 +73,10 @@ class GalleryIndex extends Component
             ->values();
 
         return view('livewire.public.gallery-index', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('gallery'),
+
             'featured' => $albums->first(),
             'albums'   => $albums->skip(1)->values(),
         ]);

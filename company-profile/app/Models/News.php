@@ -77,14 +77,27 @@ class News extends Model implements HasMedia
             return $query;
         }
 
-        $driver = \DB::connection()->getDriverName();
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
 
-        // Jika menggunakan PostgreSQL, gunakan FTS tsvector & plainto_tsquery
-        if ($driver === 'pgsql') {
-            return $query->whereHas('translations', function ($q) use ($term) {
+        /*
+         * PostgreSQL: pencarian teks penuh dengan kamus 'simple' dan pencocokan
+         * awalan — lihat App\Support\PencarianTeks untuk alasan keduanya.
+         *
+         * Kalau kata pencariannya habis sesudah dibersihkan (misalnya cuma
+         * berisi tanda baca), kueri FTS-nya dilewati dan pencariannya jatuh ke
+         * pencocokan LIKE di bawah. Kueri kosong lebih baik tidak menyaring
+         * apa-apa daripada mengembalikan nol hasil tanpa sebab yang terlihat.
+         */
+        $kueri = \App\Support\PencarianTeks::kueriAwalan($term);
+
+        if ($driver === 'pgsql' && $kueri !== null) {
+            $kamus = \App\Support\PencarianTeks::kamus();
+
+            return $query->whereHas('translations', function ($q) use ($kueri, $kamus) {
                 $q->whereRaw(
-                    "to_tsvector('english', title || ' ' || COALESCE(excerpt, '') || ' ' || COALESCE(content, '')) @@ plainto_tsquery('english', ?)",
-                    [$term]
+                    "to_tsvector('{$kamus}', title || ' ' || COALESCE(excerpt, '') || ' ' || COALESCE(content, ''))"
+                    . " @@ to_tsquery('{$kamus}', ?)",
+                    [$kueri]
                 );
             });
         }

@@ -5,11 +5,11 @@
     <section class="pb-10 pt-14 md:pt-16 lg:pb-12 lg:pt-20">
         <div class="shell">
             <div class="max-w-[46rem]">
-                <p class="eyebrow">{{ __('site.certifications') }}</p>
+                <p class="eyebrow">{{ $isi('eyebrow', 'site.certifications') }}</p>
                 <h1 class="display mt-5 max-w-[18ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ __('site.page_certifications') }}
+                    {{ $isi('title', 'site.page_certifications') }}
                 </h1>
-                <p class="lede mt-6 max-w-[52ch]">{{ __('site.page_certifications_sub') }}</p>
+                <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_certifications_sub') }}</p>
             </div>
         </div>
     </section>
@@ -105,7 +105,7 @@
                 </ul>
             @else
                 <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                    {{ __('site.no_certifications') }}
+                    {{ $isi('empty', 'site.no_certifications') }}
                 </p>
             @endif
         </div>

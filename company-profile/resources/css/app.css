@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+/* Tema bawaan penyunting teks kaya.
+ *
+ * Diimpor DI SINI, bukan dari resources/js/editor.js. Kalau diimpor dari
+ * berkas JS, Vite menaruhnya di lembar gaya terpisah dan urutan muatnya
+ * terhadap lembar ini tidak dijamin — sementara penyesuaian warna di bagian
+ * .admin-editor di bawah harus datang SESUDAH tema ini untuk bisa menimpanya.
+ * Satu berkas, satu urutan, tidak ada kejutan. */
+@import 'quill/dist/quill.snow.css';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -8,11 +17,33 @@
 /* ==========================================================================
    DESIGN TOKENS
    ========================================================================== */
+/* Varian untuk sidebar yang sedang menyempit.
+ *
+ * Keadaannya disimpan sebagai kelas di <html>, bukan di dalam Alpine, karena
+ * ia harus sudah terpasang SEBELUM halaman digambar — kalau tidak, sidebar
+ * lebar sempat berkedip satu kali di tiap perpindahan halaman.
+ *
+ * Dipakai sebagai awalan: rail:hidden, lg:rail:w-[76px], dan seterusnya. */
+@custom-variant rail (html.sidebar-rail &);
+
 @theme {
 
     /* ── TIPOGRAFI ──────────────────────────────────────────────────────── */
     --font-sans: 'Nunito Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-display: 'Nunito', 'Nunito Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Huruf untuk panel admin.
+     *
+     * Nunito dan Nunito Sans berbentuk bulat dan hangat — cocok untuk situs
+     * publik yang tugasnya menyambut, tapi kurang tepat untuk layar kerja yang
+     * dipandangi berjam-jam dan penuh label kecil, angka, dan tabel. Plus
+     * Jakarta Sans dirancang justru untuk itu: bentuknya tegas dan geometris,
+     * tetap terbaca di ukuran 11–13px, dan angkanya punya lebar seragam
+     * sehingga kolom angka berbaris rapi.
+     *
+     * Dipisah sebagai token tersendiri, bukan mengganti --font-sans, supaya
+     * situs publik tidak ikut berubah. */
+    --font-ui: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
     /* ── NETRAL ─────────────────────────────────────────────────────────── */
     --color-ink: #1a1d1b;
@@ -38,6 +69,22 @@
     --color-danger: #b3261e;
     --color-danger-soft: #f0a9a4;
 
+    /* ── WARNA STATUS ───────────────────────────────────────────────────────
+     *
+     * Hanya TIGA rona untuk lima status; dua sisanya memakai netral yang
+     * dibedakan bentuknya (terisi vs bergaris), bukan warnanya.
+     *
+     * Alasannya diukur, bukan dikira. Dengan empat rona (ditambah magenta
+     * untuk "Ditawar"), pasangan terburuknya jatuh ke ΔE 6,0 pada deuteranopia
+     * — merah dan hijau memang persis yang paling sering tertukar. Dengan tiga
+     * rona dan merah yang sedikit lebih terang dari --color-danger, jaraknya
+     * naik ke ΔE 7,7. Tiap pil juga selalu membawa teksnya sendiri, jadi
+     * warnanya penanda kedua, bukan satu-satunya. */
+    --color-status-new: #1257b0;       /* biru  — baru masuk, menunggu dilihat  */
+    --color-status-rejected: #c4362b;  /* merah — sengaja lebih terang dari
+                                          --color-danger: itulah yang menaikkan
+                                          jaraknya terhadap hijau merek         */
+
     /* ── ATURAN BENTUK SUDUT ────────────────────────────────────────────── */
     --radius-control: 8px;
     --radius-corner: 14px;
@@ -60,6 +107,24 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         scroll-behavior: smooth;
+
+        /* Ruang bilah gulung selalu disediakan, dipakai atau tidak.
+         *
+         * Saat modal terbuka, gulungan halaman di belakangnya dikunci — dan
+         * mengunci gulungan berarti bilahnya lenyap. Tanpa aturan ini, hilangnya
+         * bilah selebar 15px membuat SELURUH isi halaman melompat ke kanan tepat
+         * pada saat modalnya muncul, lalu melompat balik saat ditutup. */
+        scrollbar-gutter: stable;
+    }
+
+    /* Halaman di belakang modal tidak ikut bergulir.
+     *
+     * :has() di <html>, bukan kelas yang dipasang-lepas lewat JavaScript:
+     * modalnya dikendalikan Livewire dari sisi server, jadi tidak ada satu titik
+     * di peramban yang pasti dijalankan saat ia muncul dan saat ia hilang.
+     * Dengan :has(), aturannya mengikuti ada-tidaknya modal itu sendiri. */
+    html:has(.modal-open) {
+        overflow: hidden;
     }
 
     body {
@@ -232,6 +297,214 @@
         @apply bg-white;
     }
 
+    /* Peta titik dunia sebagai MASKER.
+     *
+     * Berkas SVG-nya berisi pola titik abu (#c9d2ce) yang warnanya tidak bisa
+     * diubah dari luar. Dijadikan masker, yang tersisa hanya bentuk titiknya,
+     * dan warnanya datang dari latar elemen yang memakainya — jadi warnanya
+     * bisa mengikuti palet, bukan hasil penyaring warna yang meleset sedikit.
+     *
+     * Ditaruh di sini, bukan sebagai atribut style di Blade: url() yang
+     * berisi {{ asset(...) }} membuat pengurai CSS di editor menandai seluruh
+     * blok itu sebagai galat, padahal ia sah setelah Blade disajikan.
+     *
+     * Alamatnya menunjuk ke resources/images/, bukan ke /images/ di akar situs.
+     * Alasannya: url() di dalam CSS dihitung relatif terhadap ASAL BERKAS CSS
+     * itu sendiri. Saat `npm run dev`, berkas ini disajikan oleh server Vite di
+     * porta 5173 — bukan oleh Laravel — sehingga '/images/…' mencari di server
+     * Vite dan berakhir 404. Masker tanpa gambar menutup elemennya seluruhnya,
+     * jadi petanya lenyap tanpa satu pun pesan galat.
+     *
+     * Dengan alamat relatif ke resources/, Vite yang menyelesaikannya: benar
+     * saat dev, dan diberi nama ber-hash saat dibangun.
+     *
+     * Berkas yang sama juga ada di public/images/ karena peta di situs publik
+     * memanggilnya lewat asset(). Kalau salah satunya diganti, ganti keduanya. */
+    .mask-worldmap {
+        -webkit-mask-image: url('../images/world-dotted.svg');
+        mask-image: url('../images/world-dotted.svg');
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+    }
+
+    /* --- Navigasi panel admin -------------------------------------------- */
+
+    .admin-link {
+        @apply flex items-center gap-3 rounded-control px-3 py-2.5 text-[14px]
+               font-medium text-ink-muted transition-colors
+               hover:bg-mist hover:text-ink;
+    }
+
+    /* Menu yang sedang dibuka. Latar penuh, bukan sekadar huruf tebal:
+       di daftar dua belas baris, tebal huruf saja terlalu lirih untuk
+       menjawab "saya sedang di mana". */
+    .admin-link-on {
+        @apply bg-mist-deep font-semibold text-ink hover:bg-mist-deep;
+    }
+
+    /* Judul kelompok menu. Disembunyikan saat sidebar menyempit — di sana
+       tinggal ikon, dan judul kelompok tanpa isi yang terbaca cuma jadi
+       potongan huruf yang menggantung. */
+    .admin-group {
+        @apply px-3 pb-1.5 pt-5 text-[11px] font-bold uppercase
+               tracking-[0.1em] text-ink-faint lg:rail:hidden;
+    }
+
+    /* Keterangan yang muncul saat sidebar menyempit. Hanya di layar lebar:
+       di layar sentuh tidak ada keadaan "disentuh tapi belum diklik". */
+    .admin-tip {
+        @apply pointer-events-none absolute left-full top-1/2 z-50 ml-3 hidden
+               -translate-y-1/2 whitespace-nowrap rounded-control bg-ink
+               px-2.5 py-1.5 text-[12px] font-semibold text-white;
+    }
+
+    /* --- Tombol panel admin ----------------------------------------------
+     *
+     * Terpisah dari .btn milik situs publik, dan bukan tanpa alasan. Tombol
+     * publik berbentuk kapsul penuh, tebal, dan lapang — ia mengajak diklik.
+     * Tombol panel berdiri berdempetan dengan kolom isian dan kepala tabel,
+     * jadi ia memakai sudut yang sama dengan kendali di sekitarnya
+     * (--radius-control) dan tinggi yang sama, supaya satu baris kendali
+     * terbaca sebagai satu garis lurus, bukan deretan benda berbeda. */
+    .admin-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-control px-4 py-2.5
+               text-[13px] font-semibold leading-none whitespace-nowrap transition-colors;
+    }
+
+    .admin-btn-brand {
+        @apply bg-brand text-white hover:bg-brand-deep;
+    }
+
+    /* Tindakan pendamping: ekspor, batal, tutup. Bergaris, bukan terisi —
+       di satu layar hanya boleh ada satu tombol yang tampak paling berat. */
+    .admin-btn-quiet {
+        @apply border border-line bg-canvas text-ink-muted
+               hover:border-line-strong hover:bg-mist hover:text-ink;
+    }
+
+    /* --- Kendali penyaring ------------------------------------------------
+     *
+     * Tiap kendali berbingkai sendiri dan berdiri DI DALAM kartu; kartunya
+     * wadah, bukan bingkai bersama. Bedanya bukan selera: kendali yang
+     * bingkainya cuma garis pemisah antar-sel tidak kelihatan bisa diklik
+     * sampai kursornya kebetulan lewat, sementara kotak berbingkai sudah
+     * mengaku sebagai kolom isian sebelum disentuh.
+     *
+     * outline saat fokus sengaja TIDAK dimatikan (berbeda dari .field milik
+     * situs publik). Di layar kerja yang penuh kotak serupa, pergantian
+     * warna garis setebal satu piksel terlalu lirih untuk menjawab "saya
+     * sedang mengetik di mana" — apalagi bagi yang berpindah antar-kolom
+     * dengan Tab. Cincin :focus-visible di lapisan base yang menjawabnya.
+     *
+     * leading-5 dipasang tegas di ketiga kendali. Kolom ketik, tombol menu
+     * pilih, dan kolom tanggal masing-masing punya tinggi baris bawaan yang
+     * berbeda-beda menurut peramban; tanpa satu angka yang sama, ketiganya
+     * berselisih dua-tiga piksel dan barisnya terlihat bergelombang. */
+    .admin-control {
+        @apply w-full rounded-control border border-line bg-canvas px-3.5 py-2.5
+               text-[13px] leading-5 text-ink transition-colors
+               placeholder:text-ink-faint hover:border-line-strong focus:border-brand;
+    }
+
+    /* Kolom tanggal yang berdiri sendiri (bukan di dalam .admin-control-group).
+       Ikon kalender bawaan Chrome berwarna biru tua dan jauh lebih gelap dari
+       sisa kendalinya; diredupkan supaya ikut tenang. */
+    .admin-control[type='date']::-webkit-calendar-picker-indicator {
+        opacity: 0.45;
+        cursor: pointer;
+    }
+
+    .admin-control[type='date']:hover::-webkit-calendar-picker-indicator {
+        opacity: 0.8;
+    }
+
+    /* Tombol silang bawaan Chrome pada input[type=search] menempati sudut
+       kanan yang sama dengan kincir tunggu, jadi keduanya bertumpuk persis
+       saat pencarian sedang berjalan. Penghapusnya sudah ada dan lebih
+       terlihat: keping "Cari" di baris penyaring aktif. */
+    .admin-control[type='search']::-webkit-search-cancel-button {
+        display: none;
+    }
+
+    /* Tombol pembuka menu pilih. Tingginya harus sama persis dengan kolom
+       ketik di sebelahnya — 13px teks, bantalan tegak 10px — supaya satu
+       baris kendali terbaca sebagai satu garis lurus. */
+    .admin-control-button {
+        @apply flex cursor-pointer items-center justify-between gap-2
+               text-left text-[13px] font-semibold leading-5;
+    }
+
+    /* Dua kolom tanggal berbagi SATU bingkai, karena keduanya satu nilai:
+       "dari" tanpa "sampai" bukan sebuah rentang. focus-within, bukan focus,
+       supaya bingkainya menyala saat salah satu dari keduanya diketik. */
+    /* justify-between, bukan gap saja: kolom tanggal punya lebar alami, jadi
+       tanpa ini keduanya berdempetan di kiri dan menyisakan rongga panjang
+       di kanan bingkai. Dengan sisa ruang dibagi rata di antara ketiganya,
+       tanggal awal duduk di tepi kiri, tanggal akhir di tepi kanan, dan —
+       karena lebar keduanya sama — garis pemisahnya jatuh tepat di tengah. */
+    .admin-control-group {
+        @apply flex w-full items-center justify-between gap-2 rounded-control border border-line
+               bg-canvas px-3.5 py-2.5 transition-colors hover:border-line-strong focus-within:border-brand;
+    }
+
+    /* Kolom tanggal di dalamnya. Lebarnya dibiarkan mengikuti isinya, bukan
+       w-full: kolom tanggal punya lebar alami sepanjang "31/12/2026", dan
+       kalau dipaksa melar, teksnya tetap di kiri sementara ikon kalendernya
+       terlempar ke ujung kanan — di antara keduanya menganga rongga yang
+       membuat satu kolom terbaca seperti dua.
+     *
+     * Ikon kalender bawaan Chrome berwarna biru tua dan jauh lebih gelap
+     * dari sisa kartunya; diredupkan supaya ikut tenang. */
+    .admin-control-date {
+        @apply bg-transparent text-[13px] font-semibold leading-5 text-ink;
+    }
+
+    .admin-control-date::-webkit-calendar-picker-indicator {
+        opacity: 0.45;
+        cursor: pointer;
+    }
+
+    .admin-control-date:hover::-webkit-calendar-picker-indicator {
+        opacity: 0.8;
+    }
+
+    /* Bilah gulung di dalam kotak apa pun yang isinya melebihi tingginya
+       — menu turun, kolom kiri modal. Bilah bawaan Windows lebarnya 17px,
+       abu keras, dan berujung siku — ia menabrak sudut lengkung menunya dan
+       jadi satu-satunya benda di panel ini yang bukan bagian dari paletnya.
+       Diganti bilah tipis berujung bulat dengan warna garis yang sama. */
+    .admin-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-line-strong) transparent;
+    }
+
+    .admin-scroll::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .admin-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .admin-scroll::-webkit-scrollbar-thumb {
+        background-color: var(--color-line-strong);
+        border-radius: 999px;
+        /* Bingkai sewarna kanvas: itulah yang membuat bilahnya tampak
+           lebih ramping dari lebar bidang gulungnya, tanpa memperkecil
+           daerah yang bisa ditangkap kursor. */
+        border: 3px solid var(--color-canvas);
+    }
+
+    /* Baris di dalam menu turun: profil, notifikasi. */
+    .admin-menu-row {
+        @apply flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px]
+               text-ink-muted transition-colors hover:bg-mist hover:text-ink;
+    }
+
     /* --- Permukaan ------------------------------------------------------- */
 
     .card {
@@ -264,6 +537,24 @@
         @apply mt-2 w-full rounded-control border border-line bg-canvas
                px-4 py-3 text-[15px] text-ink placeholder:text-ink-faint
                transition-colors focus:border-brand focus:outline-none;
+    }
+
+    /* Isian otomatis peramban.
+     *
+     * Begitu Chrome mengisi sendiri sebuah kolom — email yang tersimpan,
+     * kata sandi dari pengelola sandi — ia memaksa latar kolomnya jadi biru
+     * pucat, dan warna itu tidak bisa ditimpa lewat background-color biasa.
+     *
+     * Satu-satunya cara menutupnya adalah bayangan dalam setebal kolomnya
+     * sendiri, yang menimpa latar bawaan itu dengan warna kanvas. Warna
+     * hurufnya diatur lewat -webkit-text-fill-color karena color pun ikut
+     * dipaksa oleh peramban. */
+    .field:-webkit-autofill,
+    .field:-webkit-autofill:hover,
+    .field:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 100px var(--color-canvas) inset;
+        -webkit-text-fill-color: var(--color-ink);
+        caret-color: var(--color-ink);
     }
 
     .field-select {
@@ -336,6 +627,119 @@
     .frontend-task {
         @apply mb-4 rounded-control border border-dashed border-line-strong bg-mist
                px-4 py-3 text-[12px] leading-relaxed text-ink-muted;
+    }
+
+    /* ======================================================================
+       TEKS KAYA DI ATAS LATAR GELAP
+
+       .rich sendiri memakai warna tinta untuk latar terang. Dipasang apa
+       adanya di kartu ajakan yang berlatar hijau tua, tulisannya jadi gelap
+       di atas gelap dan praktis tidak terbaca.
+
+       Hanya warnanya yang ditimpa — jarak, ukuran, dan bentuk daftarnya tetap
+       ikut .rich, supaya isi yang sama tergambar dengan irama yang sama di
+       latar mana pun.
+       ====================================================================== */
+    .rich-invert p,
+    .rich-invert ul,
+    .rich-invert ol {
+        @apply text-white/70;
+    }
+
+    .rich-invert h2,
+    .rich-invert h3,
+    .rich-invert strong,
+    .rich-invert blockquote {
+        @apply text-white;
+    }
+
+    .rich-invert a {
+        @apply text-white underline decoration-white/40 hover:decoration-white;
+    }
+
+    .rich-invert blockquote {
+        @apply border-brand-soft;
+    }
+
+    /* ======================================================================
+       PENYUNTING TEKS KAYA (Quill)
+
+       Quill membawa temanya sendiri (quill.snow.css) yang memakai abu-abu
+       bawaannya. Di sini warnanya ditarik ke token panel supaya tepi, sudut,
+       dan warna teksnya sama dengan .admin-control di sebelahnya — kalau
+       tidak, kotak isian dan penyunting tampak berasal dari dua aplikasi.
+       ====================================================================== */
+    .admin-editor .ql-toolbar.ql-snow {
+        @apply rounded-t-control border border-line bg-mist/50 px-2 py-1.5;
+    }
+
+    .admin-editor .ql-container.ql-snow {
+        @apply rounded-b-control border border-t-0 border-line bg-canvas
+               font-sans text-[13px] leading-relaxed text-ink;
+    }
+
+    .admin-editor .ql-editor {
+        @apply px-3.5 py-3;
+    }
+
+    .admin-editor .ql-editor.ql-blank::before {
+        @apply not-italic text-ink-faint;
+    }
+
+    /* Tepi menyala saat disunting, sama seperti kendali lain. :focus-within
+       dipasang di wadahnya karena yang menerima fokus adalah div di dalam. */
+    .admin-editor:focus-within .ql-toolbar.ql-snow,
+    .admin-editor:focus-within .ql-container.ql-snow {
+        @apply border-brand;
+    }
+
+    .admin-editor .ql-snow .ql-stroke {
+        stroke: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-fill {
+        fill: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-picker {
+        color: var(--color-ink-muted);
+    }
+
+    .admin-editor .ql-snow .ql-active .ql-stroke,
+    .admin-editor .ql-snow button:hover .ql-stroke {
+        stroke: var(--color-brand);
+    }
+
+    .admin-editor .ql-snow .ql-active .ql-fill,
+    .admin-editor .ql-snow button:hover .ql-fill {
+        fill: var(--color-brand);
+    }
+
+    .admin-editor .ql-snow .ql-active,
+    .admin-editor .ql-snow .ql-picker-label:hover {
+        color: var(--color-brand);
+    }
+
+    /* Isi yang diketik: jarak antarparagraf dan daftar mengikuti .rich di
+       situs publik, supaya yang terlihat saat menulis mendekati hasilnya. */
+    .admin-editor .ql-editor h2 {
+        @apply mb-2 mt-4 font-ui text-[18px] font-bold text-ink first:mt-0;
+    }
+
+    .admin-editor .ql-editor h3 {
+        @apply mb-2 mt-4 font-ui text-[15px] font-bold text-ink first:mt-0;
+    }
+
+    .admin-editor .ql-editor p {
+        @apply mb-3 last:mb-0;
+    }
+
+    .admin-editor .ql-editor blockquote {
+        @apply my-3 border-l-2 border-brand pl-4 text-ink-muted;
+    }
+
+    .admin-editor .ql-editor a {
+        @apply text-brand underline underline-offset-2;
     }
 }
 

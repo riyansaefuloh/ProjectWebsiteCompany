@@ -37,7 +37,11 @@ class DownloadIndex extends Component
     public function render()
     {
         $downloads = Download::orderBy('sort_order')->get();
-        return view('livewire.public.download-index', compact('downloads'));
+        return view('livewire.public.download-index', array_merge(compact('downloads'), [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('downloads'),
+        ]));
     }
 
     public function download($id)

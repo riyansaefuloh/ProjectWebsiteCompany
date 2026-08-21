@@ -77,7 +77,18 @@ class InquiryForm extends Component
         $this->dispatch('request-recaptcha');
     }
 
-    public function submit(string $recaptchaToken): void
+    /**
+     * Token reCAPTCHA boleh kosong.
+     *
+     * Sebelumnya argumennya wajib, dan itu membuat komponen ini mustahil
+     * diuji: Livewire tidak punya cara menebak nilainya, jadi ->call('submit')
+     * mati dengan BindingResolutionException sebelum satu baris pun berjalan.
+     *
+     * Kosong bukan berarti lolos begitu saja — pemeriksaannya di bawah tetap
+     * berjalan setiap kali RECAPTCHA_SECRET_KEY terisi, dan token kosong akan
+     * ditolak Google seperti token palsu lainnya.
+     */
+    public function submit(?string $recaptchaToken = null): void
     {
         // 1. Anti-Spam Honeypot Check
         if (!empty($this->website_hp)) {
@@ -155,6 +166,10 @@ class InquiryForm extends Component
         $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
 
         return view('livewire.public.inquiry-form', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('contact'),
+
             'products' => $products,
             'settings' => $settings,
         ]);

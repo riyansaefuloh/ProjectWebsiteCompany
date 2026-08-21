@@ -12,9 +12,8 @@
     @php
         $globalSettings = \App\Models\Setting::pluck('value', 'key')->toArray();
         $companyName = $globalSettings['company_name'] ?? config('app.name', 'Export Company');
-        $brandColor = $globalSettings['brand_color'] ?? '#333';
         $whatsapp = $globalSettings['whatsapp_number'] ?? '';
-        $email = $globalSettings['company_email'] ?? $globalSettings['contact_email'] ?? '';
+        $email = $globalSettings['contact_email'] ?? $globalSettings['company_email'] ?? '';
         $address = $globalSettings['company_address'] ?? '';
         $logo = $globalSettings['logo'] ?? '';
         $favicon = $globalSettings['favicon'] ?? '';
@@ -40,6 +39,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- ══════════════════════════════════════════════════════════════════
+         GOOGLE ANALYTICS
+
+         ID-nya sudah lama bisa diisi dari panel, tapi tidak pernah dipasang
+         di mana pun — jadi isian itu tersimpan rapi sambil tidak melacak
+         apa-apa. Hanya digambar kalau ID-nya benar-benar terisi.
+
+         Hanya di tata letak publik: kunjungan staf ke panel admin bukan lalu
+         lintas pengunjung, dan mencampurnya membuat angkanya menipu.
+         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- Blok penuh, BUKAN bentuk sebaris berkurung. Bentuk sebarisnya gagal
+         mencocokkan tanda kurung untuk ungkapan yang memuat ?? '' lalu
+         terkompilasi jadi tag PHP yang tidak pernah ditutup — menelan seluruh
+         sisa berkas ini dan mematikan setiap halaman publik.
+
+         Jangan pula menulis nama arahan Blade apa pun di dalam komentar ini:
+         Blade tetap mengompilasinya walau terletak di dalam tanda komentar. --}}
+    @php
+        $gaId = trim($globalSettings['google_analytics_id'] ?? '');
+    @endphp
+
+    @if($gaId !== '')
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $gaId }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', @json($gaId));
+        </script>
+    @endif
 
     @stack('seo')
 </head>
