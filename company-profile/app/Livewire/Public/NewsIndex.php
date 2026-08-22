@@ -70,7 +70,7 @@ class NewsIndex extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        $categories = NewsCategory::withCount(['news' => fn ($q) => $q->where('status', 'published')])
+        $categories = NewsCategory::withCount(['news' => fn ($q) => $q->where('status', 'published')->where('published_at', '<=', now())])
             ->orderBy('name')
             ->get();
 
@@ -80,6 +80,7 @@ class NewsIndex extends Component
         $featured = $hasFilters
             ? null
             : News::where('status', 'published')
+                ->where('published_at', '<=', now())
                 ->with(['translations', 'media', 'category'])
                 ->orderByDesc('published_at')
                 ->first();
@@ -87,6 +88,7 @@ class NewsIndex extends Component
         $sort = in_array($this->sort, self::SORT_OPTIONS, true) ? $this->sort : 'newest';
 
         $query = News::where('news.status', 'published')
+            ->where('news.published_at', '<=', now())
             ->when($featured, fn ($q) => $q->where('news.id', '!=', $featured->id))
             ->when($this->search, fn ($q) => $q->search($this->search))
             ->when($this->category, function ($q) {

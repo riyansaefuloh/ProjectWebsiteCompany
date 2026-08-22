@@ -17,6 +17,7 @@ class NewsShow extends Component
     {
         $this->news = News::where('slug', $slug)
             ->where('status', 'published')
+            ->where('published_at', '<=', now())
             ->with(['translations', 'media', 'author', 'category', 'tags'])
             ->firstOrFail();
 
@@ -55,6 +56,7 @@ class NewsShow extends Component
     public function render()
     {
         $related = News::where('status', 'published')
+            ->where('published_at', '<=', now())
             ->where('id', '!=', $this->news->id)
             ->with(['translations', 'media', 'category'])
             ->when($this->news->news_category_id, fn ($q) => $q->orderByRaw(

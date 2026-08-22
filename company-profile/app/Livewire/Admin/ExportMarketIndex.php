@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\ExportMarket;
+use App\Services\TranslationService;
 
 class ExportMarketIndex extends Component
 {
@@ -53,6 +54,7 @@ class ExportMarketIndex extends Component
     public bool $is_active = true;
     public int $sort_order = 0;
     public string $activeTab = 'en';
+    public bool $isTranslating = false;
 
     protected function rules(): array
     {
@@ -82,6 +84,27 @@ class ExportMarketIndex extends Component
         $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
+    }
+
+    public function autoTranslate(): void
+    {
+        if (empty(trim($this->name_id)) && empty(trim($this->note_id))) {
+            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+
+        $translated = app(TranslationService::class)->translateMany([
+            'name' => $this->name_id,
+            'note' => $this->note_id,
+        ]);
+
+        if (!empty($translated['name'])) $this->name_en = $translated['name'];
+        if (!empty($translated['note'])) $this->note_en = $translated['note'];
+
+        $this->isTranslating = false;
+        $this->activeTab = 'en';
     }
 
     public function edit(string $id): void

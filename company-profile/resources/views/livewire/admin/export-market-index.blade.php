@@ -462,6 +462,14 @@
                                                 @endif
                                             </button>
                                         @endforeach
+                                        <div class="ml-2 border-l border-line pl-2 flex items-center">
+                                            <button type="button" wire:click="autoTranslate" wire:loading.attr="disabled" wire:target="autoTranslate"
+                                                title="Terjemahkan ID ke EN otomatis"
+                                                class="inline-flex items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[12px] font-semibold bg-brand/10 text-brand hover:bg-brand/20 transition-colors">
+                                                <span wire:loading.remove wire:target="autoTranslate">🌐 Auto EN</span>
+                                                <span wire:loading wire:target="autoTranslate">⏳ ...</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 

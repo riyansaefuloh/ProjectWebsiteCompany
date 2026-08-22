@@ -10,6 +10,7 @@ use App\Models\News;
 use App\Models\NewsCategory;
 use App\Models\NewsTag;
 use App\Models\User;
+use App\Services\TranslationService;
 use Illuminate\Support\Str;
 
 class NewsIndex extends Component
@@ -71,6 +72,7 @@ class NewsIndex extends Component
     public $coverFile;
     public ?string $existingCoverUrl = null;
     public string $activeTab = 'en';
+    public bool $isTranslating = false;
 
     protected function rules(): array
     {
@@ -109,6 +111,34 @@ class NewsIndex extends Component
         $this->resetForm();
         $this->published_at = date('Y-m-d\TH:i');
         $this->showModal = true;
+        $this->dispatch('open-tinymce');
+    }
+
+    public function autoTranslate(): void
+    {
+        if (empty(trim($this->title_id)) && empty(trim($this->content_id))) {
+            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+
+        $translated = app(TranslationService::class)->translateMany([
+            'title'            => $this->title_id,
+            'excerpt'          => $this->excerpt_id,
+            'content'          => $this->content_id,
+            'meta_title'       => $this->meta_title_id,
+            'meta_description' => $this->meta_description_id,
+        ]);
+
+        if (!empty($translated['title']))            $this->title_en            = $translated['title'];
+        if (!empty($translated['excerpt']))          $this->excerpt_en          = $translated['excerpt'];
+        if (!empty($translated['content']))          $this->content_en          = $translated['content'];
+        if (!empty($translated['meta_title']))       $this->meta_title_en       = $translated['meta_title'];
+        if (!empty($translated['meta_description'])) $this->meta_description_en = $translated['meta_description'];
+
+        $this->isTranslating = false;
+        $this->activeTab = 'en';
     }
 
     public function edit(string $id): void

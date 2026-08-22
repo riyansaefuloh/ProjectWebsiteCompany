@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use App\Models\Page;
 use App\Models\PageTranslation;
 use App\Models\Setting;
+use App\Services\TranslationService;
 use Illuminate\Support\Str;
 
 class PageIndex extends Component
@@ -24,6 +25,7 @@ class PageIndex extends Component
     // Translation fields (id and en)
     public $title_id, $content_id;
     public $title_en, $content_en;
+    public bool $isTranslating = false;
 
     /*
      * Bahasa yang sedang ditampilkan di modalnya. Kedua terjemahan tetap ada
@@ -1210,6 +1212,61 @@ class PageIndex extends Component
         $this->resetValidation();
         $this->resetInputFields();
         $this->isOpen = true;
+    }
+
+    public function autoTranslate(): void
+    {
+        if (empty(trim((string) $this->title_id)) && empty(trim((string) $this->content_id))) {
+            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+
+        $translated = app(TranslationService::class)->translateMany([
+            'title'   => (string) $this->title_id,
+            'content' => (string) $this->content_id,
+        ]);
+
+        if (!empty($translated['title']))   $this->title_en   = $translated['title'];
+        if (!empty($translated['content'])) {
+            $this->content_en = $translated['content'];
+        }
+
+        $this->isTranslating = false;
+    }
+
+    public function autoTranslateSection(): void
+    {
+        if (empty($this->isiBagian['id'])) {
+            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+        
+        $textsToTranslate = [];
+        $keysMap = [];
+        
+        foreach ($this->isiBagian['id'] as $key => $content) {
+            $strContent = is_string($content) ? trim($content) : $content;
+            if (filled($strContent) && $strContent !== '<p><br></p>') {
+                $textsToTranslate[$key] = (string)$content;
+                $keysMap[] = $key;
+            }
+        }
+        
+        if (!empty($textsToTranslate)) {
+            $translated = app(TranslationService::class)->translateMany($textsToTranslate);
+            
+            foreach ($keysMap as $key) {
+                if (!empty($translated[$key])) {
+                    $this->isiBagian['en'][$key] = $translated[$key];
+                }
+            }
+        }
+        
+        $this->isTranslating = false;
     }
 
     public function store()

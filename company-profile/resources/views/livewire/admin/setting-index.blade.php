@@ -340,10 +340,18 @@
 
                                 <div class="mt-2 grid grid-cols-2 gap-3">
                                     @if($adaLama)
-                                        <div class="{{ $berkas['nisbah'] }} flex items-center justify-center
+                                        <div class="relative {{ $berkas['nisbah'] }} flex items-center justify-center
                                                     overflow-hidden rounded-control border border-line bg-mist/40 p-2">
                                             <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($berkas['lama']) }}"
                                                  alt="" class="max-h-full max-w-full object-contain">
+
+                                            <button type="button" wire:click="deleteFile('{{ $berkas['prop'] }}')"
+                                                    title="Hapus {{ mb_strtolower($berkas['label']) }}" aria-label="Hapus {{ mb_strtolower($berkas['label']) }}"
+                                                    class="absolute right-1.5 top-1.5 inline-flex h-7 w-7 items-center
+                                                           justify-center rounded-control bg-canvas/90 text-ink-muted
+                                                           transition-colors hover:text-status-rejected">
+                                                <x-icon.admin name="trash" size="h-4 w-4" />
+                                            </button>
                                         </div>
                                     @elseif(filled($berkas['lama']))
                                         <div class="{{ $berkas['nisbah'] }} flex flex-col items-center justify-center

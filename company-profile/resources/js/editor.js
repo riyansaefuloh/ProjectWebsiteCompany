@@ -142,6 +142,20 @@ export default function daftarkanEditor(Alpine) {
             if (awal.trim() !== '') {
                 this.quill.setContents(this.quill.clipboard.convert({ html: awal }), 'silent')
             }
+
+            /*
+             * Memantau perubahan dari server (misal: tombol Auto Translate).
+             *
+             * Karena wadah ini memakai wire:ignore, pembaruan Livewire tidak
+             * akan pernah menimpa isinya. Kita harus memantaunya secara manual
+             * lewat proxy $wire milik Alpine.
+             */
+            this.$watch('$wire.' + config.prop, (value) => {
+                const html = value || ''
+                if (html !== this.isiHtml()) {
+                    this.quill.setContents(this.quill.clipboard.convert({ html: html }), 'silent')
+                }
+            })
         },
 
         /*

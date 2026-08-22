@@ -163,6 +163,30 @@ class SettingIndex extends Component
         session()->flash('message', 'Global settings updated successfully!');
     }
 
+    public function deleteFile(string $type): void
+    {
+        if (!in_array($type, ['logo', 'favicon'])) {
+            return;
+        }
+
+        $property = 'existing_' . $type;
+        $path = $this->$property;
+
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $this->$property = null;
+        $this->$type = null;
+
+        Setting::updateOrCreate(
+            ['key' => $type],
+            ['value' => null]
+        );
+        
+        session()->flash('message', ucfirst($type) . ' berhasil dihapus.');
+    }
+
     // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()

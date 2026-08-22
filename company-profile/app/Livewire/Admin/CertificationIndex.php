@@ -7,6 +7,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Certification;
+use App\Services\TranslationService;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -66,6 +67,7 @@ class CertificationIndex extends Component
     // Existing media (for preview/delete in edit mode)
     public ?string $existingLogoUrl = null;
     public ?string $existingPdfUrl = null;
+    public bool $isTranslating = false;
 
     /**
      * Kembali ke halaman satu tiap kali penyaringnya diubah.
@@ -110,6 +112,24 @@ class CertificationIndex extends Component
         $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
+    }
+
+    public function autoTranslate(): void
+    {
+        if (empty(trim($this->name_id))) {
+            session()->flash('error', 'Isi nama sertifikat dalam Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+
+        $translated = app(TranslationService::class)->translate($this->name_id, 'id', 'en');
+
+        if (!empty($translated)) {
+            $this->name_en = $translated;
+        }
+
+        $this->isTranslating = false;
     }
 
     public function edit(string $id): void

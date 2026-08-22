@@ -7,6 +7,7 @@ use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use App\Models\Category;
+use App\Services\TranslationService;
 use Illuminate\Support\Str;
 
 class CategoryIndex extends Component
@@ -38,6 +39,7 @@ class CategoryIndex extends Component
     public $imageFile;
     public ?string $existingImage = null;
     public string $activeTab = 'en';
+    public bool $isTranslating = false;
 
     /**
      * Kembali ke halaman satu tiap kali penyaringnya diubah.
@@ -80,6 +82,27 @@ class CategoryIndex extends Component
         $this->resetValidation();
         $this->resetForm();
         $this->showModal = true;
+    }
+
+    public function autoTranslate(): void
+    {
+        if (empty(trim($this->name_id)) && empty(trim($this->description_id))) {
+            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            return;
+        }
+
+        $this->isTranslating = true;
+
+        $translated = app(TranslationService::class)->translateMany([
+            'name'        => $this->name_id,
+            'description' => $this->description_id,
+        ]);
+
+        if (!empty($translated['name']))        $this->name_en        = $translated['name'];
+        if (!empty($translated['description'])) $this->description_en = $translated['description'];
+
+        $this->isTranslating = false;
+        $this->activeTab = 'en';
     }
 
     public function edit(string $id): void
