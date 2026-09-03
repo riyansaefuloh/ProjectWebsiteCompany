@@ -145,7 +145,7 @@ return [
     'footer_rights'       => 'Hak cipta dilindungi.',
 
     // ── Footer (susunan baru, mengikuti rujukan desain) ──────────────────
-    'footer_headline'     => 'Mulai perjalanan kopi Anda bersama kami.',
+    'footer_headline'     => 'Mulai *perjalanan kopi* Anda bersama kami.',
     'footer_locations'    => 'Lokasi',
     'footer_call_us'      => 'Telepon',
     'footer_contact_us'   => 'Hubungi Kami',
@@ -163,7 +163,7 @@ return [
     'hero_empty' => 'Silakan buat Halaman Statis dengan slug "hero" di Admin CMS untuk mengisi banner ini.',
 
     // ── Hero beranda ─────────────────────────────────────────────────────
-    'hero_title'      => 'Mitra Anda dalam Pengadaan Kopi Premium Indonesia',
+    'hero_title'      => 'Mitra Anda dalam Pengadaan *Kopi Premium* Indonesia',
     'hero_body'       => 'Kami menghubungkan roaster dan pembeli global dengan biji kopi origin terbaik Indonesia — green bean yang sepenuhnya tertelusur, lengkap dengan spesifikasi ekspor, kemasan khusus, dan Incoterms yang fleksibel.',
     'hero_descriptor' => 'Mitra Pengadaan & Ekspor Green Bean',
     'hero_years'      => 'Tahun pengalaman',
@@ -191,18 +191,18 @@ return [
     'home_section_products' => 'Produk Unggulan',
 
     // ── Seksi Featured Products di beranda ───────────────────────────────
-    'products_title' => 'Green bean kelas ekspor, siap untuk roastery Anda',
+    'products_title' => 'Green bean *kelas ekspor*, siap untuk roastery Anda',
     'products_body'  => 'Pilihan dari panen berjalan — setiap lot tertelusur penuh sampai ke asalnya, lengkap dengan spesifikasi dan sampel yang tersedia atas permintaan.',
     'home_section_export_markets' => 'Pasar Ekspor',
 
     // ── Seksi Export Markets di beranda ──────────────────────────────────
-    'markets_title' => 'Mengirim ke :count negara di empat kawasan',
+    'markets_title' => 'Mengirim ke :count negara *di empat kawasan*',
     'markets_body'  => 'Arahkan kursor ke penanda untuk melihat negara tujuan. Jaringan logistik kami menjangkau pelabuhan utama di Eropa, Asia, Amerika Utara, dan Timur Tengah.',
     'home_section_news' => 'Berita Terbaru',
 
     // ── Seksi Latest News di beranda ─────────────────────────────────────
     'news_eyebrow'     => 'Blog Kami',
-    'news_title'       => 'Ikuti berita dan artikel terbaru',
+    'news_title'       => 'Ikuti *berita dan artikel* terbaru',
     'news_promo_title' => 'Lihat lebih banyak berita dan artikel dari kami',
     'cta_see_more_news' => 'Lihat Berita Lain',
     'home_section_about' => 'Tentang Kami',
@@ -272,7 +272,7 @@ return [
     'milestone_6_body'  => 'Pemetaan poligon digital dan catatan per lot menjawab dokumentasi yang kini diminta pembeli Eropa sebelum pengiriman berjalan.',
 
     'pillars_eyebrow' => 'Mengapa Memilih Kami',
-    'pillars_title'   => 'Dirancang untuk pembeli yang tidak bisa menoleransi kejutan',
+    'pillars_title'   => 'Dirancang untuk pembeli yang *tidak bisa menoleransi kejutan*',
     'pillars_body'    => 'Setiap pengiriman ditopang proses yang terdokumentasi, sertifikasi teraudit, dan tim yang menjawab dalam satu hari kerja.',
 
     'pillar_1_title' => 'Mutu Cita Rasa yang Konsisten',
@@ -293,7 +293,7 @@ return [
 
     // ── Banner penutup beranda ───────────────────────────────────────────
     'cta_whatsapp' => 'Chat via WhatsApp',
-    'cta_title'    => 'Biarkan kami menghitung kontainer Anda berikutnya',
+    'cta_title'    => 'Biarkan kami menghitung *kontainer Anda* berikutnya',
     'cta_body'     => 'Kirimkan spesifikasi, volume, dan pelabuhan tujuan Anda. Tim ekspor kami membalas dengan harga, lot yang tersedia, dan opsi sampel dalam satu hari kerja.',
 
 ];

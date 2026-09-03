@@ -60,6 +60,17 @@ class ProductIndex extends Component
     public string $activeTab = 'en';
     public bool $isTranslating = false;
 
+    /*
+     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
+     *
+     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
+     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
+     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
+     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
+     * tombolnya gagal tanpa mengatakan apa pun.
+     */
+    public ?string $galatTerjemah = null;
+
     /**
      * Kembali ke halaman satu tiap kali penyaringnya diubah.
      *
@@ -118,26 +129,34 @@ class ProductIndex extends Component
          * data lain menampilkan pesan merah milik data yang tadi.
          */
         $this->resetValidation();
+        $this->galatTerjemah = null;
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function autoTranslate(): void
     {
+        $this->galatTerjemah = null;
+
         if (empty(trim($this->name_id)) && empty(trim($this->description_id))) {
-            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            $this->galatTerjemah = 'Isi dulu nama atau deskripsi produknya dalam Bahasa Indonesia.';
             return;
         }
 
         $this->isTranslating = true;
 
-        $translated = app(TranslationService::class)->translateMany([
+        $layanan    = app(TranslationService::class);
+        $translated = $layanan->translateMany([
             'name'        => $this->name_id,
             'description' => $this->description_id,
         ]);
 
         if (!empty($translated['name']))        $this->name_en        = $translated['name'];
         if (!empty($translated['description'])) $this->description_en = $translated['description'];
+
+        if ($layanan->sebabGagal) {
+            $this->galatTerjemah = $layanan->sebabGagal;
+        }
 
         $this->isTranslating = false;
         $this->activeTab = 'en';
@@ -146,6 +165,7 @@ class ProductIndex extends Component
     public function edit(string $id): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
 
         $product = Product::with(['translations', 'specifications', 'certifications'])->findOrFail($id);
         $this->editingId = $product->id;

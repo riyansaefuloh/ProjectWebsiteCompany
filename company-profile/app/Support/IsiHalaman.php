@@ -103,6 +103,23 @@ class IsiHalaman
     }
 
     /**
+     * Pengaturan bukan-teks satu halaman.
+     *
+     * Isinya angka dan pilihan yang sama di bahasa mana pun — tahun tiap tonggak
+     * sejarah, misalnya — jadi ia berdiri di sebelah 'isi', bukan di dalamnya.
+     *
+     * Yang tidak diisi tidak tercatat sama sekali; pemanggilnya yang menentukan
+     * apa artinya kunci yang hilang. Untuk tahun tonggak, artinya "hitung
+     * sendiri dari tahun berdiri".
+     */
+    public static function opsi(string $halaman): array
+    {
+        $nilai = self::semua()[$halaman]['opsi'] ?? [];
+
+        return is_array($nilai) ? $nilai : [];
+    }
+
+    /**
      * Alamat foto satu halaman, atau null kalau belum ada.
      */
     public static function gambar(string $halaman): ?string

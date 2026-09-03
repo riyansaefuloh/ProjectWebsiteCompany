@@ -6,8 +6,8 @@
         <div class="shell">
             <div class="max-w-[46rem]">
                 <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_downloads') }}</p>
-                <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ $isi('title', 'site.page_downloads') }}
+                <h1 class="display mt-5 max-w-[16ch] text-site-h1">
+                    {!! \App\Support\Judul::sorot($isi('title', 'site.page_downloads')) !!}
                 </h1>
                 <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_downloads_sub') }}</p>
             </div>
@@ -36,8 +36,7 @@
                                     </span>
 
                                     @if($download->require_email)
-                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1.5
-                                                     text-[11px] font-bold text-brand">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1.5 font-semibold text-brand text-site-micro">
                                             <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                                 <rect x="3.2" y="7" width="9.6" height="6.8" rx="1.6" stroke="currentColor" stroke-width="1.4"/>
                                                 <path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -47,11 +46,11 @@
                                     @endif
                                 </div>
 
-                                <h2 class="mt-6 font-display text-[16px] font-extrabold leading-snug tracking-[-0.01em] text-ink">
+                                <h2 class="mt-6 font-display font-semibold leading-snug tracking-[-0.01em] text-ink text-site-lede">
                                     {{ $download->title }}
                                 </h2>
 
-                                <p class="mt-2 flex flex-wrap items-center gap-x-2.5 text-[12px] text-ink-faint">
+                                <p class="mt-2 flex flex-wrap items-center gap-x-2.5 text-ink-faint text-site-micro">
                                     <span class="uppercase tracking-[0.08em]">PDF</span>
                                     <span aria-hidden="true">·</span>
                                     <span>{{ __('site.downloads_count', ['count' => number_format($download->download_count)]) }}</span>
@@ -63,7 +62,7 @@
                                         <label for="dl-email-{{ $download->id }}" class="field-label">
                                             {{ __('site.field_email') }} *
                                         </label>
-                                        <p class="mt-1.5 text-[12px] leading-relaxed text-ink-muted">
+                                        <p class="mt-1.5 leading-relaxed text-ink-muted text-site-micro">
                                             {{ $isi('gated_note', 'site.download_gated_note') }}
                                         </p>
 

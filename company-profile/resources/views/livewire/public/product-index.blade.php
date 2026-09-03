@@ -11,8 +11,8 @@
             <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                 <div class="lg:col-span-7">
                     <p class="eyebrow">{{ $isi('eyebrow', 'site.home_section_products') }}</p>
-                    <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                        {{ $isi('title', 'site.page_products') }}
+                    <h1 class="display mt-5 max-w-[16ch] text-site-h1">
+                        {!! \App\Support\Judul::sorot($isi('title', 'site.page_products')) !!}
                     </h1>
                     <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_products_sub') }}</p>
                 </div>
@@ -20,10 +20,10 @@
                 {{-- ── Unduhan katalog PDF ────────────────────────────────── --}}
                 <div class="lg:col-span-4 lg:col-start-9 lg:self-end">
                     <div class="rounded-corner border border-line bg-mist p-6">
-                        <p class="font-display text-[16px] font-extrabold tracking-[-0.01em] text-ink">
+                        <p class="font-display font-semibold tracking-[-0.01em] text-ink text-site-lede">
                             {{ $isi('catalog_title', 'site.offline_catalog') }}
                         </p>
-                        <p class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                        <p class="mt-2 leading-relaxed text-ink-muted text-site-small">
                             {{ $isi('catalog_body', 'site.offline_catalog_sub') }}
                         </p>
                         <a href="{{ route('download.catalog.form') }}" class="btn btn-brand btn-sm mt-5">
@@ -74,7 +74,7 @@
                 <button type="button" wire:click="selectCategory('')"
                         aria-pressed="{{ $category === '' ? 'true' : 'false' }}"
                         @class([
-                            'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                            'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-site-small font-semibold transition-colors',
                             'border-brand bg-brand text-white' => $category === '',
                             'border-line text-ink-muted hover:border-line-strong hover:text-ink' => $category !== '',
                         ])>
@@ -87,14 +87,14 @@
                     <button type="button" wire:click="selectCategory('{{ $cat->slug }}')"
                             aria-pressed="{{ $isActive ? 'true' : 'false' }}"
                             @class([
-                                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                                'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-site-small font-semibold transition-colors',
                                 'border-brand bg-brand text-white' => $isActive,
                                 'border-line text-ink-muted hover:border-line-strong hover:text-ink' => ! $isActive,
                             ])>
                         {{ $cat->translated_name }}
 
                         <span @class([
-                            'text-[12px] font-semibold',
+                            'text-site-micro font-semibold',
                             'text-white/60' => $isActive,
                             'text-ink-faint' => ! $isActive,
                         ])>{{ $cat->products_count }}</span>
@@ -111,13 +111,13 @@
         <div class="shell">
 
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <p class="text-[14px] text-ink-muted" aria-live="polite">
+                <p class="text-ink-muted text-site-small" aria-live="polite">
                     {{ trans_choice('site.products_count', $products->total(), ['count' => $products->total()]) }}
                 </p>
 
                 @if($hasFilters)
                     <button type="button" wire:click="resetFilters"
-                            class="inline-flex items-center gap-2 text-[13px] font-bold text-brand transition-colors hover:text-brand-deep">
+                            class="inline-flex items-center gap-2 font-semibold text-brand transition-colors hover:text-brand-deep text-site-small">
                         <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                             <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                         </svg>
@@ -141,7 +141,7 @@
                     </div>
                 @else
                     <div class="mt-8 rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                        <p class="font-display text-[18px] font-extrabold text-ink">
+                        <p class="font-display font-semibold text-ink text-site-title">
                             {{ $isi('empty', 'site.no_products_found') }}
                         </p>
 

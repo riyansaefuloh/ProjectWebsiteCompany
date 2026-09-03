@@ -17,10 +17,10 @@
         </span>
     @endif
 
-    <span class="text-[13px] font-bold text-white">{{ $label }}</span>
+    <span class="font-semibold text-white text-site-small">{{ $label }}</span>
 
     @if($count > 1)
-        <span class="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur">
+        <span class="rounded-full bg-white/20 px-2.5 py-1 font-semibold text-white backdrop-blur text-site-micro">
             {{ $count }}
         </span>
     @endif

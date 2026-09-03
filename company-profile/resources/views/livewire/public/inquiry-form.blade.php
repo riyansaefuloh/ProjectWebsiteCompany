@@ -38,11 +38,11 @@
                 <div class="lg:sticky lg:top-[92px] lg:col-span-5">
                     <div class="card p-8 sm:p-10">
 
-                        <h1 class="max-w-[16ch] display text-[28px] sm:text-[32px]">
-                            {{ $isi('headline', 'site.inquiry_headline') }}
+                        <h1 class="max-w-[16ch] display text-site-h1">
+                            {!! \App\Support\Judul::sorot($isi('headline', 'site.inquiry_headline')) !!}
                         </h1>
 
-                        <p class="lede mt-5 max-w-[42ch] text-[14px]">
+                        <p class="lede mt-5 max-w-[42ch] text-site-small">
                             {{ $isi('intro', 'site.inquiry_intro') }}
                         </p>
 
@@ -54,24 +54,20 @@
                                         <x-icon.contact name="location" class="shrink-0 text-brand" />
                                         <span class="eyebrow">{{ __('site.label_location') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 max-w-[26ch] text-[13px] leading-relaxed text-ink-muted">{{ $address }}</dd>
+                                    <dd class="mt-3.5 max-w-[26ch] leading-relaxed text-ink-muted text-site-small">{{ $address }}</dd>
                                 </div>
                             @endif
 
-                            {{-- Susunannya menirukan kaki situs: alamat + email di baris
-                                 atas, WhatsApp + telepon di baris bawah.
-
-                                 Keduanya berpasangan menurut caranya dihubungi — yang
-                                 ditulis di atas, yang ditelepon di bawah. Kedua nomor
-                                 pun jadi sebaris, jadi panjangnya yang beda-beda tidak
-                                 lagi membuat kolomnya tampak miring. --}}
+                            {{-- Menirukan kaki situs: alamat + email di baris
+                                 atas, WhatsApp + telepon di baris bawah —
+                                 berpasangan menurut caranya dihubungi. --}}
                             @if($email)
                                 <div>
                                     <dt class="flex items-center gap-2">
                                         <x-icon.contact name="email" class="shrink-0 text-brand" />
                                         <span class="eyebrow">{{ __('site.field_email') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 text-[13px] leading-relaxed">
+                                    <dd class="mt-3.5 leading-relaxed text-site-small">
                                         <a href="mailto:{{ $email }}" class="break-all text-ink-muted transition-colors hover:text-brand">{{ $email }}</a>
                                     </dd>
                                 </div>
@@ -83,7 +79,7 @@
                                         <x-icon.whatsapp size="h-4 w-4" class="shrink-0 text-brand" />
                                         <span class="eyebrow">{{ __('site.label_whatsapp') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 text-[13px] leading-relaxed text-ink-muted">
+                                    <dd class="mt-3.5 leading-relaxed text-ink-muted text-site-small">
                                         <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
                                            class="transition-colors hover:text-brand">{{ $whatsapp }}</a>
                                     </dd>
@@ -99,7 +95,7 @@
                                         <x-icon.contact name="phone" class="shrink-0 text-brand" />
                                         <span class="eyebrow">{{ __('site.label_phone') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 text-[13px] leading-relaxed text-ink-muted">
+                                    <dd class="mt-3.5 leading-relaxed text-ink-muted text-site-small">
                                         <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}"
                                            class="transition-colors hover:text-brand">{{ $phone }}</a>
                                     </dd>
@@ -112,7 +108,7 @@
                                         <x-icon.contact name="clock" class="shrink-0 text-brand" />
                                         <span class="eyebrow">{{ __('site.label_open_hours') }}</span>
                                     </dt>
-                                    <dd class="mt-3.5 space-y-1.5 text-[13px] leading-relaxed text-ink-muted">
+                                    <dd class="mt-3.5 space-y-1.5 leading-relaxed text-ink-muted text-site-small">
                                         @foreach($hours as $dayLabel => $range)
                                             <span class="block">{{ rtrim($dayLabel, ':') }} · {{ $range }}</span>
                                         @endforeach
@@ -158,10 +154,10 @@
                                     </svg>
                                 </span>
 
-                                <h2 class="mt-7 font-display text-[22px] font-extrabold tracking-[-0.02em] text-white sm:text-[26px]">
+                                <h2 class="mt-7 font-display font-semibold tracking-[-0.02em] text-white text-site-h3">
                                     {{ $isi('success_title', 'site.inquiry_success') }}
                                 </h2>
-                                <p class="mx-auto mt-4 max-w-[42ch] text-[15px] leading-relaxed text-white/70">
+                                <p class="mx-auto mt-4 max-w-[42ch] leading-relaxed text-white/70 text-site-body">
                                     {{ $isi('success_body', 'site.inquiry_thank_you') }}
                                 </p>
 
@@ -175,14 +171,14 @@
 
                                 <p class="mt-8">
                                     <button type="button" wire:click="$set('isSubmitted', false)"
-                                            class="text-[13px] font-bold text-brand-soft underline underline-offset-4 transition-colors hover:text-white">
+                                            class="font-semibold text-brand-soft underline underline-offset-4 transition-colors hover:text-white text-site-small">
                                         {{ $isi('send_another', 'site.send_another') }}
                                     </button>
                                 </p>
                             </div>
                         @else
-                            <h2 class="font-display text-[20px] font-extrabold tracking-[-0.02em] text-white sm:text-[23px]">{{ $isi('form_title', 'site.inquiry_form_title') }}</h2>
-                            <p class="mt-2.5 text-[13px] text-white/60">{{ $isi('form_intro', 'site.inquiry_form_intro') }}</p>
+                            <h2 class="font-display font-semibold tracking-[-0.02em] text-white text-site-h3">{{ $isi('form_title', 'site.inquiry_form_title') }}</h2>
+                            <p class="mt-2.5 text-white/60 text-site-small">{{ $isi('form_intro', 'site.inquiry_form_intro') }}</p>
 
                             <form wire:submit.prevent="executeRecaptcha" class="mt-8">
 

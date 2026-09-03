@@ -29,21 +29,13 @@
      */
 @endphp
 
-{{-- flex-col + flex-1 + h-full: petak menyamakan tinggi sel-sel sebaris,
-     tapi kotak di dalamnya tidak ikut tinggi itu dengan sendirinya. Tanpa
-     ketiganya, "Email" yang membungkus dua baris berdiri lebih tinggi dari
-     "Negara" di sebelahnya, dan tepi bawah keduanya tidak sejajar — persis
-     kerapian yang dicari bingkai ini. --}}
+{{-- flex-col + flex-1 + h-full: petak menyamakan tinggi sel sebaris, tapi
+     kotak di dalamnya tidak ikut tinggi itu dengan sendirinya. --}}
 <div {{ $attributes->class(['flex min-w-0 flex-col']) }}>
-    {{-- Huruf normal, bukan kapital — dan begitu kapitalnya lepas, jarak
-         antar-hurufnya ikut dilepas: renggang 0,08em memang dipasang untuk
-         menolong deretan huruf kapital yang saling berdempetan, tapi pada
-         huruf normal ia justru mencerai-beraikan katanya.
-
-         Ukurannya naik 11 → 12px karena huruf normal punya tinggi badan yang
-         lebih pendek dari huruf kapital, jadi pada ukuran yang sama ia
-         terbaca lebih kecil. --}}
-    <dt class="text-[12px] font-semibold text-ink-faint">{{ $label }}</dt>
+    {{-- Huruf normal, bukan kapital — dan begitu kapitalnya lepas, renggang
+         antar-hurufnya ikut dilepas: renggang itu dipasang untuk menolong
+         deretan kapital. --}}
+    <dt class="text-admin-label text-ink-faint">{{ $label }}</dt>
 
     <dd class="mt-1.5 flex-1">
         <div @class([
@@ -55,12 +47,12 @@
                 {{ $slot }}
             @elseif(filled($value))
                 <span @class([
-                    'min-w-0 text-[13px] leading-5 text-ink',
+                    'min-w-0 text-admin-body leading-5 text-ink',
                     'break-words'                                             => ! $blok,
                     'block whitespace-pre-line leading-relaxed text-ink-muted' => $blok,
                 ])>{{ $value }}</span>
             @else
-                <span class="text-[13px] leading-5 text-ink-faint">{{ $kosong }}</span>
+                <span class="text-admin-body leading-5 text-ink-faint">{{ $kosong }}</span>
             @endif
         </div>
     </dd>

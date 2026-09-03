@@ -70,8 +70,8 @@
                             duration-200 group-hover:scale-100 group-hover:opacity-100
                             group-focus-within:scale-100 group-focus-within:opacity-100"
                      aria-hidden="true">
-                    <span class="block font-display text-[14px] font-extrabold text-white">{{ $marker['name'] }}</span>
-                    <span class="mt-1 block text-[12px] text-white/60">{{ $marker['region'] }}</span>
+                    <span class="block font-display font-semibold text-white text-site-small">{{ $marker['name'] }}</span>
+                    <span class="mt-1 block text-white/60 text-site-micro">{{ $marker['region'] }}</span>
                 </div>
             </div>
         @endforeach
@@ -93,13 +93,13 @@
                         @foreach($countries as $country)
                             <li class="py-3.5">
                                 <div class="flex items-baseline justify-between gap-4">
-                                    <span class="text-[14px] font-bold text-ink">{{ $country->translated_name }}</span>
+                                    <span class="font-semibold text-ink text-site-small">{{ $country->translated_name }}</span>
 
-                                    <span class="chip shrink-0 px-2.5 py-1 text-[10px]">{{ $country->country_code }}</span>
+                                    <span class="chip shrink-0 px-2.5 py-1 text-site-micro">{{ $country->country_code }}</span>
                                 </div>
 
                                 @if($country->translated_note)
-                                    <p class="mt-1.5 max-w-[46ch] text-[13px] leading-relaxed text-ink-muted">
+                                    <p class="mt-1.5 max-w-[46ch] leading-relaxed text-ink-muted text-site-small">
                                         {{ $country->translated_note }}
                                     </p>
                                 @endif
@@ -109,7 +109,7 @@
                 @else
                     <ul class="mt-4 space-y-2.5">
                         @foreach($countries as $country)
-                            <li class="text-[14px] text-ink-muted">{{ $country->translated_name }}</li>
+                            <li class="text-ink-muted text-site-small">{{ $country->translated_name }}</li>
                         @endforeach
                     </ul>
                 @endif

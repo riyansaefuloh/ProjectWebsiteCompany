@@ -36,8 +36,8 @@
         <div class="shell">
             <div class="max-w-[46rem]">
                 <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_gallery') }}</p>
-                <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ $isi('title', 'site.page_gallery') }}
+                <h1 class="display mt-5 max-w-[16ch] text-site-h1">
+                    {!! \App\Support\Judul::sorot($isi('title', 'site.page_gallery')) !!}
                 </h1>
                 <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_gallery_sub') }}</p>
             </div>
@@ -87,7 +87,7 @@
          class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-ink/90 p-4 backdrop-blur-sm"
          role="dialog" aria-modal="true">
 
-        <p class="absolute left-5 top-6 text-[13px] font-bold text-white/80">
+        <p class="absolute left-5 top-6 font-semibold text-white/80 text-site-small">
             <span x-text="album"></span>
             <span class="ml-2 text-white/45" x-text="`${index + 1} / ${images.length}`"></span>
         </p>
@@ -112,13 +112,8 @@
                 </svg>
             </button>
 
-            {{-- ══════════════════════════════════════════════════════════════════
-                 [PERUBAHAN: YouTube Support]
-                 Dulu: hanya <img> biasa untuk foto
-                 Sekarang: cek dulu apakah item adalah YouTube (prefix 'youtube:')
-                 - Jika ya  → render <iframe> YouTube embedded (autoplay)
-                 - Jika tidak → render <img> seperti biasa
-                 ══════════════════════════════════════════════════════════════════ --}}
+            {{-- Item berawalan 'youtube:' digambar sebagai iframe; sisanya
+                 sebagai <img>. --}}
             <template x-if="isYoutube(images[index])">
                 <div class="mx-auto w-full max-w-[900px] aspect-video">
                     <iframe

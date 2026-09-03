@@ -13,14 +13,14 @@
                     {{ __('site.nav_home') }}
                 </a>
 
-                <h1 class="display mt-8 text-[30px] leading-[1.25] sm:text-[36px] lg:text-[42px]">
-                    {{ $page->translated_title }}
+                <h1 class="display mt-8 text-site-h1">
+                    {!! \App\Support\Judul::sorot($page->translated_title) !!}
                 </h1>
 
                 @if($page->updated_at)
-                    <p class="mt-5 border-b border-line pb-6 text-[13px] text-ink-muted">
+                    <p class="mt-5 border-b border-line pb-6 text-ink-muted text-site-small">
                         {{ __('site.last_updated') }}
-                        <time datetime="{{ $page->updated_at->toDateString() }}" class="font-bold text-ink">
+                        <time datetime="{{ $page->updated_at->toDateString() }}" class="font-semibold text-ink">
                             {{ $page->updated_at->translatedFormat('d F Y') }}
                         </time>
                     </p>

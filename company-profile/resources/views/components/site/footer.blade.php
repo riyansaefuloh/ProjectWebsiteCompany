@@ -5,6 +5,16 @@
 ])
 
 @php
+    /*
+     * Ajakan besar di kepala footer bisa ditulis sendiri dari menu Halaman.
+     *
+     * Footer bukan halaman, tapi ia tergambar di SETIAP halaman — dan sampai
+     * sekarang satu-satunya kalimatnya sendiri terkunci di berkas bahasa.
+     * Dibaca lewat jalur yang sama dengan halaman lain, jadi yang dikosongkan
+     * tetap jatuh ke teks bawaan yang sudah diterjemahkan.
+     */
+    $isiFooter = \App\Support\IsiHalaman::untuk('footer');
+
     $address  = $settings['company_address'] ?? '';
     $phone    = $settings['company_phone'] ?? '';
     $whatsapp = $settings['whatsapp_number'] ?? '';
@@ -52,8 +62,8 @@
         <div class="grid gap-x-8 gap-y-14 lg:grid-cols-12">
 
             <div class="lg:col-span-5">
-                <p class="max-w-[13ch] font-display text-[36px] font-normal leading-[1.12] tracking-[-0.03em] text-white sm:text-[46px] lg:text-[54px]">
-                    {{ __('site.footer_headline') }}
+                <p class="display max-w-[13ch] text-white text-site-hero">
+                    {!! \App\Support\Judul::sorot($isiFooter('headline', 'site.footer_headline')) !!}
                 </p>
 
                 @if(!empty($socials))
@@ -80,24 +90,20 @@
                             <x-icon.contact name="location" class="shrink-0 text-brand-soft" />
                             <span class="eyebrow eyebrow-invert">{{ __('site.footer_locations') }}</span>
                         </dt>
-                        <dd class="mt-4 max-w-[26ch] text-[14px] leading-relaxed text-white/80">{{ $address }}</dd>
+                        <dd class="mt-4 max-w-[26ch] leading-relaxed text-white/80 text-site-small">{{ $address }}</dd>
                     </div>
                 @endif
 
-                {{-- Susunannya: alamat + email di baris atas, WhatsApp + telepon
-                     di baris bawah.
-
-                     Keduanya berpasangan menurut caranya dihubungi — yang ditulis
-                     di atas, yang ditelepon di bawah. Kedua nomor pun jadi
-                     sebaris, jadi panjangnya yang beda-beda tidak lagi membuat
-                     kolomnya tampak miring. --}}
+                {{-- Alamat + email di baris atas, WhatsApp + telepon di baris
+                     bawah — berpasangan menurut caranya dihubungi: yang
+                     ditulis di atas, yang ditelepon di bawah. --}}
                 @if($email)
                     <div>
                         <dt class="flex items-center gap-2">
                             <x-icon.contact name="email" class="shrink-0 text-brand-soft" />
                             <span class="eyebrow eyebrow-invert">{{ __('site.footer_email') }}</span>
                         </dt>
-                        <dd class="mt-4 text-[14px] leading-relaxed text-white/80">
+                        <dd class="mt-4 leading-relaxed text-white/80 text-site-small">
                             <a href="mailto:{{ $email }}" class="break-all transition-colors hover:text-white">{{ $email }}</a>
                         </dd>
                     </div>
@@ -109,7 +115,7 @@
                             <x-icon.whatsapp size="h-4 w-4" class="shrink-0 text-brand-soft" />
                             <span class="eyebrow eyebrow-invert">{{ __('site.footer_whatsapp') }}</span>
                         </dt>
-                        <dd class="mt-4 text-[14px] leading-relaxed text-white/80">
+                        <dd class="mt-4 leading-relaxed text-white/80 text-site-small">
                             <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer"
                                class="transition-colors hover:text-white">{{ $whatsapp }}</a>
                         </dd>
@@ -125,7 +131,7 @@
                             <x-icon.contact name="phone" class="shrink-0 text-brand-soft" />
                             <span class="eyebrow eyebrow-invert">{{ __('site.footer_call_us') }}</span>
                         </dt>
-                        <dd class="mt-4 text-[14px] leading-relaxed text-white/80">
+                        <dd class="mt-4 leading-relaxed text-white/80 text-site-small">
                             <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}"
                                class="transition-colors hover:text-white">{{ $phone }}</a>
                         </dd>
@@ -138,7 +144,7 @@
                             <x-icon.contact name="clock" class="shrink-0 text-brand-soft" />
                             <span class="eyebrow eyebrow-invert">{{ __('site.footer_open_time') }}</span>
                         </dt>
-                        <dd class="mt-4 space-y-1.5 text-[14px] leading-relaxed text-white/80">
+                        <dd class="mt-4 space-y-1.5 leading-relaxed text-white/80 text-site-small">
                             @foreach($hours as $dayLabel => $range)
                                 <span class="block">{{ rtrim($dayLabel, ':') }} · {{ $range }}</span>
                             @endforeach
@@ -156,7 +162,7 @@
                 <ul class="mt-5 space-y-3.5">
                     @foreach($navigation as $item)
                         <li>
-                            <a href="{{ $item['url'] }}" class="text-[14px] transition-colors hover:text-white">{{ $item['label'] }}</a>
+                            <a href="{{ $item['url'] }}" class="transition-colors hover:text-white text-site-small">{{ $item['label'] }}</a>
                         </li>
                     @endforeach
                 </ul>
@@ -167,7 +173,7 @@
                 <ul class="mt-5 space-y-3.5">
                     @foreach($resources as $item)
                         <li>
-                            <a href="{{ $item['url'] }}" class="text-[14px] transition-colors hover:text-white">{{ $item['label'] }}</a>
+                            <a href="{{ $item['url'] }}" class="transition-colors hover:text-white text-site-small">{{ $item['label'] }}</a>
                         </li>
                     @endforeach
                 </ul>
@@ -183,14 +189,18 @@
                 @if($staticPages)
                     @foreach($staticPages as $page)
                         <a href="{{ route('page.show', $page->slug) }}"
-                           class="text-[13px] text-white/50 transition-colors hover:text-white/85">
+                           class="text-site-small text-white/50 transition-colors hover:text-white/85">
                             {{ $page->translated_title }}
                         </a>
                     @endforeach
                 @endif
             </div>
 
-            <p class="order-last text-[13px] text-white/40 md:order-none">
+            {{-- white/40 di atas hijau yang kini nyaris hitam turun ke 3,69:1 —
+                 di bawah ambang AA 4,5:1 untuk teks kecil. Bukan pilihan rupa yang
+                 salah, melainkan akibat latar yang sengaja digelapkan; yang perlu
+                 naik adalah teksnya. --}}
+            <p class="order-last text-white/60 md:order-none text-site-small">
                 &copy; {{ date('Y') }} {{ $companyName }}. {{ __('site.footer_rights') }}
             </p>
 

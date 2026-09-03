@@ -6,8 +6,8 @@
         <div class="shell">
             <div class="max-w-[46rem]">
                 <p class="eyebrow">{{ $isi('eyebrow', 'site.news_eyebrow') }}</p>
-                <h1 class="display mt-5 max-w-[16ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ $isi('title', 'site.page_news') }}
+                <h1 class="display mt-5 max-w-[16ch] text-site-h1">
+                    {!! \App\Support\Judul::sorot($isi('title', 'site.page_news')) !!}
                 </h1>
                 <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_news_sub') }}</p>
             </div>
@@ -38,8 +38,7 @@
 
                     <div class="flex flex-col justify-center p-7 sm:p-10">
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1.5
-                                         text-[11px] font-bold uppercase tracking-[0.1em] text-brand">
+                            <span class="inline-flex items-center gap-2 rounded-full bg-brand/10 px-3.5 py-1.5 font-semibold uppercase tracking-[0.1em] text-brand text-site-micro">
                                 <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
                                 {{ $isi('featured', 'site.featured_article') }}
                             </span>
@@ -50,7 +49,7 @@
                         </div>
 
                         @if($featured->published_at)
-                            <p class="mt-5 flex items-center gap-2 text-[13px] text-ink-faint">
+                            <p class="mt-5 flex items-center gap-2 text-ink-faint text-site-small">
                                 <svg class="h-3.5 w-3.5 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                     <rect x="2.2" y="3.4" width="11.6" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.3"/>
                                     <path d="M2.2 6.6h11.6M5.6 2.2v2.4M10.4 2.2v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
@@ -61,14 +60,14 @@
                             </p>
                         @endif
 
-                        <h2 class="mt-4 font-display text-[22px] font-extrabold leading-snug tracking-[-0.02em] text-ink sm:text-[26px]">
+                        <h2 class="mt-4 font-display font-semibold leading-snug tracking-[-0.02em] text-ink text-site-h3">
                             <a href="{{ route('news.show', $featured->slug) }}" class="transition-colors hover:text-brand">
                                 {{ $featured->translated_title }}
                             </a>
                         </h2>
 
                         @if($featured->translated_excerpt)
-                            <p class="mt-4 max-w-[52ch] text-[14px] leading-relaxed text-ink-muted">
+                            <p class="mt-4 max-w-[52ch] leading-relaxed text-ink-muted text-site-small">
                                 {{ \Illuminate\Support\Str::limit(strip_tags($featured->translated_excerpt), 200) }}
                             </p>
                         @endif
@@ -124,7 +123,7 @@
                     <button type="button" wire:click="selectCategory('')"
                             aria-pressed="{{ $category === '' ? 'true' : 'false' }}"
                             @class([
-                                'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                                'inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-site-small font-semibold transition-colors',
                                 'border-brand bg-brand text-white' => $category === '',
                                 'border-line text-ink-muted hover:border-line-strong hover:text-ink' => $category !== '',
                             ])>
@@ -137,13 +136,13 @@
                         <button type="button" wire:click="selectCategory('{{ $cat->slug }}')"
                                 aria-pressed="{{ $isActive ? 'true' : 'false' }}"
                                 @class([
-                                    'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-bold transition-colors',
+                                    'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-site-small font-semibold transition-colors',
                                     'border-brand bg-brand text-white' => $isActive,
                                     'border-line text-ink-muted hover:border-line-strong hover:text-ink' => ! $isActive,
                                 ])>
                             {{ $cat->name }}
                             <span @class([
-                                'text-[12px] font-semibold',
+                                'text-site-micro font-semibold',
                                 'text-white/60' => $isActive,
                                 'text-ink-faint' => ! $isActive,
                             ])>{{ $cat->news_count }}</span>
@@ -161,13 +160,13 @@
         <div class="shell">
 
             <div class="flex flex-wrap items-center justify-between gap-4">
-                <p class="text-[14px] text-ink-muted" aria-live="polite">
+                <p class="text-ink-muted text-site-small" aria-live="polite">
                     {{ trans_choice('site.news_count', $news->total(), ['count' => $news->total()]) }}
                 </p>
 
                 @if($hasFilters)
                     <button type="button" wire:click="resetFilters"
-                            class="inline-flex items-center gap-2 text-[13px] font-bold text-brand transition-colors hover:text-brand-deep">
+                            class="inline-flex items-center gap-2 font-semibold text-brand transition-colors hover:text-brand-deep text-site-small">
                         <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                             <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
                         </svg>
@@ -201,27 +200,27 @@
                                     <div class="flex flex-1 flex-col p-6">
                                         <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
                                             @if($article->category)
-                                                <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-brand">
+                                                <span class="font-semibold uppercase tracking-[0.1em] text-brand text-site-micro">
                                                     {{ $article->category->name }}
                                                 </span>
                                             @endif
 
                                             @if($article->published_at)
                                                 <time datetime="{{ $article->published_at->toDateString() }}"
-                                                      class="text-[12px] text-ink-faint">
+                                                      class="text-site-micro text-ink-faint">
                                                     {{ $article->published_at->translatedFormat('d M Y') }}
                                                 </time>
                                             @endif
                                         </div>
 
-                                        <h2 class="mt-3 font-display text-[16px] font-extrabold leading-snug tracking-[-0.01em] text-ink">
+                                        <h2 class="mt-3 font-display font-semibold leading-snug tracking-[-0.01em] text-ink text-site-lede">
                                             <a href="{{ route('news.show', $article->slug) }}" class="transition-colors hover:text-brand">
                                                 {{ $article->translated_title }}
                                             </a>
                                         </h2>
 
                                         @if($article->translated_excerpt)
-                                            <p class="mt-2.5 line-clamp-3 text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mt-2.5 line-clamp-3 leading-relaxed text-ink-muted text-site-small">
                                                 {{ \Illuminate\Support\Str::limit(strip_tags($article->translated_excerpt), 130) }}
                                             </p>
                                         @endif
@@ -245,7 +244,7 @@
                     </div>
                 @else
                     <div class="mt-8 rounded-corner border border-dashed border-line px-6 py-20 text-center">
-                        <p class="font-display text-[18px] font-extrabold text-ink">
+                        <p class="font-display font-semibold text-ink text-site-title">
                             {{ $isi('empty', 'site.no_news_found') }}
                         </p>
 

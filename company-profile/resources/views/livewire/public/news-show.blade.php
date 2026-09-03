@@ -30,11 +30,11 @@
                     <p class="eyebrow mt-8">{{ $news->category->name }}</p>
                 @endif
 
-                <h1 class="display mt-5 text-[28px] leading-[1.25] sm:text-[34px] lg:text-[40px]">
-                    {{ $news->translated_title }}
+                <h1 class="display mt-5 text-site-h1">
+                    {!! \App\Support\Judul::sorot($news->translated_title) !!}
                 </h1>
 
-                <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-6 text-[13px] text-ink-muted">
+                <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-6 text-ink-muted text-site-small">
                     @if($news->published_at)
                         <span class="flex items-center gap-2">
                             <svg class="h-4 w-4 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -85,8 +85,8 @@
         <section class="section border-t border-line">
             <div class="shell">
                 <div class="flex flex-wrap items-end justify-between gap-6">
-                    <h2 class="display max-w-[20ch] text-[24px] sm:text-[28px] lg:text-[32px]">
-                        {{ __('site.related_articles') }}
+                    <h2 class="display max-w-[20ch] text-site-h2">
+                        {!! \App\Support\Judul::sorot(__('site.related_articles')) !!}
                     </h2>
 
                     <a href="{{ route('news.index') }}" class="btn btn-outline btn-arrow">
@@ -120,12 +120,12 @@
                                 <span class="flex flex-1 flex-col p-6">
                                     @if($article->published_at)
                                         <time datetime="{{ $article->published_at->toDateString() }}"
-                                              class="text-[12px] text-ink-faint">
+                                              class="text-site-micro text-ink-faint">
                                             {{ $article->published_at->translatedFormat('d M Y') }}
                                         </time>
                                     @endif
 
-                                    <span class="mt-2.5 font-display text-[16px] font-extrabold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand">
+                                    <span class="mt-2.5 font-display font-semibold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand text-site-lede">
                                         {{ $article->translated_title }}
                                     </span>
 

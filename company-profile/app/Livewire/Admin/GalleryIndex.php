@@ -109,17 +109,21 @@ class GalleryIndex extends Component
             }
         }
 
-        // If editing, refresh the editingGallery so the view updates immediately
-        if ($this->gallery_id) {
-            $this->editingGallery = Gallery::with('items.media')->find($this->gallery_id);
-            // Reset photos after upload so it's ready for next
-            $this->photos = [];
-            session()->flash('message', 'Media added successfully.');
-            return; // Don't close modal if editing
-        }
-
-        session()->flash('message', 
-            $this->gallery_id ? 'Gallery Updated Successfully.' : 'Gallery Created Successfully.');
+        /*
+         * Modalnya SELALU ditutup sesudah simpan, baik menambah maupun
+         * menyunting.
+         *
+         * Sebelumnya menyunting sengaja membiarkannya terbuka supaya foto
+         * berikutnya bisa langsung ditambahkan, dan pesan berhasilnya
+         * digambar di dalam modal itu. Dua-duanya membuat halaman ini
+         * satu-satunya yang berperilaku begitu di seluruh panel: di sembilan
+         * halaman lain, menekan Simpan menutup modalnya dan pesannya muncul
+         * sebagai spanduk di puncak halaman.
+         *
+         * Harganya: menambah video kedua berarti membuka modalnya lagi,
+         * karena store() memang cuma menerima satu tautan per simpan.
+         */
+        session()->flash('message', 'Gallery saved successfully!');
 
         $this->closeModal();
     }
@@ -150,8 +154,16 @@ class GalleryIndex extends Component
         if ($item) {
             $item->clearMediaCollection('gallery');
             $item->delete();
-            session()->flash('message', 'Media Item Deleted Successfully.');
-            
+
+            /*
+             * Tidak ada pesan flash di sini.
+             *
+             * Menghapus isi dilakukan DI DALAM modal yang masih terbuka, jadi
+             * spanduk di puncak halaman berdiri tepat di baliknya — tidak
+             * pernah terbaca saat kejadian, lalu muncul sebagai pesan basi
+             * begitu modalnya ditutup. Ubinnya yang lenyap seketika sudah
+             * jadi jawaban yang lebih jelas daripada kalimat mana pun.
+             */
             if ($this->editingGallery) {
                 $this->editingGallery->load('items.media');
             }

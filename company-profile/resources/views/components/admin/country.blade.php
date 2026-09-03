@@ -26,18 +26,21 @@
      * kehilangan urutan bacanya.
      */
     $rupa = [
-        'md' => ['gap-2',   'px-2 py-0.5 text-[10px]', 'text-[13px] text-ink-muted'],
-        'sm' => ['gap-1.5', 'px-1.5 py-0 text-[10px]', 'text-[12px] text-ink-faint'],
+        'md' => ['gap-2',   'px-2 py-0.5',  'text-admin-body text-ink-muted'],
+        'sm' => ['gap-1.5', 'px-1.5 py-0',  'text-admin-caption text-ink-faint'],
     ][$size] ?? null;
 
     [$jarak, $keping, $teks] = $rupa ?? [
-        'gap-2', 'px-2 py-0.5 text-[10px]', 'text-[13px] text-ink-muted',
+        'gap-2', 'px-2 py-0.5', 'text-admin-body text-ink-muted',
     ];
 @endphp
 
+{{-- Memakai .admin-code, bukan huruf antarmuka yang ditebalkan: kode ISO
+     adalah dua huruf yang dicocokkan dengan berkas ekspor dan dokumen
+     pengiriman, bukan kata yang dibaca. --}}
 <span {{ $attributes->class(['flex items-center', $jarak]) }}>
-    <span class="inline-flex shrink-0 items-center rounded-full bg-mist-deep
-                 font-bold tracking-[0.04em] text-ink-muted {{ $keping }}">{{ $kode ?: '??' }}</span>
+    <span class="admin-code inline-flex shrink-0 items-center rounded-full border border-line
+                 bg-mist text-admin-caption font-medium text-brand {{ $keping }}">{{ $kode ?: '??' }}</span>
 
     <span class="min-w-0 truncate {{ $teks }}"
           title="{{ $nama }}">{{ $nama ?? '—' }}</span>

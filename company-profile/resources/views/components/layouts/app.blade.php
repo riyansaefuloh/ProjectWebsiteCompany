@@ -30,7 +30,6 @@
         ],
         'Konten' => [
             ['label' => 'Berita',   'ikon' => 'news',     'rute' => 'admin.news.index',      'izin' => 'manage news'],
-            ['label' => 'Kategori & Tag', 'ikon' => 'category', 'rute' => 'admin.news-taxonomy.index', 'izin' => 'manage news'],
             ['label' => 'Galeri',   'ikon' => 'gallery',  'rute' => 'admin.galleries.index', 'izin' => 'manage galleries'],
             ['label' => 'Halaman',  'ikon' => 'page',     'rute' => 'admin.pages.index',     'izin' => 'manage pages'],
             ['label' => 'Unduhan',  'ikon' => 'download', 'rute' => 'admin.downloads.index', 'izin' => 'manage downloads'],
@@ -52,20 +51,22 @@
         ->all();
 
     /*
-     * Kelompok "Sistem" dikeluarkan dari daftar yang menggulung dan dipasang
-     * tetap di kaki sidebar.
+     * SELURUH kelompok menggulung bersama, "Sistem" termasuk.
      *
-     * Alasannya: Pengguna dan Pengaturan bukan tempat kerja sehari-hari — ia
-     * dibuka sesekali, dan justru karena itu harus selalu bisa ditemukan di
-     * tempat yang sama tanpa perlu menggulung dulu. Daftar menu di atas boleh
-     * memanjang seiring bertambahnya menu; kaki ini tidak ikut bergeser.
+     * Sebelumnya Pengguna & Peran dan Pengaturan dikeluarkan dari daftar dan
+     * dipasang tetap di kaki sidebar, dengan alasan keduanya jarang dibuka
+     * sehingga harus selalu ada di tempat yang sama. Alasan itu ditukar dengan
+     * yang lebih kuat: di kaki, keduanya berdiri tanpa judul kelompok,
+     * bertetangga dengan "Lihat situs" dan "Keluar" — dua hal yang bukan menu
+     * sama sekali. Yang terbaca di sana bukan "ini kelompok Sistem" melainkan
+     * "ini sisa-sisa yang tidak kebagian tempat".
      *
-     * Tetap disatukan lagi di $seluruhMenu supaya judul halaman dan remah
-     * jejak di topbar tidak kehilangan jejak halaman-halaman itu.
+     * Sekarang keduanya kembali ke daftar bersama judul "Sistem" di atasnya,
+     * dan kaki sidebar menyisakan persis yang memang bukan menu: jalan keluar
+     * ke situs publik, dan tombol keluar.
      */
-    $menuSistem   = $kelompokMenu['Sistem'] ?? [];
-    $kelompokNav  = collect($kelompokMenu)->except('Sistem')->all();
-    $seluruhMenu  = $kelompokMenu;
+    $kelompokNav = $kelompokMenu;
+    $seluruhMenu = $kelompokMenu;
 
     $ruteAktif = request()->route()?->getName();
 
@@ -92,10 +93,6 @@
         ? \App\Models\Inquiry::where('status', 'new')->count()
         : 0;
 
-    $inisial = collect(preg_split('/\s+/', trim((string) $pengguna?->name)))
-        ->filter()->take(2)
-        ->map(fn ($kata) => mb_strtoupper(mb_substr($kata, 0, 1)))
-        ->implode('') ?: '?';
 @endphp
 
 <!DOCTYPE html>
@@ -121,16 +118,17 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- Dua huruf, masing-masing satu tugas: Plus Jakarta Sans untuk seluruh
-         antarmuka, Nunito hanya untuk nama perusahaan — lambang merek, disusun
-         sama dengan header situs publik. --}}
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+    {{-- Dua huruf, dua tugas: Plex Sans untuk seluruh antarmuka, Plex Mono
+         hanya untuk deret yang dibaca karakter per karakter. Bobot 700
+         sengaja tidak diminta — bobot yang dipakai tapi tidak dimuat akan
+         ditebalkan sendiri oleh peramban. --}}
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 
-<body class="min-h-screen bg-mist font-ui text-ink"
+<body class="admin-shell min-h-screen bg-mist font-ui text-admin-body text-ink"
       x-data="{
           laciTerbuka: false,
           sempit: document.documentElement.classList.contains('sidebar-rail'),
@@ -147,7 +145,7 @@
          kali berpindah halaman sebelum sampai ke isinya. --}}
     <a href="#isi-utama"
        class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60]
-              focus:rounded-control focus:bg-ink focus:px-4 focus:py-2 focus:text-[13px]
+              focus:rounded-control focus:bg-ink focus:px-4 focus:py-2 focus:text-admin-body
               focus:font-semibold focus:text-white">
         Lewati ke isi halaman
     </a>
@@ -161,22 +159,51 @@
     {{-- ══════════════════════════════════════════════════════════════════════
          SIDEBAR
          ══════════════════════════════════════════════════════════════════════ --}}
+    {{-- Keadaan keterangan rail dipegang di <aside>, bukan di tiap menu: satu
+         elemen bersama yang berdiri DI LUAR <nav>, karena nav memotong apa
+         pun yang melewati tepinya. --}}
     <aside x-bind:class="laciTerbuka ? 'translate-x-0' : '-translate-x-full'"
+           x-data="{
+               tip: '',
+               tipY: 0,
+
+               tampilTip(el, teks) {
+                   /* Dibaca dari DOM, bukan dari keadaan Alpine: kelas
+                      sidebar-rail sudah dipasang skrip di <head> sebelum Alpine
+                      hidup, jadi ia sumber yang paling pasti. Ambang 1024px
+                      menyamai ambang lg — di bawah itu sidebar berupa laci lebar
+                      yang labelnya sudah terbaca, jadi keterangan tidak perlu. */
+                   if (window.innerWidth < 1024) return;
+                   if (! document.documentElement.classList.contains('sidebar-rail')) return;
+
+                   const kotak = el.getBoundingClientRect();
+
+                   this.tip  = teks;
+                   /* Titik tengah tegak petaknya, diukur terhadap viewport —
+                      dan itu sama dengan terhadap bilah sisi, karena bilah sisi
+                      dipasang fixed inset-y-0 sehingga tepi atasnya berimpit
+                      dengan tepi atas layar. */
+                   this.tipY = kotak.top + kotak.height / 2;
+               },
+           }"
            class="fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col border-r border-line bg-canvas
                   transition-transform duration-200
                   lg:translate-x-0 lg:transition-[width] lg:rail:w-[76px]"
            aria-label="Navigasi panel admin">
 
         {{-- ── Kepala: lambang + nama ─────────────────────────────────────── --}}
-        <div class="relative flex h-[72px] shrink-0 items-center gap-2.5 border-b border-line px-4
+        <div class="relative flex h-[64px] shrink-0 items-center gap-2.5 border-b border-line px-4
                     lg:rail:justify-center lg:rail:px-0">
 
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-corner bg-ink text-white">
+            {{-- Bingkai lambang 40px, seukuran petak menu di bawahnya dan
+                 bingkai di halaman masuk — satu kolom, satu lebar. --}}
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center
+                         rounded-control border border-line bg-mist">
                 @if($logo)
                     <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
                          class="h-6 w-6 object-contain">
                 @else
-                    <svg class="h-[22px] w-[22px]" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <svg class="h-5 w-5 text-brand" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                         <path d="M16 3.5c6 0 10.5 5.6 10.5 12.5S22 28.5 16 28.5 5.5 22.9 5.5 16 10 3.5 16 3.5Z"
                               stroke="currentColor" stroke-width="2"/>
                         <path d="M16 5.2c-3 3-3 6.9 0 10.8s3 7.8 0 10.8"
@@ -185,11 +212,13 @@
                 @endif
             </span>
 
+            {{-- Nama perusahaan memakai huruf antarmuka panel, bukan huruf
+                 situs publik. --}}
             <span class="min-w-0 lg:rail:hidden">
-                <span class="block truncate font-display text-[15px] font-extrabold tracking-[-0.02em] text-ink">
+                <span class="block truncate text-admin-title text-ink">
                     {{ $namaPerusahaan }}
                 </span>
-                <span class="block text-[11px] text-ink-faint">Panel Admin</span>
+                <span class="mt-0.5 block text-admin-overline uppercase text-ink-faint">Panel Admin</span>
             </span>
 
             {{-- Tombol lipat, menumpang di tepi sidebar seperti pada referensi.
@@ -206,7 +235,12 @@
         </div>
 
         {{-- ── Daftar menu ────────────────────────────────────────────────── --}}
-        <nav class="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4">
+        {{-- Nav ini MEMOTONG apa pun yang melewati tepinya, dan itu tak
+             terhindarkan: begitu satu sumbu diberi overflow-y-auto ia jadi
+             scroll container, dan sumbu satunya tidak bisa lagi visible.
+             Karena itu keterangan menu berdiri di luar <nav>. --}}
+        <nav id="nav-admin"
+             class="admin-scroll flex-1 overflow-y-auto overflow-x-hidden px-3 pb-4">
             @foreach($kelompokNav as $namaKelompok => $menu)
                 {{-- Saat menyempit, judul kelompok hilang dan digantikan garis
                      tipis — pengelompokannya tetap terbaca sebagai jeda, tanpa
@@ -219,10 +253,15 @@
                         @php $aktif = $ruteAktif === $m['rute']; @endphp
 
                         <li class="relative group">
-                            <a href="{{ route($m['rute']) }}"
+                            {{-- wire:navigate.hover — berpindah menu tanpa
+                                 mengunduh dan mengurai ulang CSS, huruf, dan
+                                 skrip. --}}
+                            <a href="{{ route($m['rute']) }}" wire:navigate.hover
                                @if($aktif) aria-current="page" @endif
+                               x-on:mouseenter="tampilTip($el, {{ \Illuminate\Support\Js::from($m['label']) }})"
+                               x-on:mouseleave="tip = ''"
                                @class([
-                                   'admin-link lg:rail:justify-center lg:rail:px-0',
+                                   'admin-link',
                                    'admin-link-on' => $aktif,
                                ])>
                                 <x-icon.admin :name="$m['ikon']" class="shrink-0" />
@@ -230,78 +269,108 @@
                                 <span class="min-w-0 flex-1 truncate lg:rail:hidden">{{ $m['label'] }}</span>
 
                                 @if($m['rute'] === 'admin.inquiries.index' && $jumlahInquiryBaru > 0)
-                                    <span class="ml-auto inline-flex min-w-[22px] shrink-0 items-center justify-center
-                                                 rounded-full bg-brand px-1.5 py-0.5 text-[11px] font-bold
-                                                 tabular-nums text-white lg:rail:hidden">
+                                    <span class="ml-auto inline-flex h-[18px] min-w-[18px] shrink-0 items-center
+                                                 justify-center rounded-full bg-brand px-1 text-admin-caption
+                                                 font-semibold tabular-nums text-white lg:rail:hidden">
                                         {{ $jumlahInquiryBaru > 99 ? '99+' : $jumlahInquiryBaru }}
                                     </span>
 
-                                    {{-- Versi sempit: titik saja. Angka di ikon
-                                         selebar 18px hanya jadi noda. --}}
-                                    <span class="absolute right-3 top-2 hidden h-2 w-2 rounded-full bg-brand
-                                                 ring-2 ring-canvas lg:rail:block"
-                                          role="img" aria-label="{{ $jumlahInquiryBaru }} inquiry baru"></span>
+                                    {{-- Angka, bukan titik: satu inquiry dan
+                                         tiga puluh menuntut tindakan berbeda.
+                                         Dibatasi 9+. --}}
+                                    <span class="absolute right-0 top-0 hidden h-4 min-w-4 items-center
+                                                 justify-center rounded-full bg-brand px-1 text-admin-caption
+                                                 font-semibold leading-none tabular-nums text-white ring-2
+                                                 ring-canvas lg:rail:inline-flex"
+                                          role="img" aria-label="{{ $jumlahInquiryBaru }} inquiry baru">
+                                        {{ $jumlahInquiryBaru > 9 ? '9+' : $jumlahInquiryBaru }}
+                                    </span>
                                 @endif
                             </a>
 
-                            {{-- Keterangan saat sempit --}}
-                            <span class="admin-tip lg:rail:group-hover:block">{{ $m['label'] }}</span>
                         </li>
                     @endforeach
                 </ul>
             @endforeach
         </nav>
 
-        {{-- ── Kaki tetap ──────────────────────────────────────────────────
-             Tidak ikut menggulung. Isinya yang jarang dibuka tapi harus selalu
-             ada di tempat yang sama: pengaturan sistem, jalan keluar ke situs
-             publik, dan tombol keluar. --}}
+        {{-- ── Kaki tetap — tidak ikut menggulung. Isinya dua hal yang memang
+             BUKAN menu: jalan keluar ke situs publik, dan tombol keluar. ── --}}
         <div class="shrink-0 space-y-1 border-t border-line p-3">
-
-            @foreach($menuSistem as $m)
-                @php $aktif = $ruteAktif === $m['rute']; @endphp
-
-                <div class="relative group">
-                    <a href="{{ route($m['rute']) }}"
-                       @if($aktif) aria-current="page" @endif
-                       @class([
-                           'admin-link lg:rail:justify-center lg:rail:px-0',
-                           'admin-link-on' => $aktif,
-                       ])>
-                        <x-icon.admin :name="$m['ikon']" class="shrink-0" />
-                        <span class="min-w-0 flex-1 truncate lg:rail:hidden">{{ $m['label'] }}</span>
-                    </a>
-                    <span class="admin-tip lg:rail:group-hover:block">{{ $m['label'] }}</span>
-                </div>
-            @endforeach
 
             <div class="relative group">
                 <a href="{{ route('home') }}" target="_blank" rel="noopener"
-                   class="admin-link lg:rail:justify-center lg:rail:px-0">
+                   x-on:mouseenter="tampilTip($el, 'Lihat situs')"
+                   x-on:mouseleave="tip = ''"
+                   class="admin-link">
                     <x-icon.admin name="external" class="shrink-0" />
                     <span class="truncate lg:rail:hidden">Lihat situs</span>
                 </a>
-                <span class="admin-tip lg:rail:group-hover:block">Lihat situs</span>
             </div>
 
-            {{-- Keluar tetap sebuah formulir POST, bukan tautan: permintaan GET
-                 bisa dipicu dari luar (gambar, prefetch peramban) dan
-                 mengeluarkan orang tanpa ia melakukan apa pun.
-
-                 Warnanya baru memerah saat disentuh — merah sejak awal membuat
-                 ia berteriak lebih keras daripada seluruh menu di atasnya. --}}
+            {{-- POST, bukan tautan: permintaan GET bisa dipicu dari luar
+                 (prefetch peramban, gambar) dan mengeluarkan orang tanpa ia
+                 berbuat apa pun. --}}
             <form method="POST" action="{{ route('logout') }}" class="relative group">
                 @csrf
+                {{-- lg:rail:w-10 ditulis di sini meski .admin-link sudah
+                     membawanya. Soal cascade layer, bukan spesifisitas:
+                     w-full berdiri di lapisan utilities dan menang atas
+                     .admin-link di lapisan components. --}}
                 <button type="submit"
-                        class="admin-link w-full hover:bg-danger/5 hover:text-danger
-                               lg:rail:justify-center lg:rail:px-0">
+                        x-on:mouseenter="tampilTip($el, 'Keluar')"
+                        x-on:mouseleave="tip = ''"
+                        class="admin-link w-full hover:bg-danger/5 hover:text-danger lg:rail:w-10">
                     <x-icon.admin name="logout" class="shrink-0" />
                     <span class="truncate lg:rail:hidden">Keluar</span>
                 </button>
-                <span class="admin-tip lg:rail:group-hover:block">Keluar</span>
             </form>
         </div>
+
+        {{-- SATU keterangan untuk semua menu, anak langsung <aside> supaya
+             lolos dari pemotong <nav>. Posisi tegaknya disetel dari
+             JavaScript. --}}
+        <div x-show="tip !== ''" x-cloak x-transition.opacity.duration.100ms
+             x-bind:style="'top: ' + tipY + 'px'"
+             x-text="tip"
+             aria-hidden="true"
+             class="admin-tip"></div>
     </aside>
+
+    {{-- Posisi gulung daftar menu dipertahankan antar-halaman — tanpa ini ia
+         kembali ke atas tiap kali pindah menu. --}}
+    <script>
+        (function () {
+            var kunci = 'admin-nav-scroll';
+
+            function pasang() {
+                var nav = document.getElementById('nav-admin');
+                if (! nav) return;
+
+                /* Penanda pada elemennya sendiri, bukan variabel di luar: yang
+                   perlu dijawab bukan "sudah pernah jalan?" melainkan "nav INI
+                   sudah dipasangi?" — dan tiap perpindahan halaman membawa nav
+                   yang baru. Tanpa ini, jalur langsung dan jalur navigated
+                   memasang dua pendengar pada elemen yang sama. */
+                if (nav.dataset.gulunganTerpasang) return;
+                nav.dataset.gulunganTerpasang = '1';
+
+                try {
+                    var tersimpan = sessionStorage.getItem(kunci);
+                    if (tersimpan) nav.scrollTop = parseInt(tersimpan, 10) || 0;
+                } catch (e) {}
+
+                nav.addEventListener('scroll', function () {
+                    try {
+                        sessionStorage.setItem(kunci, nav.scrollTop);
+                    } catch (e) {}
+                }, { passive: true });
+            }
+
+            pasang();
+            document.addEventListener('livewire:navigated', pasang);
+        })();
+    </script>
 
     {{-- ══════════════════════════════════════════════════════════════════════
          KOLOM ISI
@@ -309,12 +378,15 @@
     <div class="flex min-h-screen flex-col transition-[padding] duration-200 lg:pl-[264px] lg:rail:pl-[76px]">
 
         {{-- ── TOPBAR ─────────────────────────────────────────────────────── --}}
-        <header class="sticky top-0 z-20 flex h-[72px] shrink-0 items-center gap-3 border-b border-line
-                       bg-canvas/85 px-4 backdrop-blur-md sm:px-6">
+        {{-- Latar PEKAT, tanpa backdrop-blur: topbar ini sticky, jadi blur
+             memaksa peramban memburamkan ulang seluruh bidang di belakangnya
+             pada SETIAP bingkai gulungan. --}}
+        <header class="sticky top-0 z-20 flex h-[64px] shrink-0 items-center gap-3 border-b border-line
+                       bg-canvas px-4 sm:px-6">
 
             <button type="button" x-on:click="laciTerbuka = true" aria-label="Buka menu"
                     class="-ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                           text-ink-muted transition-colors hover:bg-mist hover:text-ink lg:hidden">
+                           text-ink-muted transition-colors hover:bg-mist hover:text-brand-deep lg:hidden">
                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <path d="M3.5 6h13M3.5 10h13M3.5 14h13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                 </svg>
@@ -323,7 +395,7 @@
             {{-- Remah jejak: kelompok › halaman. Kelompoknya bukan tautan
                  karena ia label, bukan halaman — hanya penunjuk letak. --}}
             <div class="min-w-0 flex-1">
-                <p class="flex items-center gap-1.5 text-[13px] text-ink-faint">
+                <p class="flex items-center gap-1.5 text-admin-body text-ink-faint">
                     @if($kelompokAktif)
                         <span class="hidden sm:inline">{{ $kelompokAktif }}</span>
                         <span class="hidden sm:inline" aria-hidden="true">›</span>
@@ -337,13 +409,25 @@
                 <div x-data="{ buka: false }" x-on:keydown.escape.window="buka = false" class="relative shrink-0">
                     <button type="button" x-on:click="buka = ! buka"
                             x-bind:aria-expanded="buka ? 'true' : 'false'"
-                            aria-label="Inquiry baru"
-                            class="relative inline-flex h-9 w-9 items-center justify-center rounded-full
-                                   text-ink-muted transition-colors hover:bg-mist hover:text-ink">
-                        <x-icon.admin name="bell" />
+                            aria-label="{{ $jumlahInquiryBaru > 0 ? $jumlahInquiryBaru . ' inquiry baru' : 'Tidak ada inquiry baru' }}"
+                            {{-- 40px rounded-control — petak yang sama persis
+                                 dengan avatar di sebelahnya. --}}
+                            class="relative inline-flex h-10 w-10 items-center justify-center rounded-control
+                                   text-ink-muted transition-colors hover:bg-mist hover:text-brand-deep">
+                        <x-icon.admin name="bell" size="h-6 w-6" />
 
+                        {{-- Angka, bukan titik. aria-hidden karena jumlahnya
+                             sudah ikut disebut di aria-label tombolnya. --}}
                         @if($jumlahInquiryBaru > 0)
-                            <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-brand ring-2 ring-canvas"></span>
+                            <span aria-hidden="true"
+                                  {{-- right-0/top-0 — rata dengan sudut
+                                       tombol; lebih ke dalam dan keping ini
+                                       menutupi loncengnya. --}}
+                                  class="absolute right-0 top-0 inline-flex h-[18px] min-w-[18px] items-center
+                                         justify-center rounded-full bg-brand px-1 text-admin-caption font-semibold
+                                         tabular-nums text-white ring-2 ring-canvas">
+                                {{ $jumlahInquiryBaru > 99 ? '99+' : $jumlahInquiryBaru }}
+                            </span>
                         @endif
                     </button>
 
@@ -351,63 +435,95 @@
                          x-transition:enter="transition ease-out duration-150"
                          x-transition:enter-start="opacity-0 -translate-y-1"
                          x-transition:enter-end="opacity-100 translate-y-0"
-                         class="absolute right-0 top-full z-50 mt-2 w-[300px] overflow-hidden rounded-corner
+                         class="absolute right-0 top-full z-50 mt-2 w-[340px] overflow-hidden rounded-corner
                                 border border-line bg-canvas shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]">
 
                         <div class="border-b border-line px-4 py-3">
-                            <p class="text-[13px] font-semibold text-ink">Inquiry baru</p>
-                            <p class="mt-0.5 text-[12px] text-ink-faint">
+                            <p class="text-admin-strong text-ink">Inquiry baru</p>
+                            <p class="mt-0.5 text-admin-caption text-ink-faint">
                                 {{ $jumlahInquiryBaru }} permintaan menunggu ditangani
                             </p>
                         </div>
 
-                        @forelse($inquiryBaru as $inq)
-                            <a href="{{ route('admin.inquiries.index') }}" class="admin-menu-row block">
-                                <span class="block min-w-0">
-                                    <span class="block truncate font-semibold text-ink">{{ $inq->name }}</span>
-                                    <span class="mt-0.5 block truncate text-[12px] text-ink-faint">
-                                        {{ $inq->company ?: $inq->email }}
-                                        · {{ $inq->created_at->locale('id')->diffForHumans([
-                                                'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE, 'short' => true,
-                                           ]) }}
-                                    </span>
-                                </span>
-                            </a>
-                        @empty
-                            <p class="px-4 py-6 text-center text-[13px] text-ink-faint">
-                                Tidak ada inquiry baru.
-                            </p>
-                        @endforelse
+                        {{-- Bahasa visualnya dipinjam dari tabel "Inquiry
+                             terbaru" di dasbor — isi yang sama dibaca dengan
+                             cara yang sama di dua tempat. --}}
+                        <div class="p-3">
+                            <div class="overflow-hidden rounded-corner border border-line">
+
+                                {{-- 189px = 3 baris x 63. Ditulis sebagai
+                                     batas ATAS, bukan tinggi tetap. --}}
+                                <div class="admin-scroll max-h-[189px] overflow-y-auto overscroll-contain">
+                                @forelse($inquiryBaru as $inq)
+                                    <a href="{{ route('admin.inquiries.index') }}" wire:navigate.hover
+                                       class="flex items-center gap-2.5 border-b border-b-line px-3 py-3
+                                              transition-colors last:border-b-0 hover:bg-mist">
+
+                                        <x-admin.avatar :name="$inq->name" size="sm" />
+
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block truncate text-admin-strong text-ink"
+                                                  title="{{ $inq->name }}">{{ $inq->name }}</span>
+                                            <span class="mt-0.5 block truncate text-admin-caption text-ink-faint"
+                                                  title="{{ $inq->company ?: $inq->email }}">{{ $inq->company ?: $inq->email }}</span>
+                                        </span>
+
+                                        {{-- Tanggal di atas jam, tabular.
+                                             Tahun dibuang: kelimanya yang
+                                             paling baru masuk, jadi tahun
+                                             tidak pernah jadi pembeda. --}}
+                                        <time datetime="{{ $inq->created_at->toIso8601String() }}"
+                                              class="w-[58px] shrink-0">
+                                            <span class="block text-admin-caption tabular-nums text-ink-muted">
+                                                {{ $inq->created_at->locale('id')->translatedFormat('d M') }}
+                                            </span>
+                                            <span class="mt-0.5 block text-admin-caption tabular-nums text-ink-faint">
+                                                {{ $inq->created_at->format('H:i') }}
+                                            </span>
+                                        </time>
+                                    </a>
+                                @empty
+                                    <p class="px-3 py-6 text-center text-admin-body text-ink-faint">
+                                        Tidak ada inquiry baru.
+                                    </p>
+                                @endforelse
+                                </div>
+                            </div>
+                        </div>
 
                         @if($jumlahInquiryBaru > $inquiryBaru->count())
                             <a href="{{ route('admin.inquiries.index') }}"
-                               class="block border-t border-line px-4 py-3 text-center text-[13px]
+                               wire:navigate.hover
+                               class="block border-t border-line px-4 py-3 text-center text-admin-strong
                                       font-semibold text-brand transition-colors hover:bg-mist">
                                 Lihat semuanya
                             </a>
                         @endif
                     </div>
                 </div>
+
+                {{-- Pemisah: lonceng menjawab "apa yang menunggu", akun
+                     menjawab "siapa saya". --}}
+                <span aria-hidden="true" class="h-7 w-px shrink-0 bg-line"></span>
             @endcan
 
             {{-- ── Profil ─────────────────────────────────────────────────── --}}
             <div x-data="{ buka: false }" x-on:keydown.escape.window="buka = false" class="relative shrink-0">
+                {{-- Pemicunya avatar saja — nama, surel, dan peran pindah ke
+                     dalam menunya. aria-label yang membawa namanya. --}}
                 <button type="button" x-on:click="buka = ! buka"
                         x-bind:aria-expanded="buka ? 'true' : 'false'"
-                        aria-haspopup="menu" aria-label="Menu akun"
-                        class="flex items-center gap-2 rounded-full p-0.5 transition-colors hover:bg-mist">
+                        aria-haspopup="menu"
+                        aria-label="Menu akun — {{ $pengguna?->name }}"
+                        {{-- Ikut bulat: latar sorot yang menyiku di
+                             sekeliling lingkaran menyisakan empat sudut abu. --}}
+                        class="flex rounded-full p-0.5 transition-colors hover:bg-mist">
 
-                    {{-- aria-hidden: namanya sudah disebut aria-label tombolnya,
-                         jadi pembaca layar tidak perlu mengeja inisialnya lagi. --}}
-                    <span aria-hidden="true"
-                          class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full
-                                 bg-brand text-[13px] font-bold text-white">{{ $inisial }}</span>
+                    {{-- BULAT, satu-satunya di panel: seluruh petak 40px lain
+                         bersudut rounded-control. Avatar mewakili seorang
+                         ORANG, bukan menu atau berkas. --}}
+                    <x-admin.avatar :name="$pengguna?->name" size="lg" />
 
-                    <svg class="mr-1 h-3 w-3 shrink-0 text-ink-faint transition-transform duration-150"
-                         x-bind:class="buka && 'rotate-180'" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                        <path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" stroke-width="1.5"
-                              stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
                 </button>
 
                 <div x-show="buka" x-cloak x-on:click.outside="buka = false"
@@ -415,43 +531,56 @@
                      x-transition:enter-start="opacity-0 -translate-y-1"
                      x-transition:enter-end="opacity-100 translate-y-0"
                      role="menu"
-                     class="absolute right-0 top-full z-50 mt-2 w-[248px] overflow-hidden rounded-corner
-                            border border-line bg-canvas py-1.5 shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]">
+                     class="absolute right-0 top-full z-50 mt-2 w-[268px] overflow-hidden rounded-corner
+                            border border-line bg-canvas shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]">
 
-                    <div class="border-b border-line px-4 pb-3 pt-2">
-                        <p class="truncate text-[13px] font-semibold text-ink">{{ $pengguna?->name }}</p>
-                        <p class="mt-0.5 truncate text-[12px] text-ink-faint">{{ $pengguna?->email }}</p>
+                    {{-- Nama → surel → peran, dari yang paling sering dicari
+                         ke yang paling jarang. Topbar tidak lagi menampilkan
+                         apa pun selain avatarnya. --}}
+                    <div class="border-b border-line px-4 pb-3.5 pt-3.5">
+                        <p class="truncate text-admin-title text-ink">{{ $pengguna?->name }}</p>
 
+                        <p class="mt-0.5 break-all text-admin-body text-ink-muted">
+                            {{ $pengguna?->email }}
+                        </p>
+
+                        {{-- Pil, bukan baris teks kapital: bentuk berpil di
+                             panel ini sudah berarti "keadaan yang melekat
+                             pada sesuatu". --}}
                         @if($pengguna?->roles->isNotEmpty())
-                            <span class="mt-2 inline-flex items-center rounded-full bg-mist px-2 py-0.5
-                                         text-[11px] font-semibold text-ink-muted">
+                            <span class="mt-2.5 inline-flex items-center rounded-full bg-brand/10 px-2.5 py-1
+                                         text-admin-caption font-semibold text-brand">
                                 {{ $pengguna->roles->pluck('name')->implode(', ') }}
                             </span>
                         @endif
                     </div>
 
-                    <div class="py-1">
-                        @can('manage global settings')
-                            <a href="{{ route('admin.settings.index') }}" class="admin-menu-row" role="menuitem">
-                                <x-icon.admin name="settings" size="h-4 w-4" class="shrink-0" />
-                                Pengaturan
-                            </a>
-                        @endcan
-
+                    {{-- Dua baris saja. Pengaturan dan Pengguna sudah berdiri
+                         di bilah sisi; menyalinnya ke sini membuat satu
+                         halaman punya dua pintu yang harus dijaga sama. --}}
+                    {{-- Bantalan dipasang di WADAHNYA, bukan sebagai margin
+                         tiap baris: barisnya memakai w-full, dan margin
+                         berdiri di luar kotak — lebar penuh plus margin
+                         menyembul melewati tepi menu. --}}
+                    <div class="p-1.5">
+                        {{-- Bentuk dan warna sama persis dengan menu di bilah
+                             sisi — keduanya baris yang membawa berpindah. --}}
                         <a href="{{ route('home') }}" target="_blank" rel="noopener"
-                           class="admin-menu-row" role="menuitem">
+                           class="admin-menu-row rounded-control hover:text-brand-deep" role="menuitem">
                             <x-icon.admin name="external" size="h-4 w-4" class="shrink-0" />
                             Lihat situs
                         </a>
-                    </div>
 
-                    <form method="POST" action="{{ route('logout') }}" class="border-t border-line pt-1">
-                        @csrf
-                        <button type="submit" class="admin-menu-row hover:text-danger" role="menuitem">
-                            <x-icon.admin name="logout" size="h-4 w-4" class="shrink-0" />
-                            Keluar
-                        </button>
-                    </form>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="admin-menu-row rounded-control hover:bg-danger/5 hover:text-danger"
+                                    role="menuitem">
+                                <x-icon.admin name="logout" size="h-4 w-4" class="shrink-0" />
+                                Keluar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </header>

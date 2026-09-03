@@ -57,8 +57,8 @@
                         </a>
                     @endif
 
-                    <h1 class="display mt-5 max-w-[18ch] text-[30px] sm:text-[36px] lg:text-[42px]">
-                        {{ $product->translated_name }}
+                    <h1 class="display mt-5 max-w-[18ch] text-site-h1">
+                        {!! \App\Support\Judul::sorot($product->translated_name) !!}
                     </h1>
 
                     @if($product->translated_description)
@@ -73,8 +73,8 @@
                             <dl class="mt-4 divide-y divide-line border-y border-line">
                                 @foreach($facts as $fact)
                                     <div class="flex items-baseline justify-between gap-6 py-3.5">
-                                        <dt class="shrink-0 text-[13px] text-ink-muted">{{ $fact['label'] }}</dt>
-                                        <dd class="text-right text-[14px] font-bold text-ink">{{ $fact['value'] }}</dd>
+                                        <dt class="shrink-0 text-ink-muted text-site-small">{{ $fact['label'] }}</dt>
+                                        <dd class="text-right font-semibold text-ink text-site-small">{{ $fact['value'] }}</dd>
                                     </div>
                                 @endforeach
                             </dl>

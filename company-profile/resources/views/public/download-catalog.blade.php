@@ -16,7 +16,7 @@
                 <div class="lg:col-span-6">
                     <p class="eyebrow">{{ __('site.offline_catalog') }}</p>
 
-                    <h1 class="display mt-5 max-w-[16ch] text-[30px] sm:text-[36px] lg:text-[42px]">
+                    <h1 class="display mt-5 max-w-[16ch] text-site-h1">
                         {{ __('site.catalog_headline') }}
                     </h1>
 
@@ -24,7 +24,7 @@
                         {{ __('site.catalog_body', ['count' => $productCount, 'categories' => $categoryCount]) }}
                     </p>
 
-                    <p class="mt-8 flex items-start gap-3 text-[13px] leading-relaxed text-ink-muted">
+                    <p class="mt-8 flex items-start gap-3 leading-relaxed text-ink-muted text-site-small">
                         <svg class="mt-0.5 h-4 w-4 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                             <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.4"/>
                             <path d="M8 4.4V8l2.4 1.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,7 +68,7 @@
                                 </svg>
                             </button>
 
-                            <p class="mt-4 text-[12px] leading-relaxed text-ink-faint">
+                            <p class="mt-4 leading-relaxed text-ink-faint text-site-micro">
                                 {{ __('site.catalog_privacy') }}
                             </p>
                         </form>

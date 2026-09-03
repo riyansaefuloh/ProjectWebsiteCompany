@@ -6,8 +6,8 @@
         <div class="shell">
             <div class="max-w-[46rem]">
                 <p class="eyebrow">{{ $isi('eyebrow', 'site.certifications') }}</p>
-                <h1 class="display mt-5 max-w-[18ch] text-[32px] sm:text-[38px] lg:text-[46px]">
-                    {{ $isi('title', 'site.page_certifications') }}
+                <h1 class="display mt-5 max-w-[18ch] text-site-h1">
+                    {!! \App\Support\Judul::sorot($isi('title', 'site.page_certifications')) !!}
                 </h1>
                 <p class="lede mt-6 max-w-[52ch]">{{ $isi('body', 'site.page_certifications_sub') }}</p>
             </div>
@@ -38,35 +38,34 @@
                                     <img src="{{ $logo }}" alt="" aria-hidden="true" loading="lazy"
                                          class="h-14 w-auto max-w-[130px] object-contain object-left">
                                 @else
-                                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-corner
-                                                 bg-brand/10 font-display text-[17px] font-extrabold tracking-[-0.02em] text-brand"
+                                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-corner bg-brand/10 font-display font-semibold tracking-[-0.02em] text-brand text-site-lede"
                                           aria-hidden="true">
                                         {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($cert->translated_name, 0, 2)) }}
                                     </span>
                                 @endif
                             </div>
 
-                            <h2 class="mt-6 font-display text-[17px] font-extrabold leading-snug tracking-[-0.01em] text-ink">
+                            <h2 class="mt-6 font-display font-semibold leading-snug tracking-[-0.01em] text-ink text-site-lede">
                                 {{ $cert->translated_name }}
                             </h2>
 
                             @if($cert->issuer)
-                                <p class="mt-2 text-[13px] text-ink-faint">
+                                <p class="mt-2 text-ink-faint text-site-small">
                                     {{ __('site.issued_by') }} {{ $cert->issuer }}
                                 </p>
                             @endif
 
                             @if($cert->translated_description)
-                                <p class="mt-4 text-[13px] leading-relaxed text-ink-muted">
+                                <p class="mt-4 leading-relaxed text-ink-muted text-site-small">
                                     {{ $cert->translated_description }}
                                 </p>
                             @endif
 
-                            <dl class="mt-auto space-y-2 border-t border-line pt-5 text-[12px] leading-relaxed">
+                            <dl class="mt-auto space-y-2 border-t border-line pt-5 leading-relaxed text-site-micro">
                                 @if($cert->certificate_number)
                                     <div class="flex items-baseline justify-between gap-4">
                                         <dt class="shrink-0 text-ink-faint">{{ __('site.certificate_number') }}</dt>
-                                        <dd class="text-right font-bold text-ink">{{ $cert->certificate_number }}</dd>
+                                        <dd class="text-right font-semibold text-ink">{{ $cert->certificate_number }}</dd>
                                     </div>
                                 @endif
 
@@ -76,7 +75,7 @@
                                             {{ $isExpired ? __('site.expired_on') : __('site.valid_until') }}
                                         </dt>
                                         <dd @class([
-                                            'text-right font-bold',
+                                            'text-right font-semibold',
                                             'text-danger' => $isExpired,
                                             'text-ink' => ! $isExpired,
                                         ])>

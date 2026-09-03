@@ -18,9 +18,19 @@
     $milestoneCount = 6;
     $milestones = [];
 
+    /* Tahun yang diketik sendiri di panel, per tonggak. Yang tidak diisi tidak
+       tercatat — dan yang tidak tercatat dihitung seperti dulu: dibagi rata dari
+       tahun berdiri sampai tahun berjalan. Jadi kolom yang belum pernah disentuh
+       menggambar angka yang sama persis dengan sebelum kolomnya ada. */
+    $tahunDiketik = \App\Support\IsiHalaman::opsi('profile');
+
     for ($i = 0; $i < $milestoneCount; $i++) {
+        $sendiri = $tahunDiketik['milestone_' . ($i + 1) . '_year'] ?? null;
+
         $milestones[] = [
-            'year'  => (int) round($establishedYear + $i * ($lastYear - $establishedYear) / ($milestoneCount - 1)),
+            'year'  => filled($sendiri)
+                ? (int) $sendiri
+                : (int) round($establishedYear + $i * ($lastYear - $establishedYear) / ($milestoneCount - 1)),
             'title' => $isi('milestone_' . ($i + 1) . '_title', 'site.milestone_' . ($i + 1) . '_title'),
             'body'  => $isi('milestone_' . ($i + 1) . '_body',  'site.milestone_' . ($i + 1) . '_body'),
         ];
@@ -39,13 +49,9 @@
     $fillStyle = [sprintf('left: %.4f%%', $trackInset)];
 @endphp
 
-
 <div>
-    {{-- ══════════════════════════════════════════════════════════════════
-         Bagian halaman ini digambar menurut urutan dan tampil-tidaknya yang
-         diatur di panel: Halaman → Susunan halaman Profile. Bagian yang
-         dimatikan tetap tersimpan isinya, ia cuma tidak digambar.
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ══ Bagian halaman digambar menurut urutan dan tampil-tidaknya yang
+         diatur di panel: Halaman → Susunan. ══ --}}
     @foreach($profilSections as $profilSection)
         @switch($profilSection['id'])
             @case('profil')
@@ -58,16 +64,15 @@
                 <div class="grid gap-x-12 gap-y-8 lg:grid-cols-12">
 
                     <div class="lg:col-span-7">
-                        {{-- Label kecil dan paragraf di kanan dulu diambil dari halaman
-                             statis beralamat /page/about-us. Keduanya kini isian bagian
-                             Profil; baris lamanya tetap dibaca sebagai cadangan supaya
-                             tidak ada yang kosong selama masa perpindahan. --}}
+                        {{-- Label dan paragraf kanan kini isian bagian
+                             Profil; baris lama dari /page/about-us tetap
+                             dibaca sebagai cadangan. --}}
                         <p class="eyebrow">
                             {{ $isi('eyebrow', 'site.nav_about', [], $page?->translated_title) }}
                         </p>
 
-                        <h1 class="display mt-5 max-w-[20ch] text-[30px] sm:text-[36px] lg:text-[44px]">
-                            {{ $isi('headline', 'site.about_headline') }}
+                        <h1 class="display mt-5 max-w-[20ch] text-site-h1">
+                            {!! \App\Support\Judul::sorot($isi('headline', 'site.about_headline')) !!}
                         </h1>
                     </div>
 
@@ -106,8 +111,8 @@
 
                 <div class="max-w-[46rem]">
                     <p class="eyebrow">{{ $isi('vm_eyebrow', 'site.vision_mission_eyebrow') }}</p>
-                    <h2 class="display mt-5 max-w-[22ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                        {{ $isi('vm_title', 'site.vision_mission_title') }}
+                    <h2 class="display mt-5 max-w-[22ch] text-site-h2">
+                        {!! \App\Support\Judul::sorot($isi('vm_title', 'site.vision_mission_title')) !!}
                     </h2>
                 </div>
 
@@ -118,7 +123,7 @@
                         <div class="rounded-panel bg-forest p-8 sm:p-10">
                             <p class="eyebrow eyebrow-invert">{{ $isi('vision_label', 'site.vision_label') }}</p>
 
-                            <p class="mt-6 font-display text-[19px] font-extrabold leading-[1.45] tracking-[-0.01em] text-white sm:text-[21px]">
+                            <p class="mt-6 font-display font-semibold leading-[1.45] tracking-[-0.01em] text-white text-site-title">
                                 {{ $isi('vision_body', 'site.vision_body') }}
                             </p>
                         </div>
@@ -133,17 +138,16 @@
                         <ol class="mt-6 list-none divide-y divide-line border-y border-line">
                             @for($i = 1; $i <= $missionCount; $i++)
                                 <li class="flex items-start gap-5 py-6">
-                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full
-                                                 bg-brand/10 text-[13px] font-bold text-brand"
+                                    <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/10 font-semibold text-brand text-site-small"
                                           aria-hidden="true">
                                         {{ str_pad($i, 2, '0', STR_PAD_LEFT) }}
                                     </span>
 
                                     <div class="min-w-0 pt-1">
-                                        <h3 class="font-display text-[16px] font-extrabold leading-snug tracking-[-0.01em] text-ink sm:text-[17px]">
+                                        <h3 class="font-display font-semibold leading-snug tracking-[-0.01em] text-ink text-site-lede">
                                             {{ $isi('mission_' . $i . '_title', 'site.mission_' . $i . '_title') }}
                                         </h3>
-                                        <p class="mt-2 text-[14px] leading-relaxed text-ink-muted">
+                                        <p class="mt-2 leading-relaxed text-ink-muted text-site-small">
                                             {{ $isi('mission_' . $i . '_body', 'site.mission_' . $i . '_body') }}
                                         </p>
                                     </div>
@@ -174,8 +178,8 @@
 
                 <div class="max-w-[46rem]">
                     <p class="eyebrow">{{ $isi('values_eyebrow', 'site.values_eyebrow') }}</p>
-                    <h2 class="display mt-5 max-w-[22ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                        {{ $isi('values_title', 'site.values_title') }}
+                    <h2 class="display mt-5 max-w-[22ch] text-site-h2">
+                        {!! \App\Support\Judul::sorot($isi('values_title', 'site.values_title')) !!}
                     </h2>
                 </div>
 
@@ -186,10 +190,10 @@
                                 <x-icon.value :name="$value['icon']" />
                             </span>
 
-                            <h3 class="mt-6 font-display text-[17px] font-extrabold leading-snug tracking-[-0.01em] text-ink">
+                            <h3 class="mt-6 font-display font-semibold leading-snug tracking-[-0.01em] text-ink text-site-lede">
                                 {{ $value['title'] }}
                             </h3>
-                            <p class="mt-2.5 text-[13px] leading-relaxed text-ink-muted">
+                            <p class="mt-2.5 leading-relaxed text-ink-muted text-site-small">
                                 {{ $value['body'] }}
                             </p>
                         </li>
@@ -218,9 +222,9 @@
 
                 <p class="eyebrow">{{ $isi('history_eyebrow', 'site.history_eyebrow') }}</p>
 
-                <h2 class="display mt-5 max-w-[20ch] text-[28px] sm:text-[34px] lg:text-[40px]">
-                    {{ $isi('history_title', 'site.history_title') }}
-                    <span class="text-brand">{{ $isi('history_title_accent', 'site.history_title_accent') }}</span>
+                <h2 class="display mt-5 max-w-[20ch] text-site-h2">
+                    {!! \App\Support\Judul::sorot($isi('history_title', 'site.history_title')) !!}
+                    <span class="text-brand">{!! \App\Support\Judul::sorot($isi('history_title_accent', 'site.history_title_accent')) !!}</span>
                 </h2>
 
                 {{-- ── Panel tonggak ──────────────────────────────────────────── --}}
@@ -234,13 +238,13 @@
                              class="grid gap-x-12 gap-y-6 lg:grid-cols-12">
 
                             <div class="lg:col-span-5">
-                                <p class="font-display text-[64px] font-extrabold leading-none tracking-[-0.04em] text-ink sm:text-[80px] lg:text-[96px]">
+                                <p class="font-display font-semibold leading-none tracking-[-0.04em] text-ink text-site-metric-xl">
                                     {{ $milestone['year'] }}
                                 </p>
                             </div>
 
                             <div class="lg:col-span-6 lg:col-start-7 lg:self-end">
-                                <h3 class="font-display text-[19px] font-extrabold leading-snug tracking-[-0.02em] text-ink sm:text-[22px]">
+                                <h3 class="font-display font-semibold leading-snug tracking-[-0.02em] text-ink text-site-h3">
                                     {{ $milestone['title'] }}
                                 </h3>
                                 <p class="lede mt-3 max-w-[48ch]">{{ $milestone['body'] }}</p>
@@ -277,7 +281,7 @@
                                           aria-hidden="true"></span>
 
                                     <span x-bind:class="active === {{ $index }} ? 'text-ink' : 'text-ink-faint'"
-                                          class="text-[11px] font-bold transition-colors sm:text-[12px]"
+                                          class="font-semibold transition-colors text-site-micro"
                                           aria-hidden="true">
                                         {{ $milestone['year'] }}
                                     </span>
@@ -323,8 +327,8 @@
 
                         <div class="lg:col-span-6">
                             <p class="eyebrow">{{ $isi('cert_eyebrow', 'site.certifications') }}</p>
-                            <h2 class="display mt-5 max-w-[18ch] text-[24px] sm:text-[28px] lg:text-[32px]">
-                                {{ $isi('cert_title', 'site.cert_card_title') }}
+                            <h2 class="display mt-5 max-w-[18ch] text-site-h2">
+                                {!! \App\Support\Judul::sorot($isi('cert_title', 'site.cert_card_title')) !!}
                             </h2>
 
                             <a href="{{ route('certifications.index') }}" class="btn btn-outline btn-arrow mt-8">

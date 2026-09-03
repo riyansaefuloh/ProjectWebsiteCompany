@@ -44,7 +44,21 @@ class DownloadIndex extends Component
 
     // Form Fields (PRD Bab 9.1)
     public string $title = '';
-    public bool $require_email = true;
+    /*
+     * Akses unduhan, dipegang sebagai UNTAI di borang meski lajur di basis
+     * data bertipe boolean (require_email).
+     *
+     * x-admin.select selalu mengirimkan untai; untai yang jatuh ke sifat
+     * bertipe bool melempar galat tipe sebelum save() sempat berjalan. Jadi
+     * pengubahannya dilakukan di dua batas — saat memuat dan saat menyimpan
+     * — bukan dengan melonggarkan tipe sifatnya.
+     *
+     * Nilainya 'gated' dan 'open', kata yang sama dengan pil status di
+     * tabelnya. Sebelumnya tiga tempat membicarakan satu hal dengan tiga
+     * cara: pil "Perlu email"/"Terbuka" di tabel, menu "Perlu email"/
+     * "Terbuka" di penyaring, dan sakelar geser menyala/mati di modal.
+     */
+    public string $akses = 'gated';
     public int $sort_order = 0;
     public $pdfFile;
 
@@ -60,7 +74,7 @@ class DownloadIndex extends Component
     {
         return [
             'title'         => 'required|string|max:150',
-            'require_email' => 'boolean',
+            'akses'         => 'required|in:gated,open',
             'sort_order'    => 'integer|min:0',
 
             /*
@@ -97,7 +111,7 @@ class DownloadIndex extends Component
         $download = Download::findOrFail($id);
         $this->editingId = $download->id;
         $this->title = $download->title;
-        $this->require_email = $download->require_email;
+        $this->akses = $download->require_email ? 'gated' : 'open';
         $this->sort_order = $download->sort_order;
         $this->existingFilePath = $download->file_path;
         $this->pdfFile = null;
@@ -113,7 +127,7 @@ class DownloadIndex extends Component
             : new Download();
 
         $download->title = $this->title;
-        $download->require_email = $this->require_email;
+        $download->require_email = $this->akses === 'gated';
         $download->sort_order = $this->sort_order;
 
         if ($this->pdfFile) {
@@ -149,7 +163,7 @@ class DownloadIndex extends Component
     {
         $this->editingId = null;
         $this->title = '';
-        $this->require_email = true;
+        $this->akses = 'gated';
         $this->sort_order = 0;
         $this->pdfFile = null;
         $this->existingFilePath = null;

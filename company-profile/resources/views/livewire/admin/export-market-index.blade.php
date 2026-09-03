@@ -34,16 +34,15 @@
         };
     @endphp
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          KEPALA HALAMAN
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+            <h1 class="text-admin-display text-ink">
                 Pasar Ekspor
             </h1>
-            <p class="mt-1.5 text-[13px] text-ink-muted">
+            <p class="mt-1.5 text-admin-body text-ink-muted">
                 Negara tujuan ekspor yang ditampilkan di peta jangkauan situs publik.
             </p>
         </div>
@@ -55,7 +54,6 @@
             Tambah negara
         </button>
     </div>
-
 
     {{-- ══════════════════════════════════════════════════════════════════
          PESAN SETELAH TERSIMPAN
@@ -71,7 +69,7 @@
                 </svg>
             </span>
 
-            <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+            <p class="min-w-0 flex-1 pt-1 text-admin-strong text-brand-deep">
                 {{ session('message') }}
             </p>
 
@@ -82,110 +80,110 @@
         </div>
     @endif
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PENYARING
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible supaya menu turun penyaringnya tidak terpotong —
-         .card membawa overflow-hidden. --}}
-    <div class="card mb-6 overflow-visible">
-
-        {{-- Tiga kendali, jadi pencarian mengambil separuh baris dan dua
-             penyaring membagi separuh sisanya. --}}
-        <div class="grid gap-4 p-5 lg:grid-cols-4">
-
-            <div class="relative lg:col-span-2">
-                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
-                </span>
-
-                <input type="search" wire:model.live="search" id="cari-pasar"
-                       aria-label="Cari negara tujuan"
-                       placeholder="Cari nama negara, kode ISO, atau kawasan…"
-                       class="admin-control pl-11 pr-10">
-
-                <span wire:loading wire:target="search"
-                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
-                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    </svg>
-                </span>
-            </div>
-
-            <x-admin.select model="selectedStatus" :value="$selectedStatus"
-                            label="Saring menurut status" placeholder="Semua status"
-                            :options="[
-                                ['nilai' => 'active',   'label' => 'Aktif'],
-                                ['nilai' => 'inactive', 'label' => 'Nonaktif'],
-                            ]" />
-
-            <x-admin.select model="selectedRegion" :value="$selectedRegion"
-                            label="Saring menurut kawasan" placeholder="Semua kawasan"
-                            :options="$regions->map(fn ($r) => ['nilai' => $r, 'label' => $r])->all()" />
-        </div>
-
-        @if($penyaringAktif->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
-                        bg-mist/60 px-5 py-3">
-                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold
-                             uppercase tracking-[0.08em] text-ink-faint">
-                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
-                    Disaring
-                </span>
-
-                @foreach($penyaringAktif as $f)
-                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
-                                 bg-canvas py-1 pl-3 pr-1.5 text-[12px] text-ink-muted">
-                        <span class="min-w-0 truncate">
-                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
-                        </span>
-
-                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
-                                aria-label="Hapus penyaring {{ $f['label'] }}"
-                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
-                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
-                            <x-icon.admin name="close" size="h-3 w-3" />
-                        </button>
-                    </span>
-                @endforeach
-
-                @if($penyaringAktif->count() > 1)
-                    <button type="button"
-                            x-on:click="{{ $bersihkan(['search', 'selectedStatus', 'selectedRegion']) }}"
-                            class="ml-auto shrink-0 text-[12px] font-semibold text-brand underline-offset-4 hover:underline">
-                        Hapus semua
-                    </button>
-                @endif
-            </div>
-        @endif
-    </div>
-
-
     {{-- ══════════════════════════════════════════════════════════════════
          TABEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card">
+    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
+         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
+         memotongnya tepat di garis bawah kartu. --}}
+    <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-mist text-ink-muted">
-                    <x-icon.admin name="market" size="h-4 w-4" />
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
+                    <x-icon.admin name="market" size="h-[18px] w-[18px]" />
                 </span>
 
                 <div>
-                    <h2 class="font-ui text-[15px] font-semibold text-ink">Daftar negara tujuan</h2>
-                    <p class="mt-0.5 text-[12px] text-ink-muted">
+                    <h2 class="text-admin-title text-ink">Daftar negara tujuan</h2>
+                    <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
                 </div>
             </div>
 
             <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-mist
-                         px-3 py-1.5 text-[12px] font-semibold text-ink-muted">
+                         px-3 py-1.5 text-admin-label font-semibold text-ink-muted">
                 <span class="tabular-nums text-ink">{{ number_format($markets->total()) }}</span>
                 {{ $penyaringAktif->isNotEmpty() ? 'hasil' : 'negara' }}
             </span>
+        </div>
+
+        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
+             berbingkai sendiri seperti tabelnya. ══ --}}
+        <div class="px-5 pt-5">
+            <div class="rounded-corner border border-line">
+
+                {{-- Tiga kendali, jadi pencarian mengambil separuh baris dan dua
+                     penyaring membagi separuh sisanya. --}}
+                <div class="grid gap-4 p-5 lg:grid-cols-4">
+
+                    <div class="relative lg:col-span-2">
+                        <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <x-icon.admin name="search" size="h-[18px] w-[18px]" />
+                        </span>
+
+                        <input type="search" wire:model.live="search" id="cari-pasar"
+                               aria-label="Cari negara tujuan"
+                               placeholder="Cari nama negara, kode ISO, atau kawasan…"
+                               class="admin-control pl-11 pr-10">
+
+                        <span wire:loading wire:target="search"
+                              class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
+                                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <x-admin.select model="selectedStatus" :value="$selectedStatus"
+                                    label="Saring menurut status" placeholder="Semua status"
+                                    :options="[
+                                        ['nilai' => 'active',   'label' => 'Aktif'],
+                                        ['nilai' => 'inactive', 'label' => 'Nonaktif'],
+                                    ]" />
+
+                    <x-admin.select model="selectedRegion" :value="$selectedRegion"
+                                    label="Saring menurut kawasan" placeholder="Semua kawasan"
+                                    :options="$regions->map(fn ($r) => ['nilai' => $r, 'label' => $r])->all()" />
+                </div>
+
+                @if($penyaringAktif->isNotEmpty())
+                    <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
+                                bg-mist/60 px-5 py-3">
+                        <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-admin-overline
+                                     uppercase text-ink-faint">
+                            <x-icon.admin name="filter" size="h-3.5 w-3.5" />
+                            Disaring
+                        </span>
+
+                        @foreach($penyaringAktif as $f)
+                            <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
+                                         bg-canvas py-1 pl-3 pr-1.5 text-admin-label text-ink-muted">
+                                <span class="min-w-0 truncate">
+                                    {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
+                                </span>
+
+                                <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
+                                        aria-label="Hapus penyaring {{ $f['label'] }}"
+                                        class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
+                                               text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
+                                    <x-icon.admin name="close" size="h-3 w-3" />
+                                </button>
+                            </span>
+                        @endforeach
+
+                        @if($penyaringAktif->count() > 1)
+                            <button type="button"
+                                    x-on:click="{{ $bersihkan(['search', 'selectedStatus', 'selectedRegion']) }}"
+                                    class="ml-auto shrink-0 text-admin-label font-semibold text-brand underline-offset-4 hover:underline">
+                                Hapus semua
+                            </button>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
 
         <div class="p-5 transition-opacity duration-150"
@@ -213,7 +211,7 @@
                                 <tr class="border-b border-line bg-mist/60">
                                     @foreach($kolom as $i => $k)
                                         <th @class([
-                                            'py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint',
+                                            'py-3 text-admin-overline uppercase text-ink-faint',
                                             $k['lebar'], $k['rata'],
                                             'pl-5 pr-3' => $i === 0,
                                             'px-3'      => $i > 0 && $i < count($kolom) - 1,
@@ -234,34 +232,33 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Negara. Garis hijau di tepi kiri menandai pasar yang
-                                         masih aktif — penanda kedua di samping pilnya, supaya
-                                         negara yang dimatikan langsung terlihat berbeda dari
-                                         ujung mata. --}}
-                                    <td @class([
-                                        'py-4 pl-5 pr-3 align-middle border-l-[3px]',
-                                        'border-brand'       => $aktif,
-                                        'border-transparent' => ! $aktif,
-                                    ])>
+                                    {{-- Garis tepi kiri dihapus — keadaan
+                                         aktif sudah terbaca dari pil status
+                                         di kolom Status. --}}
+                                    <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
-                                            {{-- Kode ISO-nya dipakai sebagai penanda barisnya.
-                                                 Bendera sengaja tidak dipakai: proyek ini tidak
-                                                 menyimpan berkasnya, dan emoji bendera tidak
-                                                 tergambar sama sekali di Windows. --}}
-                                            <span class="flex h-10 w-10 shrink-0 items-center justify-center
+                                            {{-- Kode ISO sebagai penanda
+                                                 baris. Bendera sengaja tidak
+                                                 dipakai: berkasnya tidak
+                                                 disimpan proyek ini, dan
+                                                 emoji bendera tidak tergambar
+                                                 sama sekali di Windows. --}}
+                                            <span class="admin-code flex h-10 w-10 shrink-0 items-center justify-center
                                                          rounded-control border border-line bg-mist
-                                                         text-[13px] font-bold tracking-[0.04em] text-ink-muted"
+                                                         text-admin-body font-medium text-brand"
                                                   title="Kode ISO: {{ $kode }}">{{ $kode ?: '??' }}</span>
 
                                             <div class="min-w-0">
-                                                <span class="block truncate text-[13px] font-semibold text-ink"
+                                                <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                {{-- Kawasan jadi baris kedua, bukan kolomnya
-                                                     sendiri: ia keterangan negaranya, dan
-                                                     ruang yang hemat itu jatuh ke catatan
-                                                     pasar yang isinya jauh lebih panjang. --}}
-                                                <span class="mt-0.5 block truncate text-[12px] text-ink-faint"
+                                                {{-- Kawasan jadi baris kedua,
+                                                     bukan kolom sendiri: ia
+                                                     keterangan negaranya, dan
+                                                     ruang yang hemat itu
+                                                     jatuh ke catatan pasar
+                                                     yang jauh lebih panjang. --}}
+                                                <span class="mt-0.5 block truncate text-admin-caption text-ink-faint"
                                                       title="Kawasan: {{ $market->region }}">{{ $market->region }}</span>
                                             </div>
                                         </div>
@@ -269,7 +266,7 @@
 
                                     <td class="px-3 py-4 align-middle">
                                         <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-control
-                                                     bg-mist px-2 text-[13px] font-semibold tabular-nums text-ink-muted"
+                                                     bg-mist px-2 text-admin-strong tabular-nums text-ink-muted"
                                               title="Urutan tampil: {{ $market->sort_order }}">{{ $market->sort_order }}</span>
                                     </td>
 
@@ -291,15 +288,14 @@
                                             {{-- Penegasannya menyebut akibatnya, bukan sekadar
                                                  "yakin?": negara ini hilang dari peta jangkauan
                                                  di situs publik. --}}
-                                            <button type="button" wire:click="delete('{{ $market->id }}')"
-                                                    wire:confirm="Hapus {{ $nama }} dari daftar pasar ekspor? Terjemahan dan catatan pasarnya ikut terhapus, dan negara ini hilang dari peta jangkauan di situs publik."
-                                                    title="Hapus {{ $nama }}"
-                                                    aria-label="Hapus {{ $nama }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-control
-                                                           border border-line bg-canvas text-ink-muted transition-colors
-                                                           hover:border-danger hover:bg-danger hover:text-white">
-                                                <x-icon.admin name="trash" size="h-4 w-4" />
-                                            </button>
+                                            <x-admin.confirm-delete metode="delete"
+                                                                    :id="$market->id"
+                                                                    :nama="$nama"
+                                                                    judul="Hapus pasar ekspor?"
+                                                                    tombol="Ya, hapus pasar">
+                                                Terjemahan dan catatan pasarnya ikut terhapus, dan
+                                                negara ini hilang dari peta jangkauan di situs publik.
+                                            </x-admin.confirm-delete>
                                         </div>
                                     </td>
                                 </tr>
@@ -314,10 +310,10 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-ink">
                                                 Tidak ada negara yang cocok
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Coba kosongkan kata pencariannya, atau kembalikan
                                                 status dan kawasannya ke "semua".
                                             </p>
@@ -329,10 +325,10 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-ink">
                                                 Belum ada negara tujuan
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Negara yang ditambahkan di sini muncul sebagai peta
                                                 jangkauan ekspor di situs publik.
                                             </p>
@@ -358,7 +354,6 @@
             {{ $markets->links('vendor.pagination.admin', ['satuan' => 'negara']) }}
         </div>
     </div>
-
 
     {{-- ══════════════════════════════════════════════════════════════════
          MODAL TAMBAH / UBAH NEGARA
@@ -402,16 +397,16 @@
                     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
                         <div class="flex min-w-0 items-center gap-3">
                             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                                         bg-brand/10 text-brand">
+                                         bg-brand-wash text-brand">
                                 <x-icon.admin name="market" size="h-[18px] w-[18px]" />
                             </span>
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-pasar"
-                                    class="truncate font-ui text-[15px] font-semibold text-ink">
+                                    class="truncate text-admin-title text-ink">
                                     {{ $editingId ? 'Ubah negara tujuan' : 'Tambah negara tujuan' }}
                                 </h2>
-                                <p class="mt-0.5 text-[12px] text-ink-muted">
+                                <p class="mt-0.5 text-admin-label text-ink-muted">
                                     Isian bertanda <span class="font-bold text-brand">*</span> wajib diisi,
                                     termasuk nama di kedua bahasa.
                                 </p>
@@ -434,113 +429,162 @@
                         <div class="admin-scroll min-h-0 space-y-4 p-6
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
-                            <section class="rounded-corner border border-line bg-canvas p-5">
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="market" size="h-[18px] w-[18px]" />
+                                        </span>
 
-                                {{-- Sakelar bahasa di kepala kartu: ia mengatur dua
-                                     isian sekaligus — nama dan catatan — bukan
-                                     menempel di salah satunya. --}}
-                                <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <h3 class="font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                        Informasi negara
-                                    </h3>
-
-                                    <div class="inline-flex rounded-control border border-line bg-mist p-1">
-                                        @foreach(['en' => 'English', 'id' => 'Indonesia'] as $kode => $sebutan)
-                                            <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
-                                                    @class([
-                                                        'inline-flex items-center gap-1.5 rounded-[5px] px-3 py-1.5
-                                                         text-[12px] font-semibold transition-colors',
-                                                        'bg-canvas text-ink shadow-[0_1px_2px_rgba(26,29,27,0.08)]'
-                                                            => $activeTab === $kode,
-                                                        'text-ink-muted hover:text-ink' => $activeTab !== $kode,
-                                                    ])>
-                                                {{ $sebutan }}
-
-                                                @if(($kode === 'en' && $galatEn) || ($kode === 'id' && $galatId))
-                                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
-                                                          title="Ada isian yang perlu diperbaiki di sini"></span>
-                                                @endif
-                                            </button>
-                                        @endforeach
-                                        <div class="ml-2 border-l border-line pl-2 flex items-center">
-                                            <button type="button" wire:click="autoTranslate" wire:loading.attr="disabled" wire:target="autoTranslate"
-                                                title="Terjemahkan ID ke EN otomatis"
-                                                class="inline-flex items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[12px] font-semibold bg-brand/10 text-brand hover:bg-brand/20 transition-colors">
-                                                <span wire:loading.remove wire:target="autoTranslate">🌐 Auto EN</span>
-                                                <span wire:loading wire:target="autoTranslate">⏳ ...</span>
-                                            </button>
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-ink">Informasi Negara</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Nama negara dan catatan pasar dalam dua bahasa.</p>
                                         </div>
+                                    </div>
+
+                                    {{-- Tab bahasa dan tombol Terjemahkan
+                                         berdiri TERPISAH: kendali bersegmen
+                                         menjanjikan "pilih salah satu", dan
+                                         tombol tindakan di bingkai yang sama
+                                         mengingkari janji itu. --}}
+                                    <div class="flex shrink-0 flex-wrap items-center gap-2">
+
+                                        <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
+                                                    border border-line bg-mist p-0.5"
+                                             role="group" aria-label="Bahasa yang sedang disunting">
+                                            @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
+                                                @php $bergalat = ($kode === 'en' && $galatEn) || ($kode === 'id' && $galatId); @endphp
+
+                                                <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
+                                                        aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
+                                                        @class([
+                                                            'inline-flex items-center gap-1.5 rounded-full px-3 py-1
+                                                             text-admin-label font-semibold transition-colors
+                                                             focus-visible:outline-none focus-visible:ring-2
+                                                             focus-visible:ring-brand/30',
+                                                            'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
+                                                                => $activeTab === $kode,
+                                                            'text-ink-muted hover:text-ink' => $activeTab !== $kode,
+                                                        ])>
+                                                    {{ $sebutan }}
+
+                                                    {{-- Titik merah: tab ini menyimpan galat
+                                                         yang tidak terlihat karena tertutup. --}}
+                                                    @if($bergalat)
+                                                        <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
+                                                              title="Ada isian yang perlu diperbaiki di sini"></span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- Tombol tindakan, bukan pilihan —
+                                             memakai bentuk tombol panel yang
+                                             baku. --}}
+                                        <button type="button" wire:click="autoTranslate"
+                                                wire:loading.attr="disabled" wire:target="autoTranslate"
+                                                title="Salin isian Indonesia ke English, lalu terjemahkan"
+                                                class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
+                                            <svg wire:loading wire:target="autoTranslate"
+                                                 class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16"
+                                                 fill="none" aria-hidden="true">
+                                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                                                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                            </svg>
+
+                                            <x-icon.admin name="send" size="h-3.5 w-3.5"
+                                                          class="shrink-0 text-brand"
+                                                          wire:loading.remove wire:target="autoTranslate" />
+
+                                            Terjemahkan
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div class="space-y-4">
+                                <div class="p-5">
 
-                                    {{-- Nama negara — mengikuti tab. Keduanya tetap ada
-                                         di DOM, yang tidak aktif disembunyikan: isian
-                                         yang diketik lalu elemennya lenyap membuat
-                                         Livewire kehilangan nilainya. --}}
-                                    <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">
-                                            Nama negara <span class="text-brand">*</span>
-                                        </label>
-
-                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
-                                            <input type="text" wire:model="name_en"
-                                                   aria-label="Nama negara dalam bahasa Inggris"
-                                                   placeholder="mis. Germany"
-                                                   class="admin-control">
-                                            @error('name_en')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
-                                            <input type="text" wire:model="name_id"
-                                                   aria-label="Nama negara dalam bahasa Indonesia"
-                                                   placeholder="mis. Jerman"
-                                                   class="admin-control">
-                                            @error('name_id')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    {{-- Catatan pasar — mengikuti tab. Kolomnya sengaja
-                                         tidak lagi tampil di tabel daftar, jadi di sinilah
-                                         satu-satunya tempat isinya dibaca utuh. --}}
-                                    <div>
-                                        <div class="flex flex-wrap items-center justify-between gap-3">
-                                            <label class="text-[12px] font-semibold text-ink-faint">Catatan pasar</label>
-
-                                            {{-- Batasnya disebut di depan, bukan menunggu
-                                                 galat muncul sesudah menekan Simpan. --}}
-                                            <span class="text-[12px] text-ink-faint">Maksimal 500 karakter</span>
-                                        </div>
-
-                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
-                                            <textarea wire:model="note_en" rows="8"
-                                                      aria-label="Catatan pasar dalam bahasa Inggris"
-                                                      placeholder="Syarat kepatuhan, dokumen wajib, atau catatan bea masuk…"
-                                                      class="admin-control resize-none leading-relaxed"></textarea>
-                                            @error('note_en')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
-                                            <textarea wire:model="note_id" rows="8"
-                                                      aria-label="Catatan pasar dalam bahasa Indonesia"
-                                                      placeholder="Syarat kepatuhan, dokumen wajib, atau catatan bea masuk…"
-                                                      class="admin-control resize-none leading-relaxed"></textarea>
-                                            @error('note_id')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Dibaca tim sales saat menyiapkan penawaran; tidak tampil
-                                            di tabel daftar negara.
+                                    {{-- Pesan gagal-terjemah, tepat di bawah
+                                         tombol yang memicunya — sebelumnya ia
+                                         gagal tanpa mengatakan apa pun. --}}
+                                    @if($galatTerjemah)
+                                        <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
+                                            <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                <path d="M8 2.4 14.4 13.2H1.6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                                                <path d="M8 6.6v2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                                <circle cx="8" cy="11.4" r="0.85" fill="currentColor"/>
+                                            </svg>
+                                            {{ $galatTerjemah }}
                                         </p>
+                                    @endif
+
+                                    <div class="space-y-4">
+
+                                        {{-- Nama negara mengikuti tab.
+                                             Keduanya TETAP di DOM dan yang
+                                             tidak aktif hanya disembunyikan:
+                                             isian yang elemennya lenyap
+                                             membuat Livewire kehilangan
+                                             nilainya. --}}
+                                        <div>
+                                            <label class="block text-admin-label text-ink-faint">
+                                                Nama negara <span class="text-brand">*</span>
+                                            </label>
+
+                                            <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
+                                                <input type="text" wire:model="name_en"
+                                                       aria-label="Nama negara dalam bahasa Inggris"
+                                                       placeholder="mis. Germany"
+                                                       class="admin-control">
+                                                @error('name_en')
+                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
+                                                <input type="text" wire:model="name_id"
+                                                       aria-label="Nama negara dalam bahasa Indonesia"
+                                                       placeholder="mis. Jerman"
+                                                       class="admin-control">
+                                                @error('name_id')
+                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        {{-- Catatan pasar — mengikuti tab. Kolomnya sengaja
+                                             tidak lagi tampil di tabel daftar, jadi di sinilah
+                                             satu-satunya tempat isinya dibaca utuh. --}}
+                                        <div>
+                                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                                <label class="text-admin-label text-ink-faint">Catatan</label>
+
+                                                {{-- Batasnya disebut di depan, bukan menunggu
+                                                     galat muncul sesudah menekan Simpan. --}}
+                                                <span class="text-admin-label text-ink-faint">Maksimal 500 karakter</span>
+                                            </div>
+
+                                            <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
+                                                <textarea wire:model="note_en" rows="8"
+                                                          aria-label="Catatan pasar dalam bahasa Inggris"
+                                                          placeholder="Syarat kepatuhan, dokumen wajib, atau catatan bea masuk…"
+                                                          class="admin-control resize-none leading-relaxed"></textarea>
+                                                @error('note_en')
+                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
+                                                <textarea wire:model="note_id" rows="8"
+                                                          aria-label="Catatan pasar dalam bahasa Indonesia"
+                                                          placeholder="Syarat kepatuhan, dokumen wajib, atau catatan bea masuk…"
+                                                          class="admin-control resize-none leading-relaxed"></textarea>
+                                                @error('note_id')
+                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                             </section>
@@ -551,21 +595,32 @@
                                     lg:w-[42%] lg:border-t-0 lg:overflow-y-auto lg:overscroll-contain">
 
                             {{-- ── Kartu: identitas negara ──────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Identitas negara
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-4">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="page" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div class="space-y-4">
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-ink">Identitas Negara</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">
+                                            Kode ISO dan kawasan.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4 p-5">
                                     <div>
-                                        <label for="pasar-kode" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="pasar-kode" class="block text-admin-label text-ink-faint">
                                             Kode ISO <span class="text-brand">*</span>
                                         </label>
 
-                                        {{-- .live, satu-satunya di modal ini: cerminan nama
-                                             negaranya di bawah baru berguna kalau ia menyusul
-                                             sambil mengetik. Dua huruf, jadi paling banter
-                                             dua permintaan. --}}
+                                        {{-- .live, satu-satunya di modal ini:
+                                             cerminan nama negara di bawah
+                                             baru berguna kalau ia menyusul
+                                             sambil mengetik. Dua huruf, jadi
+                                             paling banter dua permintaan. --}}
                                         <input type="text" wire:model.live.debounce.400ms="country_code"
                                                id="pasar-kode" maxlength="2" autocomplete="off"
                                                placeholder="DE"
@@ -573,13 +628,13 @@
                                                       tracking-[0.12em] placeholder:tracking-normal">
 
                                         @error('country_code')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
 
                                         {{-- Cerminan kodenya. Salah ketik kode dua huruf itu
                                              gampang dan akibatnya senyap — negara yang salah
                                              muncul di peta jangkauan situs publik. --}}
-                                        <p class="mt-2 flex items-start gap-1.5 text-[12px] leading-relaxed">
+                                        <p class="mt-2 flex items-start gap-1.5 text-admin-label">
                                             @if($namaIso)
                                                 <span class="text-ink-faint">Terbaca sebagai</span>
                                                 <span class="font-semibold text-ink">{{ $namaIso }}</span>
@@ -590,106 +645,84 @@
                                                 </span>
                                             @else
                                                 <span class="text-ink-faint">
-                                                    Dua huruf sesuai ISO 3166-1, mis. US, DE, JP.
+                                                    Dua huruf sesuai ISO 3166-1, mis. US, DE.
                                                 </span>
                                             @endif
                                         </p>
                                     </div>
 
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">
+                                        <label class="block text-admin-label text-ink-faint">
                                             Kawasan <span class="text-brand">*</span>
                                         </label>
 
-                                        {{-- :nullable="false" — tiap negara pasti berada di
-                                             salah satu kawasan; pilihan kosong di puncaknya
-                                             cuma jadi jawaban yang tidak sah.
-
-                                             Daftarnya ketujuh kawasan tetap, BUKAN yang ada
-                                             datanya seperti di bilah penyaring: di sini kita
-                                             sedang menambah kawasan, bukan menyaringnya. --}}
+                                        {{-- :nullable="false" — tiap negara
+                                             pasti ada di salah satu kawasan.
+                                             Daftarnya ketujuh kawasan tetap,
+                                             BUKAN yang kebetulan ada datanya. --}}
                                         <x-admin.select model="region" :value="$region" class="mt-2"
                                                         label="Kawasan negara" :nullable="false"
                                                         :options="collect($kawasan)
                                                             ->map(fn ($k) => ['nilai' => $k, 'label' => $k])->all()" />
 
                                         @error('region')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
                             </section>
 
                             {{-- ── Kartu: penerbitan ────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Penerbitan
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-4">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="manage" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div class="space-y-4">
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-ink">Publikasi</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">
+                                            Tentukan status dan urutan negara.
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    {{-- Sakelar dari kotak centang asli yang disembunyikan,
-                                         pola yang sama dengan "Produk unggulan" di modal
-                                         produk. is_active itu boolean, jadi menu pilih tidak
-                                         dipakai di sini: x-admin.select selalu mengirim untai,
-                                         dan untai yang jatuh ke properti bertipe bool
-                                         melempar galat tipe.
+                                <div class="space-y-4 p-5">
 
-                                         Seluruh rona digerakkan peer-checked dan has-[:checked]
-                                         di CSS, bukan oleh nilai di sisi PHP: wire:model di
-                                         sini bersifat tunda, jadi nilai di server baru
-                                         menyusul pada permintaan berikutnya. --}}
-                                    <label class="flex cursor-pointer items-start justify-between gap-4
-                                                  rounded-control border border-line p-3.5 transition-colors
-                                                  hover:border-line-strong
-                                                  has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
+                                    {{-- Menu pilih, bukan sakelar geser:
+                                         halaman Kategori dan Produk
+                                         menanyakan hal yang sama lewat menu
+                                         berlabel "Status" dengan dua jawaban
+                                         bernama. --}}
+                                    <div>
+                                        <label class="block text-admin-label text-ink-faint">Status</label>
 
-                                        <span class="min-w-0">
-                                            <span class="block text-[13px] font-semibold text-ink">Pasar aktif</span>
-                                            <span class="mt-0.5 block text-[12px] leading-relaxed text-ink-muted">
-                                                Hanya negara aktif yang muncul di peta jangkauan
-                                                situs publik.
-                                            </span>
-                                        </span>
+                                        <x-admin.select model="status" :value="$status" class="mt-2"
+                                                        label="Status pasar" placeholder="Aktif"
+                                                        :nullable="false"
+                                                        :options="[
+                                                            ['nilai' => 'active',   'label' => 'Aktif'],
+                                                            ['nilai' => 'inactive', 'label' => 'Nonaktif'],
+                                                        ]" />
 
-                                        <span class="relative mt-0.5 inline-flex shrink-0 items-center">
-                                            {{-- @checked() supaya keadaannya sudah benar di
-                                                 gambar pertama. wire:model sendiri tidak
-                                                 menuliskan atribut itu — ia baru menyetel
-                                                 sifat .checked sesudah Livewire hidup, jadi
-                                                 tanpa ini sakelarnya sempat tergambar mati
-                                                 untuk negara yang sebenarnya aktif. --}}
-                                            <input type="checkbox" role="switch" wire:model="is_active"
-                                                   @checked($is_active)
-                                                   class="peer sr-only">
-
-                                            {{-- Jalurnya --}}
-                                            <span class="block h-6 w-11 rounded-full bg-mist-deep transition-colors
-                                                         peer-checked:bg-brand
-                                                         peer-focus-visible:ring-2 peer-focus-visible:ring-brand
-                                                         peer-focus-visible:ring-offset-2"></span>
-
-                                            {{-- Bulatannya --}}
-                                            <span class="pointer-events-none absolute left-0.5 block h-5 w-5 rounded-full
-                                                         bg-white shadow-[0_1px_3px_rgba(26,29,27,0.28)]
-                                                         transition-transform peer-checked:translate-x-5"></span>
-                                        </span>
-                                    </label>
+                                        {{-- Akibatnya disebut, karena tidak terbaca dari
+                                             kata "Nonaktif" sendirian. --}}
+                                        @error('status')
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
 
                                     <div>
-                                        <label for="pasar-urutan" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="pasar-urutan" class="block text-admin-label text-ink-faint">
                                             Urutan tampil
                                         </label>
 
                                         <input type="number" wire:model="sort_order" id="pasar-urutan"
                                                min="0" step="1" class="admin-control mt-2">
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Angka lebih kecil tampil lebih dulu di situs publik.
-                                        </p>
-
+                                               
                                         @error('sort_order')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>

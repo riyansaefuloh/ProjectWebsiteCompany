@@ -146,7 +146,7 @@ return [
     'footer_rights'       => 'All rights reserved.',
 
     // ── Footer (susunan baru, mengikuti rujukan desain) ──────────────────
-    'footer_headline'     => 'Start your coffee journey with us.',
+    'footer_headline'     => 'Start your *coffee journey* with us.',
     'footer_locations'    => 'Locations',
     'footer_call_us'      => 'Call Us',
     'footer_contact_us'   => 'Contact Us',
@@ -164,7 +164,7 @@ return [
     'hero_empty' => 'Please create a Static Page with the title "Hero" in the Admin CMS to populate this banner.',
 
     // ── Hero beranda ─────────────────────────────────────────────────────
-    'hero_title'      => 'Your Partner in Sourcing Premium Indonesian Coffee',
+    'hero_title'      => 'Your Partner in Sourcing *Premium Indonesian* Coffee',
     'hero_body'       => 'We connect global roasters and buyers with Indonesia\'s finest origin beans — fully traceable green coffee with complete export specifications, custom packaging, and flexible Incoterms.',
     'hero_descriptor' => 'Green Coffee Sourcing & Export Partner',
     'hero_years'      => 'Years of experience',
@@ -192,18 +192,18 @@ return [
     'home_section_products' => 'Featured Products',
 
     // ── Seksi Featured Products di beranda ───────────────────────────────
-    'products_title' => 'Export-grade green coffee, ready for your roastery',
+    'products_title' => 'Export-grade *green coffee*, ready for your roastery',
     'products_body'  => 'A selection from our current crop — each lot fully traceable to its origin, with complete specifications and sampling available on request.',
     'home_section_export_markets' => 'Export Markets',
 
     // ── Seksi Export Markets di beranda ──────────────────────────────────
-    'markets_title' => 'Shipping to :count countries across four regions',
+    'markets_title' => 'Shipping to :count countries *across four regions*',
     'markets_body'  => 'Hover any marker to see the destination. Our logistics network reaches major ports in Europe, Asia, North America, and the Middle East.',
     'home_section_news' => 'Latest News',
 
     // ── Seksi Latest News di beranda ─────────────────────────────────────
     'news_eyebrow'     => 'Our Blog',
-    'news_title'       => 'Follow the latest news and articles',
+    'news_title'       => 'Follow the *latest news* and articles',
     'news_promo_title' => 'See more news and articles from us',
     'cta_see_more_news' => 'See More News',
     'home_section_about' => 'About Us',
@@ -273,7 +273,7 @@ return [
     'milestone_6_body'  => 'Digital polygon mapping and lot-level records answer the documentation European buyers now need before a shipment moves.',
 
     'pillars_eyebrow' => 'Why Choose Us',
-    'pillars_title'   => 'Built for buyers who cannot afford surprises',
+    'pillars_title'   => 'Built for buyers who *cannot afford surprises*',
     'pillars_body'    => 'Every shipment is backed by documented processes, audited certifications, and a team that answers within one business day.',
 
     'pillar_1_title' => 'Consistent Cup Quality',
@@ -294,7 +294,7 @@ return [
 
     // ── Banner penutup beranda ───────────────────────────────────────────
     'cta_whatsapp' => 'Chat on WhatsApp',
-    'cta_title'    => 'Let us quote your next container',
+    'cta_title'    => 'Let us quote your *next container*',
     'cta_body'     => 'Send us your target specification, volume, and destination port. Our export team replies with pricing, available lots, and sampling options within one business day.',
 
 ];

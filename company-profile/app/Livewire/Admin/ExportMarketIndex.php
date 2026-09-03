@@ -51,10 +51,33 @@ class ExportMarketIndex extends Component
     public string $name_id = '';
     public string $note_en = '';
     public string $note_id = '';
-    public bool $is_active = true;
+    /*
+     * Keadaan terbit, dipegang sebagai UNTAI di borang meski lajur di basis
+     * data bertipe boolean (is_active).
+     *
+     * x-admin.select selalu mengirimkan untai; untai yang jatuh ke sifat
+     * bertipe bool melempar galat tipe sebelum save() sempat berjalan.
+     * Jadi pengubahannya dilakukan di dua batas — saat memuat (edit) dan
+     * saat menyimpan (save) — bukan dengan melonggarkan tipe sifatnya.
+     *
+     * Namanya $status, sama dengan halaman Kategori dan Produk, supaya
+     * ketiga modal itu membicarakan hal yang sama dengan kata yang sama.
+     */
+    public string $status = 'active';
     public int $sort_order = 0;
     public string $activeTab = 'en';
     public bool $isTranslating = false;
+
+    /*
+     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
+     *
+     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
+     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
+     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
+     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
+     * tombolnya gagal tanpa mengatakan apa pun.
+     */
+    public ?string $galatTerjemah = null;
 
     protected function rules(): array
     {
@@ -65,7 +88,7 @@ class ExportMarketIndex extends Component
             'name_id'      => 'required|string|max:100',
             'note_en'      => 'nullable|string|max:500',
             'note_id'      => 'nullable|string|max:500',
-            'is_active'    => 'boolean',
+            'status'       => 'required|in:active,inactive',
             'sort_order'   => 'integer|min:0',
         ];
     }
@@ -82,26 +105,34 @@ class ExportMarketIndex extends Component
     public function create(): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function autoTranslate(): void
     {
+        $this->galatTerjemah = null;
+
         if (empty(trim($this->name_id)) && empty(trim($this->note_id))) {
-            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            $this->galatTerjemah = 'Isi dulu nama atau catatan pasarnya dalam Bahasa Indonesia.';
             return;
         }
 
         $this->isTranslating = true;
 
-        $translated = app(TranslationService::class)->translateMany([
+        $layanan    = app(TranslationService::class);
+        $translated = $layanan->translateMany([
             'name' => $this->name_id,
             'note' => $this->note_id,
         ]);
 
         if (!empty($translated['name'])) $this->name_en = $translated['name'];
         if (!empty($translated['note'])) $this->note_en = $translated['note'];
+
+        if ($layanan->sebabGagal) {
+            $this->galatTerjemah = $layanan->sebabGagal;
+        }
 
         $this->isTranslating = false;
         $this->activeTab = 'en';
@@ -110,6 +141,7 @@ class ExportMarketIndex extends Component
     public function edit(string $id): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
 
         $market = ExportMarket::with('translations')->findOrFail($id);
         $this->editingId = $market->id;
@@ -119,7 +151,7 @@ class ExportMarketIndex extends Component
         $this->name_id = $market->getTranslation('name', 'id') ?? '';
         $this->note_en = $market->getTranslation('note', 'en') ?? '';
         $this->note_id = $market->getTranslation('note', 'id') ?? '';
-        $this->is_active = $market->is_active;
+        $this->status = $market->is_active ? 'active' : 'inactive';
         $this->sort_order = $market->sort_order;
         $this->activeTab = 'en';
         $this->showModal = true;
@@ -135,7 +167,7 @@ class ExportMarketIndex extends Component
 
         $market->country_code = strtoupper($this->country_code);
         $market->region = $this->region;
-        $market->is_active = $this->is_active;
+        $market->is_active = $this->status === 'active';
         $market->sort_order = $this->sort_order;
         $market->save();
 
@@ -169,7 +201,7 @@ class ExportMarketIndex extends Component
         $this->name_id = '';
         $this->note_en = '';
         $this->note_id = '';
-        $this->is_active = true;
+        $this->status = 'active';
         $this->sort_order = 0;
         $this->activeTab = 'en';
     }
