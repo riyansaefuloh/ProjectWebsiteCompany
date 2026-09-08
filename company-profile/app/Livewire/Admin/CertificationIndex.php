@@ -39,6 +39,17 @@ class CertificationIndex extends Component
     // Form Fields
     public string $name_en = '';
     public string $name_id = '';
+
+
+    /*
+     * Bahasa yang sedang disunting. Sama dengan modal Halaman: kolom Indonesia
+     * dan Inggris BERTUKAR di tempat yang sama, bukan berdiri berdampingan.
+     *
+     * Berdampingan memaksa dua bahasa dibaca sekaligus padahal yang dikerjakan
+     * satu, dan menyempitkan tiap kolom jadi separuh — mahal untuk keterangan
+     * yang panjangnya sampai 300 karakter.
+     */
+    public string $activeTab = 'id';
     public string $issuer = '';
     public ?string $certificate_number = null;
     public ?string $issued_at = null;
@@ -114,20 +125,51 @@ class CertificationIndex extends Component
         $this->showModal = true;
     }
 
+    /**
+     * Pesan yang muncul tepat di bawah kedua kolom nama saat menerjemahkan
+     * tidak jadi.
+     *
+     * Sebelumnya kegagalannya dilaporkan lewat session()->flash('error'),
+     * dan halaman ini TIDAK PERNAH menggambar flash bernama itu — yang
+     * digambarnya cuma 'message'. Jadi menekan tombol dengan kolom Indonesia
+     * kosong tidak menghasilkan apa pun, dan begitu pula saat layanan
+     * terjemahannya sedang tidak bisa dihubungi.
+     *
+     * Properti biasa, bukan flash: pesannya harus muncul DI DALAM jendela
+     * yang sedang terbuka, sementara flash baru terbaca pada penggambaran
+     * halaman berikutnya.
+     */
+    public ?string $galatTerjemah = null;
+
     public function autoTranslate(): void
     {
+        $this->galatTerjemah = null;
+
         if (empty(trim($this->name_id))) {
-            session()->flash('error', 'Isi nama sertifikat dalam Bahasa Indonesia terlebih dahulu.');
+            $this->galatTerjemah = 'Isi dulu namanya dalam Bahasa Indonesia.';
+
             return;
         }
 
         $this->isTranslating = true;
 
-        $translated = app(TranslationService::class)->translate($this->name_id, 'id', 'en');
+        $layanan = app(TranslationService::class);
 
-        if (!empty($translated)) {
-            $this->name_en = $translated;
+        $nama = $layanan->translate($this->name_id, 'id', 'en');
+
+        if (empty($nama)) {
+            $this->galatTerjemah = $layanan->sebabGagal
+                ?: 'Terjemahan tidak berhasil. Coba lagi, atau isi sendiri.';
+            $this->isTranslating = false;
+
+            return;
         }
+
+        $this->name_en = $nama;
+
+        /* Hasilnya ada di kolom Inggris — tidak ada gunanya menerjemahkan lalu
+           membiarkan pemakainya menebak ke mana perginya. */
+        $this->activeTab = 'en';
 
         $this->isTranslating = false;
     }
@@ -135,6 +177,7 @@ class CertificationIndex extends Component
     public function edit(string $id): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
 
         $cert = Certification::with('translations')->findOrFail($id);
         $this->editingId = $cert->id;
@@ -173,6 +216,12 @@ class CertificationIndex extends Component
         // Simpan Terjemahan Nama (EN & ID)
         $cert->translations()->updateOrCreate(
             ['locale' => 'en'],
+            /*
+             * Kolom description TIDAK ikut ditulis. Ia tidak punya isian di panel
+             * dan tidak dibaca di mana pun; menuliskannya berarti mengosongkan
+             * nilai yang terlanjur ada di basis data tiap kali sertifikat
+             * disimpan, tanpa satu pun tanda di layar.
+             */
             ['name' => $this->name_en]
         );
         $cert->translations()->updateOrCreate(
@@ -228,9 +277,14 @@ class CertificationIndex extends Component
 
     private function resetForm(): void
     {
+        /* Pesan gagal-terjemah ikut dibersihkan. Tanpa ini, membuka jendela
+           untuk sertifikasi LAIN masih menampilkan pesan milik yang tadi. */
+        $this->galatTerjemah = null;
+
         $this->editingId = null;
         $this->name_en = '';
         $this->name_id = '';
+        $this->activeTab = 'id';
         $this->issuer = '';
         $this->certificate_number = null;
         $this->issued_at = null;
@@ -257,14 +311,14 @@ class CertificationIndex extends Component
          * yang berarti sertifikat yang justru sudah kedaluwarsa — keadaan
          * paling gawat — tidak pernah masuk peringatannya sama sekali.
          */
-        $expiredCerts = Certification::with('translations')
+        $expiredCerts = Certification::with(['translations', 'media'])
             ->whereNotNull('expires_at')
             ->where('expires_at', '<', Carbon::now())
             ->where('status', 'active')
             ->orderBy('expires_at', 'asc')
             ->get();
 
-        $expiringSoonCerts = Certification::with('translations')
+        $expiringSoonCerts = Certification::with(['translations', 'media'])
             ->whereNotNull('expires_at')
             ->whereBetween('expires_at', [Carbon::now(), Carbon::now()->addDays(90)])
             ->orderBy('expires_at', 'asc')

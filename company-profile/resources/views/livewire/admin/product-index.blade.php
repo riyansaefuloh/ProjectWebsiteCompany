@@ -1,18 +1,13 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * Inquiry. Tiap keping membawa nama properti yang dikosongkan saat
-         * kepingnya ditutup.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
             $penyaringAktif->push(['label' => 'Cari', 'nilai' => $search, 'props' => ['search']]);
         }
 
-        $sebutanStatus = ['published' => 'Terbit', 'draft' => 'Draf'];
+        $sebutanStatus = ['published' => 'Aktif', 'draft' => 'Draf'];
 
         if (filled($selectedStatus)) {
             $penyaringAktif->push([
@@ -21,12 +16,7 @@
                 'props' => ['selectedStatus'],
             ]);
         }
-
-        /*
-         * filled(), bukan sekadar cek kebenaran nilainya: '0' — pilihan
-         * "bukan unggulan" — itu palsu di PHP, jadi kepingnya tidak akan
-         * pernah muncul dan penyaring yang menyala jadi tak terlihat.
-         */
+        
         if (filled($selectedFeatured)) {
             $penyaringAktif->push([
                 'label' => 'Unggulan',
@@ -44,13 +34,7 @@
                 'props' => ['selectedCategory'],
             ]);
         }
-
-        /*
-         * $wire.$set punya parameter ketiga: kirim-sekarang. Semua kecuali
-         * yang terakhir disetel dengan false supaya nilainya menumpuk dulu di
-         * peramban — kalau semuanya true, satu klik jadi beberapa kali muat
-         * ulang tabel.
-         */
+        
         $bersihkan = function (array $props) {
             $akhir = array_pop($props);
 
@@ -65,17 +49,14 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+            <h1 class="text-admin-display text-heading">
                 Produk
             </h1>
-            <p class="mt-1.5 text-[13px] text-ink-muted">
+            <p class="mt-1.5 text-admin-body text-ink-muted">
                 Katalog produk ekspor yang tampil di situs publik.
             </p>
         </div>
-
-        {{-- Hijau merek: di halaman ini menambah produk memang tindakan
-             utamanya, berbeda dari halaman Inquiry yang tombol hijaunya
-             dipakai untuk mengekspor. --}}
+        
         <button type="button" wire:click="create" class="admin-btn admin-btn-brand shrink-0">
             <svg class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="M10 4.2v11.6M4.2 10h11.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -99,7 +80,7 @@
                 </svg>
             </span>
 
-            <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+            <p class="min-w-0 flex-1 pt-1 text-admin-strong text-brand-deep">
                 {{ session('message') }}
             </p>
 
@@ -111,123 +92,119 @@
     @endif
 
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PENYARING
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun kategori melayang keluar dari kartunya,
-         dan .card membawa overflow-hidden yang akan memotongnya. --}}
-    <div class="card mb-6 overflow-visible">
-
-        {{-- Pencarian berdiri sendiri selebar kartunya, lalu tiga penyaring
-             berbagi baris di bawahnya — susunan yang sama dengan halaman
-             Inquiry. --}}
-        <div class="grid gap-4 p-5 lg:grid-cols-3">
-
-            <div class="relative lg:col-span-3">
-                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
-                </span>
-
-                <input type="search" wire:model.live="search" id="cari-produk"
-                       aria-label="Cari produk"
-                       placeholder="Cari nama produk atau kode HS…"
-                       class="admin-control pl-11 pr-10">
-
-                <span wire:loading wire:target="search"
-                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
-                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    </svg>
-                </span>
-            </div>
-
-            <x-admin.select model="selectedStatus" :value="$selectedStatus"
-                            label="Saring menurut status" placeholder="Semua status"
-                            :options="[
-                                ['nilai' => 'published', 'label' => 'Terbit'],
-                                ['nilai' => 'draft',     'label' => 'Draf'],
-                            ]" />
-
-            {{-- Nilainya '1' dan '0', bukan true/false: menu pilih ini
-                 mengirimkan untai, dan properti penyaringnya pun bertipe
-                 untai supaya "belum dipilih" ('') bisa dibedakan dari
-                 "bukan unggulan" ('0'). --}}
-            <x-admin.select model="selectedFeatured" :value="$selectedFeatured"
-                            label="Saring menurut unggulan" placeholder="Semua produk"
-                            :options="[
-                                ['nilai' => '1', 'label' => 'Unggulan saja'],
-                                ['nilai' => '0', 'label' => 'Bukan unggulan'],
-                            ]" />
-
-            <x-admin.select model="selectedCategory" :value="$selectedCategory"
-                            label="Saring menurut kategori" placeholder="Semua kategori"
-                            :options="$categories->map(fn ($k) => [
-                                'nilai' => $k->id,
-                                'label' => ($n = $k->translated_name) ? $n : $k->slug,
-                            ])->all()" />
-        </div>
-
-        @if($penyaringAktif->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
-                        bg-mist/60 px-5 py-3">
-                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold
-                             uppercase tracking-[0.08em] text-ink-faint">
-                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
-                    Disaring
-                </span>
-
-                @foreach($penyaringAktif as $f)
-                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
-                                 bg-canvas py-1 pl-3 pr-1.5 text-[12px] text-ink-muted">
-                        <span class="min-w-0 truncate">
-                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
-                        </span>
-
-                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
-                                aria-label="Hapus penyaring {{ $f['label'] }}"
-                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
-                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
-                            <x-icon.admin name="close" size="h-3 w-3" />
-                        </button>
-                    </span>
-                @endforeach
-
-                @if($penyaringAktif->count() > 1)
-                    <button type="button"
-                            x-on:click="{{ $bersihkan(['search', 'selectedCategory', 'selectedStatus', 'selectedFeatured']) }}"
-                            class="ml-auto shrink-0 text-[12px] font-semibold text-brand underline-offset-4 hover:underline">
-                        Hapus semua
-                    </button>
-                @endif
-            </div>
-        @endif
-    </div>
 
 
     {{-- ══════════════════════════════════════════════════════════════════
          TABEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card">
+    <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-mist text-ink-muted">
-                    <x-icon.admin name="product" size="h-4 w-4" />
+                
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
+                    <x-icon.admin name="product" size="h-[18px] w-[18px]" />
                 </span>
 
                 <div>
-                    <h2 class="font-ui text-[15px] font-semibold text-ink">Daftar produk</h2>
-                    <p class="mt-0.5 text-[12px] text-ink-muted">Urut dari yang paling baru ditambahkan.</p>
+                    <h2 class="text-admin-title text-heading">Daftar produk</h2>
+                    <p class="mt-0.5 text-admin-label text-ink-muted">Kelola dan pantau produk yang tersedia.</p>
                 </div>
             </div>
 
             <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-mist
-                         px-3 py-1.5 text-[12px] font-semibold text-ink-muted">
+                         px-3 py-1.5 text-admin-label font-semibold text-ink-muted">
                 <span class="tabular-nums text-ink">{{ number_format($products->total()) }}</span>
                 {{ $penyaringAktif->isNotEmpty() ? 'hasil' : 'produk' }}
             </span>
         </div>
+
+        {{-- ══════════════════════════════════════════════════════════════════
+             PENYARING
+             ══════════════════════════════════════════════════════════════════ --}}
+        <div class="px-5 pt-5">
+            <div class="rounded-corner border border-line">
+                
+                <div class="grid gap-4 p-5 lg:grid-cols-3">
+
+                    <div class="relative lg:col-span-3">
+                        <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <x-icon.admin name="search" size="h-[18px] w-[18px]" />
+                        </span>
+
+                        <input type="search" wire:model.live="search" id="cari-produk"
+                               aria-label="Cari produk"
+                               placeholder="Cari nama produk atau kode HS…"
+                               class="admin-control pl-11 pr-10">
+
+                        <span wire:loading wire:target="search"
+                              class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
+                                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <x-admin.select model="selectedStatus" :value="$selectedStatus"
+                                    label="Saring menurut status" placeholder="Semua status"
+                                    :options="[
+                                        ['nilai' => 'published', 'label' => 'Aktif'],
+                                        ['nilai' => 'draft',     'label' => 'Draf'],
+                                    ]" />
+                    
+                    <x-admin.select model="selectedFeatured" :value="$selectedFeatured"
+                                    label="Saring menurut unggulan" placeholder="Semua produk"
+                                    :options="[
+                                        ['nilai' => '1', 'label' => 'Unggulan saja'],
+                                        ['nilai' => '0', 'label' => 'Bukan unggulan'],
+                                    ]" />
+
+                    <x-admin.select model="selectedCategory" :value="$selectedCategory"
+                                    label="Saring menurut kategori" placeholder="Semua kategori"
+                                    :options="$categories->map(fn ($k) => [
+                                        'nilai' => $k->id,
+                                        'label' => ($n = $k->translated_name) ? $n : $k->slug,
+                                    ])->all()" />
+                </div>
+
+                @if($penyaringAktif->isNotEmpty())
+                    <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
+                                bg-mist/60 px-5 py-3">
+                        <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-admin-overline
+                                     uppercase text-ink-faint">
+                            <x-icon.admin name="filter" size="h-3.5 w-3.5" />
+                            Disaring
+                        </span>
+
+                        @foreach($penyaringAktif as $f)
+                            <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
+                                         bg-canvas py-1 pl-3 pr-1.5 text-admin-label text-ink-muted">
+                                <span class="min-w-0 truncate">
+                                    {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
+                                </span>
+
+                                <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
+                                        aria-label="Hapus penyaring {{ $f['label'] }}"
+                                        class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
+                                               text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
+                                    <x-icon.admin name="close" size="h-3 w-3" />
+                                </button>
+                            </span>
+                        @endforeach
+
+                        @if($penyaringAktif->count() > 1)
+                            <button type="button"
+                                    x-on:click="{{ $bersihkan(['search', 'selectedCategory', 'selectedStatus', 'selectedFeatured']) }}"
+                                    class="ml-auto shrink-0 text-admin-label font-semibold text-brand underline-offset-4 hover:underline">
+                                Hapus semua
+                            </button>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
+
 
         <div class="p-5 transition-opacity duration-150"
              wire:loading.class="opacity-45"
@@ -237,11 +214,7 @@
                 <div class="overflow-x-auto">
 
                     @php
-                        /* Lima kolom, bukan tujuh. Kode HS pindah ke bawah nama
-                           produknya, dan MOQ bergabung dengan kapasitas —
-                           keduanya menjawab pertanyaan yang sama, "berapa banyak
-                           yang bisa dipesan", jadi memisahkannya jadi dua kolom
-                           memaksa mata melompat untuk merangkai satu jawaban. */
+                        
                         $kolom = [
                             ['label' => 'Produk',           'lebar' => 'w-[37%]', 'rata' => 'text-left'],
                             ['label' => 'Kategori',         'lebar' => 'w-[17%]', 'rata' => 'text-left'],
@@ -257,7 +230,7 @@
                                 <tr class="border-b border-line bg-mist/60">
                                     @foreach($kolom as $i => $k)
                                         <th @class([
-                                            'py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint',
+                                            'py-3 text-admin-overline uppercase text-ink-faint',
                                             $k['lebar'], $k['rata'],
                                             'pl-5 pr-3' => $i === 0,
                                             'px-3'      => $i > 0 && $i < count($kolom) - 1,
@@ -273,19 +246,7 @@
                                 @php
                                     $nama     = $product->translated_name ?: $product->slug;
                                     $kategori = $product->category?->translated_name;
-
-                                    /*
-                                     * Gambar yang ditampilkan adalah SAMPULNYA — berkas
-                                     * yang ditandai is_cover lewat tombol "jadikan
-                                     * sampul" di modal. Kalau belum ada yang ditandai,
-                                     * yang pertama diunggah yang dipakai, sama dengan
-                                     * yang tampil di katalog publik.
-                                     *
-                                     * getUrl('thumb') hanya dipakai kalau berkas
-                                     * turunannya memang sudah jadi; kalau dipanggil
-                                     * begitu saja, ia mengembalikan alamat berkas yang
-                                     * belum tentu ada dan gambarnya jadi rusak.
-                                     */
+                                    
                                     $galeri = $product->getMedia('gallery');
                                     $sampul = $galeri->first(fn ($m) => $m->getCustomProperty('is_cover'))
                                               ?? $galeri->first();
@@ -299,23 +260,10 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Produk. Garis hijau di tepi kiri menandai yang
-                                         diunggulkan — penanda kedua di samping lencana
-                                         bintangnya, supaya barisnya bisa dikenali dari
-                                         ujung mata. --}}
-                                    <td @class([
-                                        'py-4 pl-5 pr-3 align-middle border-l-[3px]',
-                                        'border-brand'       => $product->is_featured,
-                                        'border-transparent' => ! $product->is_featured,
-                                    ])>
+                                    {{-- Produk --}}
+                                    <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
-
-                                            {{-- Gambar sampul. Kotak penggantinya adalah
-                                                 bagian sah dari rancangannya, bukan
-                                                 keadaan rusak: ia berukuran sama persis
-                                                 dengan gambarnya, jadi tinggi baris tidak
-                                                 melompat-lompat antara produk yang sudah
-                                                 bergambar dan yang belum. --}}
+                                            
                                             @if($alamatGambar)
                                                 <img src="{{ $alamatGambar }}" alt=""
                                                      loading="lazy" width="40" height="40"
@@ -331,25 +279,34 @@
                                             @endif
 
                                             <div class="min-w-0">
-                                                <div class="flex items-center gap-2">
-                                                    <span class="min-w-0 truncate text-[13px] font-semibold text-ink"
+                                                {{-- Bintang unggulan berdiri di samping NAMA, bukan di kolom
+                                                     status.
+
+                                                     Unggulan bukan status. Status menjawab "terbit atau draf" —
+                                                     satu nilai, satu pil, satu kolom. Unggulan menjawab "produk
+                                                     ini disorot di beranda", sifat yang melekat pada produknya
+                                                     sendiri. Menaruhnya di kolom status membuat satu kolom
+                                                     menjawab dua pertanyaan, dan barisnya jadi punya dua benda
+                                                     berwarna yang tidak berhubungan.
+
+                                                     Bintang telanjang, bukan keping bulat pejal seperti dulu:
+                                                     di sebelah nama 13px, cakram 24px berwarna merek adalah
+                                                     benda yang paling dulu terlihat di seluruh baris —
+                                                     mengalahkan nama produknya sendiri. --}}
+                                                <span class="flex min-w-0 items-center gap-1.5">
+                                                    <span class="truncate text-admin-strong text-ink"
                                                           title="{{ $nama }}">{{ $nama }}</span>
 
                                                     @if($product->is_featured)
-                                                        <span class="inline-flex shrink-0 items-center gap-1 rounded-full
-                                                                     bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand"
-                                                              title="Ditampilkan sebagai produk unggulan">
-                                                            <x-icon.admin name="star" size="h-2.5 w-2.5" />
-                                                            Unggulan
+                                                        <span class="shrink-0 leading-none text-brand"
+                                                              title="Ditampilkan sebagai produk unggulan di situs publik">
+                                                            <x-icon.admin name="star" size="h-3.5 w-3.5" />
+                                                            <span class="sr-only">Produk unggulan</span>
                                                         </span>
                                                     @endif
-                                                </div>
-
-                                                {{-- Kode HS jadi baris kedua. Angkanya
-                                                     berlebar seragam karena yang dilakukan
-                                                     orang dengan kode ini adalah
-                                                     mencocokkannya digit demi digit. --}}
-                                                <span class="mt-0.5 block truncate text-[12px] tabular-nums text-ink-faint"
+                                                </span>
+                                                
+                                                <span class="mt-0.5 block truncate text-admin-caption tabular-nums text-ink-faint"
                                                       title="Kode HS: {{ $product->hs_code }}">
                                                     {{ $product->hs_code ? 'HS ' . $product->hs_code : 'Tanpa kode HS' }}
                                                 </span>
@@ -358,40 +315,28 @@
                                     </td>
 
                                     <td class="px-3 py-4 align-middle">
-                                        {{-- Tebal hanya kalau kategorinya sungguh ada.
-                                             "Tanpa kategori" itu keterangan kami untuk
-                                             kolom yang kosong, bukan nama kategori. --}}
+                                        
                                         <span @class([
-                                            'block truncate text-[13px]',
-                                            'font-semibold text-ink' => filled($kategori),
-                                            'text-ink-faint'         => blank($kategori),
+                                            'block truncate',
+                                            'text-admin-strong text-ink' => filled($kategori),
+                                            'text-admin-body text-ink-faint' => blank($kategori),
                                         ]) title="{{ $kategori }}">{{ $kategori ?: 'Tanpa kategori' }}</span>
                                     </td>
-
-                                    {{-- MOQ di baris atas, kapasitas di bawahnya —
-                                         urutan yang sama dengan judul kolomnya, dan
-                                         bentuk dua baris yang sama dengan sel lain di
-                                         panel ini: yang atas 13px, yang bawah 12px
-                                         lebih pudar.
-
-                                         Namanya tidak lagi ditulis di samping angkanya,
-                                         tapi tetap dibawa atribut title — di layar yang
-                                         dipakai berjam-jam, urutannya cepat hafal;
-                                         yang baru sehari cukup menyorotnya. --}}
+                                    
                                     <td class="px-3 py-4 align-middle">
+                                        
                                         <span @class([
-                                            'block truncate text-[13px]',
-                                            'text-ink-muted' => filled($product->moq),
-                                            'text-ink-faint' => blank($product->moq),
+                                            'block truncate tabular-nums',
+                                            'text-admin-strong text-ink'     => filled($product->moq),
+                                            'text-admin-body text-ink-faint' => blank($product->moq),
                                         ]) title="MOQ: {{ $product->moq }}">{{ $product->moq ?: '—' }}</span>
 
-                                        <span @class([
-                                            'mt-0.5 block truncate text-[12px] text-ink-faint',
-                                        ]) title="Kapasitas: {{ $product->supply_capacity }}">{{ $product->supply_capacity ?: '—' }}</span>
+                                        <span class="mt-0.5 block truncate text-admin-caption tabular-nums text-ink-faint"
+                                              title="Kapasitas: {{ $product->supply_capacity }}">{{ $product->supply_capacity ?: '—' }}</span>
                                     </td>
-
+                                    
                                     <td class="px-3 py-4 align-middle">
-                                        <x-admin.status-pill :status="$product->status" />
+                                        <x-admin.status-pill :status="$product->status" konteks="produk" />
                                     </td>
 
                                     <td class="py-4 pl-3 pr-5 text-right align-middle">
@@ -405,19 +350,13 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- wire:confirm — menghapus produk ikut
-                                                 menghapus terjemahan, spesifikasi, dan
-                                                 gambarnya, dan tidak ada jalan
-                                                 kembalinya. --}}
-                                            <button type="button" wire:click="delete('{{ $product->id }}')"
-                                                    wire:confirm="Hapus produk &quot;{{ $nama ?: $product->slug }}&quot;? Terjemahan, spesifikasi, dan gambarnya ikut terhapus."
-                                                    title="Hapus {{ $nama ?: $product->slug }}"
-                                                    aria-label="Hapus {{ $nama ?: $product->slug }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-control
-                                                           border border-line bg-canvas text-ink-muted transition-colors
-                                                           hover:border-danger hover:bg-danger hover:text-white">
-                                                <x-icon.admin name="trash" size="h-4 w-4" />
-                                            </button>
+<x-admin.confirm-delete metode="delete"
+                                                                    :id="$product->id"
+                                                                    :nama="$nama ?: $product->slug"
+                                                                    judul="Hapus produk?"
+                                                                    tombol="Ya, hapus produk">
+                                                Terjemahan, spesifikasi, dan seluruh gambarnya ikut terhapus.
+                                            </x-admin.confirm-delete>
                                         </div>
                                     </td>
                                 </tr>
@@ -432,10 +371,10 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada produk yang cocok
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Coba longgarkan penyaringnya — kosongkan kata pencarian,
                                                 atau kembalikan kategori, status, dan unggulan ke "semua".
                                             </p>
@@ -447,10 +386,10 @@
                                                 Hapus semua penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada produk
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Produk yang ditambahkan di sini akan tampil di katalog
                                                 situs publik.
                                             </p>
@@ -483,26 +422,13 @@
          ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         @php
-            /*
-             * Kolom yang wajib diisi menurut rules() di komponennya. Dirakit
-             * sebagai daftar supaya tanda bintangnya tidak perlu ditulis satu
-             * per satu — dan tidak bisa ketinggalan saat aturannya berubah.
-             */
+            
             $wajib = ['category_id', 'name_en', 'name_id', 'hs_code', 'moq',
                       'supply_capacity', 'packaging', 'origin', 'incoterms'];
-
-            // Galat yang jatuh di tab yang sedang tertutup tidak terlihat sama
-            // sekali; tabnya diberi titik merah supaya ketahuan.
+            
             $galatEn = $errors->hasAny(['name_en', 'description_en']);
             $galatId = $errors->hasAny(['name_id', 'description_id']);
-
-            /*
-             * Incoterms disimpan sebagai satu untai berpemisah koma di basis
-             * data — "FOB,CIF". Sebelumnya ia kolom ketik bebas, dan datanya
-             * memang sudah tidak seragam: satu produk tertulis "FOB, CIF"
-             * dengan spasi, yang lain tanpa spasi. Sebagai daftar centang,
-             * bentuknya jadi satu macam saja.
-             */
+            
             $daftarIncoterms = [
                 'FOB' => 'Free On Board',
                 'CIF' => 'Cost, Insurance and Freight',
@@ -512,13 +438,7 @@
             $incotermsTerpilih = collect(explode(',', (string) $incoterms))
                 ->map(fn ($x) => strtoupper(trim($x)))
                 ->filter()->unique()->values();
-
-            /*
-             * Kode yang tidak ada di daftar baku tetap ikut ditampilkan dan
-             * tetap tercentang. Tanpa ini, produk lama yang incoterms-nya
-             * ditulis di luar ketiga pilihan itu akan kehilangan nilainya
-             * diam-diam begitu centang lain disentuh.
-             */
+            
             $incotermsAsing = $incotermsTerpilih
                 ->reject(fn ($k) => isset($daftarIncoterms[$k]))->values();
 
@@ -531,33 +451,31 @@
              x-data
              x-on:keydown.escape.window="$wire.$set('showModal', false)"
              role="dialog" aria-modal="true" aria-labelledby="judul-modal-produk">
-
-            {{-- Latar sebagai penutup. Elemen tersendiri, bukan click.outside
-                 di panelnya: click.outside juga menyala saat menu turun di
-                 dalam panel diklik. --}}
+            
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            <div class="relative flex max-h-[90vh] w-full max-w-[1100px] flex-col overflow-clip
+            <div class="relative flex max-h-[90vh] w-full max-w-[1000px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
 
                 <form wire:submit.prevent="save" class="flex min-h-0 flex-1 flex-col">
 
                     {{-- ── Kepala ──────────────────────────────────────── --}}
-                    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
-                        <div class="flex min-w-0 items-center gap-3">
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                                         bg-brand/10 text-brand">
-                                <x-icon.admin name="product" size="h-[18px] w-[18px]" />
+                    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-5">
+                        <div class="flex min-w-0 items-center gap-3.5">
+                            
+                            <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-corner
+                                         bg-brand-wash text-brand">
+                                <x-icon.admin name="product" size="h-6 w-6" />
                             </span>
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-produk"
-                                    class="truncate font-ui text-[15px] font-semibold text-ink">
+                                    class="truncate text-admin-display text-heading">
                                     {{ $editingId ? 'Ubah produk' : 'Tambah produk' }}
                                 </h2>
-                                <p class="mt-0.5 text-[12px] text-ink-muted">
+                                <p class="mt-1.5 text-admin-label text-ink-muted">
                                     Isian bertanda <span class="font-bold text-brand">*</span> wajib diisi,
                                     termasuk nama di kedua bahasa.
                                 </p>
@@ -572,11 +490,7 @@
                         </button>
                     </div>
 
-                    {{-- ── Dua kolom ───────────────────────────────────────
-                         Kiri isi produknya, kanan penerbitan dan berkasnya —
-                         pembagian yang sama dengan modal inquiry. Keduanya
-                         bergulir sendiri-sendiri; di layar sempit barisnya
-                         yang bergulir sebagai satu kesatuan. --}}
+                    {{-- ── Dua kolom ── --}}
                     <div class="admin-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain
                                 lg:flex-row lg:divide-x lg:divide-line lg:overflow-visible">
 
@@ -584,58 +498,88 @@
                         <div class="admin-scroll min-h-0 space-y-4 p-6
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
-                            {{-- ── Kartu: informasi produk ──────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
+                            {{-- ── Kartu: informasi produk ── --}}
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="product" size="h-[18px] w-[18px]" />
+                                        </span>
 
-                                {{-- Sakelar bahasa naik ke kepala kartu, bukan
-                                     menempel di satu isian. Ia memang mengatur dua
-                                     isian sekaligus — nama dan deskripsi — sementara
-                                     Asal di antara keduanya tidak ikut berganti,
-                                     karena nama tempat tidak diterjemahkan. --}}
-                                <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <h3 class="font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                        Informasi produk
-                                    </h3>
-
-                                    <div class="inline-flex rounded-control border border-line bg-mist p-1">
-                                        @foreach(['en' => 'English', 'id' => 'Indonesia'] as $kode => $sebutan)
-                                            <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
-                                                    @class([
-                                                        'inline-flex items-center gap-1.5 rounded-[5px] px-3 py-1.5
-                                                         text-[12px] font-semibold transition-colors',
-                                                        'bg-canvas text-ink shadow-[0_1px_2px_rgba(26,29,27,0.08)]'
-                                                            => $activeTab === $kode,
-                                                        'text-ink-muted hover:text-ink' => $activeTab !== $kode,
-                                                    ])>
-                                                {{ $sebutan }}
-
-                                                {{-- Titik merah: tab ini menyimpan galat
-                                                     yang tidak terlihat karena tertutup. --}}
-                                                @if(($kode === 'en' && $galatEn) || ($kode === 'id' && $galatId))
-                                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
-                                                          title="Ada isian yang perlu diperbaiki di sini"></span>
-                                                @endif
-                                            </button>
-                                        @endforeach
-                                        <div class="ml-2 border-l border-line pl-2 flex items-center">
-                                            <button type="button" wire:click="autoTranslate" wire:loading.attr="disabled" wire:target="autoTranslate"
-                                                title="Terjemahkan ID ke EN otomatis"
-                                                class="inline-flex items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[12px] font-semibold bg-brand/10 text-brand hover:bg-brand/20 transition-colors">
-                                                <span wire:loading.remove wire:target="autoTranslate">🌐 Auto EN</span>
-                                                <span wire:loading wire:target="autoTranslate">⏳ ...</span>
-                                            </button>
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-heading">Informasi produk</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Nama dan deskripsi produk dalam dua bahasa.</p>
                                         </div>
+                                    </div>
+                                    
+                                    <div class="flex shrink-0 flex-wrap items-center gap-2">
+
+                                        <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
+                                                    border border-line bg-mist p-0.5"
+                                             role="group" aria-label="Bahasa yang sedang disunting">
+                                            @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
+                                                @php $bergalat = ($kode === 'en' && $galatEn) || ($kode === 'id' && $galatId); @endphp
+
+                                                <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
+                                                        aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
+                                                        @class([
+                                                            'inline-flex items-center gap-1.5 rounded-full px-3 py-1
+                                                             text-admin-label font-semibold transition-colors
+                                                             focus-visible:outline-none focus-visible:ring-2
+                                                             focus-visible:ring-brand/30',
+                                                            'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
+                                                                => $activeTab === $kode,
+                                                            'text-ink-muted hover:text-ink' => $activeTab !== $kode,
+                                                        ])>
+                                                    {{ $sebutan }}
+                                                    
+                                                    @if($bergalat)
+                                                        <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
+                                                              title="Ada isian yang perlu diperbaiki di sini"></span>
+                                                    @endif
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        
+                                        <button type="button" wire:click="autoTranslate"
+                                                wire:loading.attr="disabled" wire:target="autoTranslate"
+                                                title="Salin isian Indonesia ke English, lalu terjemahkan"
+                                                class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
+                                            <svg wire:loading wire:target="autoTranslate"
+                                                 class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16"
+                                                 fill="none" aria-hidden="true">
+                                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                                                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                            </svg>
+
+                                            <x-icon.admin name="send" size="h-3.5 w-3.5"
+                                                          class="shrink-0 text-brand"
+                                                          wire:loading.remove wire:target="autoTranslate" />
+
+                                            Terjemahkan
+                                        </button>
                                     </div>
                                 </div>
 
+                                <div class="p-5">
+                                
+                                @if($galatTerjemah)
+                                    <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
+                                        <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <path d="M8 2.4 14.4 13.2H1.6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                                            <path d="M8 6.6v2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                            <circle cx="8" cy="11.4" r="0.85" fill="currentColor"/>
+                                        </svg>
+                                        {{ $galatTerjemah }}
+                                    </p>
+                                @endif
+
                                 <div class="space-y-4">
 
-                                    {{-- Nama produk — mengikuti tab. Keduanya tetap ada
-                                         di DOM, yang tidak aktif disembunyikan: isian
-                                         yang diketik lalu elemennya lenyap membuat
-                                         Livewire kehilangan nilainya. --}}
+                                    
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">
+                                        <label class="block text-admin-label text-ink-faint">
                                             Nama produk <span class="text-brand">*</span>
                                         </label>
 
@@ -645,7 +589,7 @@
                                                    placeholder="Nama produk dalam bahasa Inggris"
                                                    class="admin-control">
                                             @error('name_en')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
 
@@ -655,14 +599,14 @@
                                                    placeholder="Nama produk dalam bahasa Indonesia"
                                                    class="admin-control">
                                             @error('name_id')
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
                                     </div>
 
                                     {{-- Deskripsi — mengikuti tab. --}}
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">Deskripsi</label>
+                                        <label class="block text-admin-label text-ink-faint">Deskripsi</label>
 
                                         <textarea wire:model="description_en" rows="5"
                                                   aria-label="Deskripsi dalam bahasa Inggris"
@@ -677,22 +621,27 @@
                                                           'hidden' => $activeTab !== 'id'])></textarea>
                                     </div>
                                 </div>
+                            </div>
                             </section>
 
                             {{-- ── Kartu: syarat dagang & ekspor ────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Syarat dagang &amp; ekspor
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="market" size="h-[18px] w-[18px]" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Ketentuan ekspor</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Detail produk untuk kebutuhan ekspor.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 @php
-                                    /* Contoh isian ditulis sebagai placeholder, bukan
-                                       keterangan di bawah kolomnya: keterangan yang
-                                       menetap ikut terbaca meski kolomnya sudah diisi,
-                                       sementara placeholder hilang sendiri. */
-                                    /* Asal berdiri paling atas: di dokumen bea cukai
-                                       pun asal dan kode HS memang dibaca berpasangan —
-                                       barangnya dari mana, dan digolongkan sebagai apa. */
+                                    
                                     $dagang = [
                                         ['origin',          'Asal',             'mis. Manggarai, Flores, NTT (1.300 – 1.700 mdpl)'],
                                         ['hs_code',         'Kode HS',          '0901.11.10'],
@@ -701,17 +650,12 @@
                                         ['packaging',       'Kemasan',          'mis. Karung goni 60 kg'],
                                     ];
                                 @endphp
-
-                                {{-- Bertumpuk selebar kartunya, bukan berpetak dua
-                                     kolom. Alasannya kerapian sebaris: daftar centang
-                                     incoterms di bawahnya membentang penuh, dan kolom
-                                     setengah lebar di atasnya membuat tepi kanan kartu
-                                     ini patah di tengah. --}}
+                                
                                 <div class="space-y-4">
                                     @foreach($dagang as [$kolom, $sebutan, $contoh])
                                         <div>
                                             <label for="produk-{{ $kolom }}"
-                                                   class="block text-[12px] font-semibold text-ink-faint">
+                                                   class="block text-admin-label text-ink-faint">
                                                 {{ $sebutan }} <span class="text-brand">*</span>
                                             </label>
 
@@ -719,23 +663,15 @@
                                                    placeholder="{{ $contoh }}" class="admin-control mt-2">
 
                                             @error($kolom)
-                                                <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                             @enderror
                                         </div>
                                     @endforeach
 
-                                    {{-- ── Harga indikatif ──────────────────────
-                                         Kolom indicative_price dan currency sudah lama
-                                         ada di basis data, punya aturan validasi, dan
-                                         ikut disimpan — tapi tidak pernah punya isian di
-                                         sini. Akibatnya seluruh produk permanen bernilai
-                                         null / USD, tak peduli apa harganya.
-
-                                         Opsional, sesuai PRD 7.5: tidak semua komoditas
-                                         pantas dipasang harganya di halaman terbuka. --}}
+                                    {{-- ── Harga indikatif ── --}}
                                     <div>
                                         <label for="produk-indicative_price"
-                                               class="block text-[12px] font-semibold text-ink-faint">
+                                               class="block text-admin-label text-ink-faint">
                                             Harga indikatif
                                         </label>
 
@@ -752,34 +688,22 @@
                                                    placeholder="mis. 4250.00"
                                                    class="admin-control tabular-nums">
                                         </div>
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Perkiraan harga per satuan, dasar FOB. Dikosongkan berarti
-                                            halaman produk publik tidak menampilkan harga sama sekali —
-                                            pembeli diarahkan mengirim inquiry.
+                                        
+                                        <p class="admin-hint">
+                                            Hanya tercetak di katalog PDF; halaman produk di situs publik tidak menampilkannya.
                                         </p>
 
                                         @error('indicative_price')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
 
                                         @error('currency')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
 
-                                {{-- ── Incoterms ────────────────────────────────
-                                     Daftar centang, bukan kolom ketik bebas. Kode
-                                     incoterms itu istilah baku — ada sebelas
-                                     seluruhnya — dan mengetiknya sendiri berarti
-                                     salah ketik masuk ke katalog publik tanpa ada
-                                     yang menahan.
-
-                                     Nilainya tetap disimpan persis seperti
-                                     sebelumnya: satu untai berpemisah koma di
-                                     kolom incoterms, jadi tidak ada yang berubah
-                                     di sisi basis data. --}}
+                                {{-- ── Incoterms ── --}}
                                 <div class="mt-4"
                                      x-data="{
                                          urutan: @js($urutanIncoterms),
@@ -799,75 +723,81 @@
                                          },
                                      }">
 
-                                    <span class="block text-[12px] font-semibold text-ink-faint">
+                                    <span class="block text-admin-label text-ink-faint">
                                         Incoterms yang dilayani <span class="text-brand">*</span>
                                     </span>
-
-                                    <div class="mt-2 space-y-2">
+                                    
+                                    <div class="mt-2 grid gap-2 sm:grid-cols-2">
                                         @foreach($daftarIncoterms as $kode => $kepanjangan)
                                             <label class="flex cursor-pointer items-center gap-3 rounded-control border
                                                           border-line px-3.5 py-2.5 transition-colors
                                                           hover:border-line-strong
                                                           has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
-                                                <input type="checkbox" value="{{ $kode }}"
-                                                       x-bind:checked="pilihan.includes('{{ $kode }}')"
-                                                       x-on:change="ubah('{{ $kode }}', $event.target.checked)"
-                                                       @checked($incotermsTerpilih->contains($kode))
-                                                       class="h-4 w-4 shrink-0 cursor-pointer accent-brand">
+                                                <x-admin.checkbox value="{{ $kode }}"
+                                                                  x-bind:checked="pilihan.includes('{{ $kode }}')"
+                                                                  x-on:change="ubah('{{ $kode }}', $event.target.checked)"
+                                                                  :checked="$incotermsTerpilih->contains($kode)"
+                                                                  class="cursor-pointer" />
 
                                                 <span class="min-w-0">
-                                                    <span class="text-[13px] font-semibold text-ink">{{ $kode }}</span>
-                                                    <span class="text-[13px] text-ink-muted"> — {{ $kepanjangan }}</span>
+                                                    <span class="text-admin-strong text-ink">{{ $kode }}</span>
+                                                    <span class="text-admin-body text-ink-muted"> — {{ $kepanjangan }}</span>
                                                 </span>
                                             </label>
                                         @endforeach
-
-                                        {{-- Kode di luar daftar baku, dibawa dari data
-                                             lama. Tetap bisa dilepas, tapi tidak bisa
-                                             dipasang lagi lewat layar ini. --}}
+                                        
                                         @foreach($incotermsAsing as $kode)
                                             <label class="flex cursor-pointer items-center gap-3 rounded-control border
                                                           border-line px-3.5 py-2.5 transition-colors
                                                           hover:border-line-strong
                                                           has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
-                                                <input type="checkbox" value="{{ $kode }}"
-                                                       x-bind:checked="pilihan.includes('{{ $kode }}')"
-                                                       x-on:change="ubah('{{ $kode }}', $event.target.checked)"
-                                                       @checked(true)
-                                                       class="h-4 w-4 shrink-0 cursor-pointer accent-brand">
+                                                <x-admin.checkbox value="{{ $kode }}"
+                                                                  x-bind:checked="pilihan.includes('{{ $kode }}')"
+                                                                  x-on:change="ubah('{{ $kode }}', $event.target.checked)"
+                                                                  checked
+                                                                  class="cursor-pointer" />
 
                                                 <span class="min-w-0">
-                                                    <span class="text-[13px] font-semibold text-ink">{{ $kode }}</span>
-                                                    <span class="text-[13px] text-ink-faint"> — di luar daftar baku</span>
+                                                    <span class="text-admin-strong text-ink">{{ $kode }}</span>
+                                                    <span class="text-admin-body text-ink-faint"> — di luar daftar baku</span>
                                                 </span>
                                             </label>
                                         @endforeach
                                     </div>
 
                                     @error('incoterms')
-                                        <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
+                            </div>
                             </section>
 
-                            {{-- ── Kartu: spesifikasi teknis ────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <h3 class="font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                        Spesifikasi teknis
-                                    </h3>
+                            {{-- ── Kartu: spesifikasi teknis ── --}}
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="page" size="h-[18px] w-[18px]" />
+                                        </span>
 
-                                    <span class="text-[12px] text-ink-faint">Opsional</span>
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-heading">Spesifikasi teknis</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Informasi teknis dan karakteristik produk.</p>
+                                        </div>
+                                    </div>
+
+
+                                    <span class="text-admin-label text-ink-faint">Opsional</span>
                                 </div>
 
+                                <div class="p-5">
+
                                 @if(count($specifications) > 0)
-                                    {{-- Judul kolomnya ditulis sekali di atas, bukan
-                                         diulang sebagai label di tiap baris: di daftar
-                                         yang bisa jadi sepuluh baris, label yang
-                                         berulang lebih panjang dari isinya sendiri. --}}
+                                    
                                     <div class="mb-2 hidden gap-3 px-1 sm:flex">
-                                        <span class="flex-1 text-[11px] font-bold uppercase tracking-[0.06em] text-ink-faint">Nama</span>
-                                        <span class="flex-1 text-[11px] font-bold uppercase tracking-[0.06em] text-ink-faint">Nilai</span>
+                                        <span class="flex-1 text-admin-overline uppercase text-ink-faint">Nama</span>
+                                        <span class="flex-1 text-admin-overline uppercase text-ink-faint">Nilai</span>
                                         <span class="w-8 shrink-0"></span>
                                     </div>
 
@@ -894,7 +824,7 @@
                                     </div>
                                 @else
                                     <p class="rounded-control border border-dashed border-line-strong bg-mist
-                                              px-4 py-3.5 text-[13px] leading-relaxed text-ink-faint">
+                                              px-4 py-3.5 text-admin-body text-ink-faint">
                                         Belum ada spesifikasi. Baris yang namanya atau nilainya kosong
                                         tidak akan tersimpan.
                                     </p>
@@ -908,6 +838,7 @@
                                     </svg>
                                     Tambah spesifikasi
                                 </button>
+                            </div>
                             </section>
                         </div>
 
@@ -915,16 +846,24 @@
                         <div class="admin-scroll min-h-0 space-y-4 border-t border-line p-6
                                     lg:w-[42%] lg:border-t-0 lg:overflow-y-auto lg:overscroll-contain">
 
-                            {{-- ── Kartu: kategori & sertifikasi ────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Kategori &amp; sertifikasi
-                                </h3>
+                            {{-- ── Kartu: kategori & sertifikasi ── --}}
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="category" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                {{-- Keduanya menjawab pertanyaan yang sama: produk ini
-                                     masuk golongan apa, dan dijamin oleh siapa. --}}
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Kategori &amp; sertifikasi</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Pengelompokan dan sertifikasi produk.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
+                                
                                 <div>
-                                    <label class="block text-[12px] font-semibold text-ink-faint">
+                                    <label class="block text-admin-label text-ink-faint">
                                         Kategori <span class="text-brand">*</span>
                                     </label>
 
@@ -936,26 +875,22 @@
                                                     ])->all()" />
 
                                     @error('category_id')
-                                        <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-
-                                {{-- Tanpa garis pembatas: keduanya sudah dipisahkan jarak dan
-                                     judulnya sendiri, dan garis di dalam kartu yang
-                                     sudah berbingkai membuat satu kartu terbaca
-                                     seperti dua. --}}
+                                
                                 <div class="mt-5">
                                     <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
-                                        <span class="text-[12px] font-semibold text-ink-faint">Sertifikasi terkait</span>
+                                        <span class="text-admin-label text-ink-faint">Sertifikasi terkait</span>
 
-                                        <span class="text-[12px] text-ink-faint">
+                                        <span class="text-admin-label text-ink-faint">
                                             {{ count($selectedCertifications) }} dipilih
                                         </span>
                                     </div>
 
                                     @if($certifications->isEmpty())
                                         <p class="rounded-control border border-dashed border-line-strong bg-mist
-                                                  px-4 py-3.5 text-[13px] leading-relaxed text-ink-faint">
+                                                  px-4 py-3.5 text-admin-body text-ink-faint">
                                             Belum ada sertifikasi yang bisa ditautkan.
                                         </p>
                                     @else
@@ -967,39 +902,37 @@
                                                               border-line px-3.5 py-2.5 transition-colors
                                                               hover:border-line-strong
                                                               has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
-                                                    {{-- in_array longgar, bukan ketat: nilai yang
-                                                         kembali dari peramban selalu untai, sedang
-                                                         yang dari basis data bisa bertipe lain. --}}
-                                                    <input type="checkbox" wire:model="selectedCertifications"
-                                                           value="{{ $cert->id }}"
-                                                           @checked(in_array($cert->id, $selectedCertifications))
-                                                           class="h-4 w-4 shrink-0 cursor-pointer accent-brand">
+                                                    
+                                                    <x-admin.checkbox wire:model="selectedCertifications"
+                                                                      value="{{ $cert->id }}"
+                                                                      :checked="in_array($cert->id, $selectedCertifications)" />
 
-                                                    <span class="min-w-0 truncate text-[13px] text-ink"
+                                                    <span class="min-w-0 truncate text-admin-body text-ink"
                                                           title="{{ $namaCert ?: $cert->slug }}">{{ $namaCert ?: $cert->slug }}</span>
                                                 </label>
                                             @endforeach
                                         </div>
                                     @endif
                                 </div>
+                            </div>
                             </section>
 
-                            {{-- ── Kartu: gambar ────────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Gambar produk
-                                </h3>
+                            {{-- ── Kartu: gambar ── --}}
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="gallery" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                {{-- Petak berisi gambar yang sudah ada, gambar yang
-                                     baru dipilih tapi belum tersimpan, dan sebuah
-                                     ubin bergaris putus-putus untuk menambah.
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Gambar</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Gambar yang tampil di kartu dan halaman produk.</p>
+                                    </div>
+                                </div>
 
-                                     Tombol tambahnya duduk DI DALAM petak yang sama,
-                                     bukan berdiri sebagai kolom berkas terpisah di
-                                     bawahnya. Bentuknya jadi mengatakan sendiri apa
-                                     yang akan terjadi: kotak kosong di deretan kotak
-                                     berisi — yang akan mengisinya adalah gambar
-                                     berikutnya. --}}
+                                <div class="p-5">
+                                
                                 <div class="grid grid-cols-2 gap-3">
 
                                     @if($editingId && count($existingMedia) > 0)
@@ -1017,51 +950,38 @@
 
                                                 @if($sampul)
                                                     <span class="absolute left-2 top-2 inline-flex items-center gap-1
-                                                                 rounded-full bg-brand px-2 py-0.5 text-[10px]
+                                                                 rounded-full bg-brand px-2 py-0.5 text-admin-caption
                                                                  font-bold text-white">
-                                                        <x-icon.admin name="star" size="h-2.5 w-2.5" />
+                                                        <x-icon.admin name="star" size="h-3 w-3" />
                                                         Sampul
                                                     </span>
                                                 @endif
-
-                                                {{-- Tombolnya muncul saat disorot, tapi TETAP
-                                                     terjangkau papan tik lewat focus-within —
-                                                     kalau hanya bergantung pada hover, gambarnya
-                                                     tidak bisa dikelola tanpa tetikus. --}}
+                                                
                                                 <div class="absolute inset-x-0 bottom-0 flex gap-1.5 bg-gradient-to-t
                                                             from-ink/80 to-transparent p-2 opacity-0 transition-opacity
                                                             group-hover:opacity-100 group-focus-within:opacity-100">
                                                     @unless($sampul)
                                                         <button type="button" wire:click="setCoverMedia({{ $media->id }})"
                                                                 class="flex-1 rounded-control bg-white/90 px-2 py-1
-                                                                       text-[11px] font-semibold text-ink
+                                                                       text-admin-caption font-semibold text-ink
                                                                        transition-colors hover:bg-white">
                                                             Jadikan sampul
                                                         </button>
                                                     @endunless
 
-                                                    <button type="button" wire:click="deleteMedia({{ $media->id }})"
-                                                            wire:confirm="Hapus gambar ini?"
-                                                            aria-label="Hapus gambar"
-                                                            class="inline-flex h-[26px] w-[26px] shrink-0 items-center
-                                                                   justify-center rounded-control bg-white/90 text-danger
-                                                                   transition-colors hover:bg-white">
-                                                        <x-icon.admin name="trash" size="h-3.5 w-3.5" />
-                                                    </button>
+<x-admin.confirm-delete metode="deleteMedia"
+                                                                            :id="$media->id"
+                                                                            judul="Hapus gambar produk?"
+                                                                            tombol="Ya, hapus gambar"
+                                                                            ikon="h-3.5 w-3.5"
+                                                                            kelas="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-control bg-white/90 text-danger transition-colors hover:bg-white">
+                                                        Berkasnya ikut terhapus dari penyimpanan, dan produk ini kehilangan satu gambarnya di katalog.
+                                                    </x-admin.confirm-delete>
                                                 </div>
                                             </div>
                                         @endforeach
                                     @endif
-
-                                    {{-- Berkas yang baru dipilih tapi belum tersimpan.
-                                         Ditampilkan supaya memilih berkas tidak terasa
-                                         seperti tidak terjadi apa-apa sampai Simpan
-                                         ditekan.
-
-                                         temporaryUrl() dibungkus try: ia melempar galat
-                                         untuk berkas yang bukan gambar, dan atribut
-                                         accept di kolom berkas cuma menyaring tampilan
-                                         penjelajah berkas — bukan jaminan. --}}
+                                    
                                     @foreach($imageFiles ?? [] as $i => $berkas)
                                         <div class="relative aspect-square overflow-hidden rounded-control
                                                     border border-dashed border-brand/50 bg-brand-wash"
@@ -1080,141 +1000,89 @@
                                                      class="block h-full w-full object-cover">
                                             @else
                                                 <span class="flex h-full w-full items-center justify-center px-3
-                                                             text-center text-[11px] leading-snug text-ink-muted">
+                                                             text-center text-admin-caption text-ink-muted">
                                                     {{ $berkas->getClientOriginalName() }}
                                                 </span>
                                             @endif
 
                                             <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
-                                                         text-[10px] font-bold text-white">Baru</span>
+                                                         text-admin-caption font-semibold text-white">Baru</span>
                                         </div>
                                     @endforeach
-
-                                    {{-- Ubin tambah. <label> yang membungkus kolom
-                                         berkasnya: kotak berkas bawaan peramban tidak
-                                         bisa ditata isinya, jadi ia disembunyikan dan
-                                         ubin inilah yang jadi wajahnya. --}}
-                                    <label title="Tambah gambar produk"
-                                           class="flex aspect-square cursor-pointer items-center justify-center
-                                                  rounded-control border-2 border-dashed border-line-strong
-                                                  bg-mist/40 text-ink-faint transition-colors
-                                                  hover:border-brand hover:bg-brand-wash hover:text-brand
-                                                  focus-within:border-brand focus-within:text-brand">
-
-                                        <input type="file" wire:model="imageFiles" id="gambar-produk"
-                                               multiple accept="image/*"
-                                               aria-label="Tambah gambar produk" class="sr-only">
-
-                                        <span wire:loading.remove wire:target="imageFiles">
-                                            <svg class="h-9 w-9" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                                                <path d="M18 9v18M9 18h18" stroke="currentColor"
-                                                      stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                        </span>
-
-                                        <svg wire:loading wire:target="imageFiles"
-                                             class="h-7 w-7 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
-                                                  stroke-width="1.6" stroke-linecap="round"/>
-                                        </svg>
-                                    </label>
+                                    
+                                    <x-admin.upload-tile model="imageFiles"
+                                                         id="gambar-produk"
+                                                         multiple
+                                                         judul="Tambah gambar produk"
+                                                         label="Tambah gambar" />
                                 </div>
 
-                                <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
-                                    Boleh beberapa sekaligus, maksimal 3 MB per berkas.
+                                <p class="admin-hint">
+                                    Maksimal 3 MB.
                                     Semuanya diubah otomatis ke WebP.
                                 </p>
 
                                 @error('imageFiles.*')
-                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
+                            </div>
                             </section>
 
-                            {{-- ── Kartu: penerbitan ────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Penerbitan
-                                </h3>
+                            {{-- ── Kartu: penerbitan ── --}}
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="manage" size="h-[18px] w-[18px]" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan penandaan produk unggulan.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">Status</label>
-
-                                        {{-- :nullable="false" — produk selalu punya
-                                             salah satu dari dua keadaan ini. --}}
+                                        <label class="block text-admin-label text-ink-faint">Status</label>
+                                        
                                         <x-admin.select model="status" :value="$status" class="mt-2"
-                                                        label="Status penerbitan" placeholder="Terbit"
+                                                        label="Status penerbitan" placeholder="Aktif"
                                                         :nullable="false"
                                                         :options="[
-                                                            ['nilai' => 'published', 'label' => 'Terbit'],
+                                                            ['nilai' => 'published', 'label' => 'Aktif'],
                                                             ['nilai' => 'draft',     'label' => 'Draf'],
                                                         ]" />
                                     </div>
-
-                                    {{-- Sakelar geser, bukan kotak centang.
-                                         Keduanya sama-sama sah, tapi maknanya berbeda:
-                                         kotak centang berarti "pilih ini", sakelar
-                                         berarti "nyalakan ini" — dan produk unggulan
-                                         memang sebuah keadaan yang menyala atau mati,
-                                         bukan pilihan dari sederet pilihan.
-
-                                         Di baliknya tetap kotak centang sungguhan yang
-                                         disembunyikan, bukan tombol ber-wire:click.
-                                         Dua alasannya: wire:model tidak perlu memanggil
-                                         server tiap kali digeser, dan kotak centang
-                                         asli sudah bisa dijangkau papan tik serta
-                                         diumumkan pembaca layar tanpa dibuatkan
-                                         peniruannya. role="switch" mengubah cara
-                                         mengumumkannya jadi "menyala/mati", bukan
-                                         "tercentang".
-
-                                         Seluruh rona — jalur, bulatannya, dan latar
-                                         barisnya — digerakkan peer-checked dan
-                                         has-[:checked] di CSS, bukan oleh nilai di
-                                         sisi PHP: wire:model di sini bersifat tunda,
-                                         jadi nilai di server baru menyusul pada
-                                         permintaan berikutnya. --}}
-                                    <label class="flex cursor-pointer items-start justify-between gap-4
-                                                  rounded-control border border-line p-3.5 transition-colors
+                                    
+                                    <label class="group flex cursor-pointer items-center gap-3 rounded-control
+                                                  border border-line px-3.5 py-3 transition-colors
                                                   hover:border-line-strong
-                                                  has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
+                                                  has-[:checked]:border-brand has-[:checked]:bg-brand-wash">
+                                        
+                                        <x-admin.checkbox wire:model="is_featured" :checked="$is_featured"
+                                                          class="cursor-pointer" />
 
-                                        <span class="min-w-0">
-                                            <span class="block text-[13px] font-semibold text-ink">Produk unggulan</span>
-                                            <span class="mt-0.5 block text-[12px] leading-relaxed text-ink-muted">
-                                                Ditampilkan lebih dulu di katalog situs publik.
-                                            </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="block text-admin-strong text-ink">Produk unggulan</span>
                                         </span>
 
-                                        <span class="relative mt-0.5 inline-flex shrink-0 items-center">
-                                            {{-- @checked() WAJIB. wire:model yang tertunda tidak
-                                                 memancarkan atribut checked, sedangkan seluruh
-                                                 gambar sakelar ini bergantung pada peer-checked.
-                                                 Tanpa itu, membuka produk unggulan untuk diubah
-                                                 menampilkan sakelar mati, lalu tersimpan mati. --}}
-                                            <input type="checkbox" role="switch" wire:model="is_featured"
-                                                   @checked($is_featured)
-                                                   class="peer sr-only">
-
-                                            {{-- Jalurnya --}}
-                                            <span class="block h-6 w-11 rounded-full bg-mist-deep transition-colors
-                                                         peer-checked:bg-brand
-                                                         peer-focus-visible:ring-2 peer-focus-visible:ring-brand
-                                                         peer-focus-visible:ring-offset-2"></span>
-
-                                            {{-- Bulatannya --}}
-                                            <span class="pointer-events-none absolute left-0.5 block h-5 w-5 rounded-full
-                                                         bg-white shadow-[0_1px_3px_rgba(26,29,27,0.28)]
-                                                         transition-transform peer-checked:translate-x-5"></span>
+                                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full
+                                                     bg-mist-deep text-ink-faint transition-colors
+                                                     group-has-[:checked]:bg-brand group-has-[:checked]:text-white"
+                                              title="Beginilah produk ini tampil di daftar produk">
+                                            <x-icon.admin name="star" size="h-3.5 w-3.5" />
                                         </span>
                                     </label>
                                 </div>
+                            </div>
                             </section>
                         </div>
                     </div>
 
-                    {{-- ── Kaki ────────────────────────────────────────── --}}
+                    {{-- ── Kaki ── --}}
                     <div class="flex shrink-0 items-center justify-end gap-2 border-t border-line px-6 py-4">
                         <button type="button" wire:click="$set('showModal', false)"
                                 class="admin-btn admin-btn-quiet">

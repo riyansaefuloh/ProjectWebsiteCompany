@@ -12,7 +12,6 @@ class SettingSeeder extends Seeder
         $settings = [
             'company_name' => 'PT. Indo Export Global',
             'company_email' => 'info@indoexportglobal.com',
-            'company_phone' => '+6281234567890',
             'whatsapp_number' => '+6281234567890',
             'company_address' => 'Jl. Jenderal Sudirman No. 123, Jakarta, Indonesia',
             'brand_color' => '#4f46e5',

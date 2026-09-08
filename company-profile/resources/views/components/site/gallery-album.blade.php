@@ -4,29 +4,24 @@
     'priority' => false,
 ])
 
-{{--
-    [PERUBAHAN: YouTube Support]
-    Dulu: ada dua kondisi terpisah —
-      1. $isVideoOnly = album HANYA berisi video, tampil sebagai <a href="..."> ke YouTube
-      2. Album foto = tampil sebagai <button> yang membuka lightbox
-    Masalahnya: jika album punya foto + video, video diabaikan sama sekali.
-
-    Sekarang: semua album selalu tampil sebagai <button> lightbox.
-    Video YouTube sudah dimasukkan ke dalam array images (dengan prefix 'youtube:')
-    di GalleryIndex.php, sehingga lightbox yang akan mengurus rendernya.
---}}
+{{-- Semua album tampil sebagai <button> pembuka lightbox, apa pun isinya.
+     Video YouTube ikut masuk ke array images berawalan 'youtube:' di
+     GalleryIndex.php, jadi lightbox yang mengurus penggambarannya — album
+     berisi foto DAN video tidak lagi kehilangan videonya. --}}
 <button type="button"
         x-on:click="open(@js($album->images->toArray()), @js($album->name))"
-        class="group relative block w-full overflow-hidden rounded-corner bg-mist-deep">
+        class="group relative block w-full overflow-hidden rounded-panel bg-site-paper
+               transition-shadow duration-300 hover:shadow-[0_24px_48px_-24px_rgba(51,38,25,0.45)]">
 
     @if($album->cover)
         <img src="{{ $album->cover }}" alt="{{ $album->name }}"
              @if($priority) fetchpriority="high" @else loading="lazy" @endif
              class="{{ $ratio }} w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">
+
     @else
         <span class="placeholder block {{ $ratio }} w-full"></span>
     @endif
 
-    {{-- [PERUBAHAN: YouTube Support] — Badge video muncul jika album punya setidaknya 1 video --}}
+    {{-- Lencana video muncul kalau album punya setidaknya satu video. --}}
     <x-site.gallery-badge :label="$album->name" :count="$album->count" :is-video="filled($album->video)" />
 </button>

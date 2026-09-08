@@ -2,31 +2,30 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Concerns\MengelolaInquiry;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\WithPagination;
 use App\Models\Inquiry;
-use App\Models\User;
 use App\Models\Product;
 
 class InquiryIndex extends Component
 {
     use WithPagination;
 
+    /*
+     * Jendela "Kelola inquiry" beserta seluruh isinya — properti, aksi, dan
+     * daftar pilihannya — tinggal di trait ini, dan dipakai bersama komponen
+     * InquiryDetail yang memasang jendela yang sama di atas dasbor.
+     */
+    use MengelolaInquiry;
+
     public string $search = '';
     public string $selectedStatus = '';
     public string $dateFrom = '';
     public string $dateTo = '';
     public string $selectedProduct = '';
-    
-    public bool $showModal = false;
-    public ?string $editingId = null;
 
-    // Detail & Manage Fields
-    public ?Inquiry $selectedInquiry = null;
-    public string $status = 'new';
-    public ?string $assigned_to = null;
-    public ?string $internal_note = null;
 
     /**
      * Kembali ke halaman satu tiap kali penyaringnya diubah.
@@ -41,30 +40,6 @@ class InquiryIndex extends Component
         if (in_array($property, ['search', 'selectedStatus', 'selectedProduct', 'dateFrom', 'dateTo'], true)) {
             $this->resetPage();
         }
-    }
-
-    public function viewDetails(string $id): void
-    {
-        $this->selectedInquiry = Inquiry::with(['product.translations', 'assignedSales'])->findOrFail($id);
-        $this->editingId = $this->selectedInquiry->id;
-        $this->status = $this->selectedInquiry->status;
-        $this->assigned_to = $this->selectedInquiry->assigned_to;
-        $this->internal_note = $this->selectedInquiry->internal_note;
-        $this->showModal = true;
-    }
-
-    public function updateStatus(): void
-    {
-        if (!$this->editingId) return;
-
-        $inquiry = Inquiry::findOrFail($this->editingId);
-        $inquiry->status = $this->status;
-        $inquiry->assigned_to = $this->assigned_to ?: null;
-        $inquiry->internal_note = $this->internal_note;
-        $inquiry->save();
-
-        $this->showModal = false;
-        session()->flash('message', 'Inquiry status updated successfully!');
     }
 
     // [KOMEN] Menggunakan folder components/layouts/app.blade.php
@@ -99,10 +74,19 @@ class InquiryIndex extends Component
             ->latest()
             ->paginate(10);
 
+        /*
+         * salesUsers tidak lagi dititipkan di sini.
+         *
+         * Ia hanya dipakai jendela "Kelola inquiry", dan jendela itu kini
+         * mengambilnya sendiri lewat trait — artinya User::all() berhenti
+         * dijalankan pada setiap kali halaman ini digambar, termasuk saat tidak
+         * ada satu pun jendela yang terbuka. Menyaring, mengetik di kotak cari,
+         * dan berpindah halaman semuanya memicu penggambaran ulang; ketiganya
+         * dulu ikut menarik seluruh tabel pengguna tanpa ada yang memakainya.
+         */
         return view('livewire.admin.inquiry-index', [
-            'inquiries'  => $inquiries,
-            'salesUsers' => User::all(),
-            'products'   => Product::all(),
+            'inquiries' => $inquiries,
+            'products'  => Product::all(),
         ]);
     }
 }

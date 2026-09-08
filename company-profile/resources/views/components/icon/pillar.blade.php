@@ -3,6 +3,14 @@
     'size' => 'h-5 w-5',
 ])
 
+{{-- Ikon empat pilar beranda. Namanya menggambarkan ISI kartunya, bukan urutan
+     kartunya — supaya yang menukar urutan pilar di kode tidak diam-diam
+     menukar maknanya juga.
+
+     Semuanya digambar pada petak 24 dengan tebal goresan 1,7 dan tanpa isian,
+     jadi keempatnya punya bobot optik yang sama saat disandingkan. Ikon yang
+     satu berisi dan yang lain bergaris akan terbaca sebagai dua tingkat
+     kepentingan, padahal keempat pilar ini sederajat. --}}
 @switch($name)
 
     {{-- Mutu: biji kopi dengan tanda centang --}}
@@ -17,32 +25,35 @@
         </svg>
         @break
 
-    {{-- Kapasitas: karung bertumpuk --}}
-    @case('capacity')
+    {{-- Asal: tunas berdaun dua — kebun, bukan gudang --}}
+    @case('origin')
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3 7.2 12 3l9 4.2-9 4.2-9-4.2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="m3 12 9 4.2 9-4.2M3 16.8 12 21l9-4.2" stroke="currentColor" stroke-width="1.7"
+            <path d="M12 21v-9.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <path d="M12 13.4c0-3.6 2.7-6.5 6.2-6.5 0 3.6-2.7 6.5-6.2 6.5Z"
+                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M12 17.2c-3.1 0-5.6-2.5-5.6-5.6 3.1 0 5.6 2.5 5.6 5.6Z"
+                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+        @break
+
+    {{-- Standar: berkas spesifikasi bertanda centang --}}
+    @case('standard')
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6.2 2.8h7.4l4.2 4.4v14H6.2v-18.4Z" stroke="currentColor" stroke-width="1.7"
+                  stroke-linejoin="round"/>
+            <path d="M13.6 2.8v4.4h4.2" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="m9.2 14.6 2.1 2.1 3.6-4" stroke="currentColor" stroke-width="1.7"
                   stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         @break
 
-    {{-- Kepatuhan: perisai bertanda centang --}}
-    @case('compliance')
+    {{-- Dukungan: gelembung percakapan --}}
+    @case('support')
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2.8 4.6 5.6v6c0 4.3 3 8.3 7.4 9.6 4.4-1.3 7.4-5.3 7.4-9.6v-6L12 2.8Z"
+            <path d="M21 11.6c0 4-4 7.2-9 7.2-1 0-2-.1-2.9-.4L3.6 20.6l1.6-4.3a6.6 6.6 0 0 1-2.2-4.7c0-4 4-7.2 9-7.2s9 3.2 9 7.2Z"
                   stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="m8.8 11.8 2.3 2.3 4.1-4.4" stroke="currentColor" stroke-width="1.7"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        @break
-
-    {{-- Logistik: kapal peti kemas --}}
-    @case('logistics')
-        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M3.2 14.4h17.6l-2.1 5.1a1.6 1.6 0 0 1-1.5 1H6.8a1.6 1.6 0 0 1-1.5-1l-2.1-5.1Z"
-                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="M5.8 14.4V9.2h12.4v5.2M12 9.2V4.4M8.6 4.4h6.8" stroke="currentColor" stroke-width="1.7"
-                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.6 11.6h.01M12 11.6h.01M15.4 11.6h.01" stroke="currentColor" stroke-width="2.3"
+                  stroke-linecap="round"/>
         </svg>
         @break
 

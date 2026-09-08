@@ -226,7 +226,6 @@ return [
         // Pengaturan
         'company_name'        => 'nama perusahaan',
         'company_address'     => 'alamat',
-        'company_phone'       => 'nomor telepon',
         'contact_email'       => 'email kontak',
         'whatsapp_number'     => 'nomor WhatsApp',
         'google_map_url'      => 'tautan sematan Google Maps',
@@ -235,9 +234,7 @@ return [
         'facebook_url'        => 'Facebook',
         'instagram_url'       => 'Instagram',
         'linkedin_url'        => 'LinkedIn',
-        'hours_weekday'       => 'jam Senin–Jumat',
-        'hours_saturday'      => 'jam Sabtu',
-        'hours_sunday'        => 'jam Minggu',
+        'hours_weekly'        => 'jam operasional',
         'established_year'    => 'tahun berdiri',
         'logo'                => 'logo',
         'favicon'             => 'favicon',

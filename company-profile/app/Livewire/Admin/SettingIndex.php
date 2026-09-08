@@ -15,15 +15,6 @@ class SettingIndex extends Component
     public string $company_name = '';
     public string $whatsapp_number = '';
 
-    /*
-     * Nomor telepon biasa, terpisah dari WhatsApp.
-     *
-     * Kunci 'company_phone' sudah lama dipakai kaki situs dan formulir
-     * inquiry, tapi tidak punya isian di panel ini — jadi satu-satunya cara
-     * mengubahnya adalah lewat basis data langsung.
-     */
-    public string $company_phone = '';
-
     public string $contact_email = '';
     public string $company_address = '';
     public ?string $google_map_url = null;
@@ -40,14 +31,15 @@ class SettingIndex extends Component
     public ?string $existing_favicon = null;
 
     /*
-     * Jam operasional. Ketiganya sudah lama digambar kaki situs dan halaman
-     * kontak, tapi tidak punya isian di panel — satu-satunya cara mengisinya
-     * adalah lewat basis data langsung. Itu sebabnya blok "Jam operasional"
-     * tidak pernah muncul di situs.
+     * Jam operasional. SATU isian untuk Senin–Sabtu, bukan tiga isian terpisah.
+     *
+     * Yang lama memisahkan Senin–Jumat, Sabtu, dan Minggu — tiga baris yang
+     * pada praktiknya selalu diisi jam yang sama, lalu digambar tiga kali di
+     * kaki situs dan halaman kontak. Satu rentang yang berlaku sepanjang
+     * minggu kerja lebih jujur, dan tidak bisa jadi tidak konsisten dengan
+     * dirinya sendiri.
      */
-    public string $hours_weekday = '';
-    public string $hours_saturday = '';
-    public string $hours_sunday = '';
+    public string $hours_weekly = '';
 
     public function mount(): void
     {
@@ -55,7 +47,6 @@ class SettingIndex extends Component
 
         $this->company_name    = $nilai['company_name'] ?? 'PT. Indo Export Global';
         $this->whatsapp_number = $nilai['whatsapp_number'] ?? '';
-        $this->company_phone   = $nilai['company_phone'] ?? '';
         $this->company_address = $nilai['company_address'] ?? '';
 
         /*
@@ -79,9 +70,12 @@ class SettingIndex extends Component
         $this->instagram_url       = $nilai['instagram_url'] ?? '';
         $this->linkedin_url        = $nilai['linkedin_url'] ?? '';
 
-        $this->hours_weekday  = $nilai['hours_weekday'] ?? '';
-        $this->hours_saturday = $nilai['hours_saturday'] ?? '';
-        $this->hours_sunday   = $nilai['hours_sunday'] ?? '';
+        /*
+         * Kunci lama hours_weekday dipakai sebagai benih supaya jam yang sudah
+         * terlanjur diisi tidak hilang begitu isiannya disatukan. Sesudah sekali
+         * Simpan, save() di bawah mengosongkan ketiga kunci lamanya.
+         */
+        $this->hours_weekly = ($nilai['hours_weekly'] ?? '') ?: ($nilai['hours_weekday'] ?? '');
 
         $this->existing_logo    = $nilai['logo'] ?? null;
         $this->existing_favicon = $nilai['favicon'] ?? null;
@@ -92,7 +86,6 @@ class SettingIndex extends Component
         return [
             'company_name'        => 'required|string|max:255',
             'whatsapp_number'     => 'required|string|max:30',
-            'company_phone'       => 'nullable|string|max:30',
             'contact_email'       => 'required|email|max:255',
             'company_address'     => 'required|string|max:500',
             'google_map_url'      => 'nullable|url|max:1000',
@@ -101,9 +94,7 @@ class SettingIndex extends Component
             'facebook_url'        => 'nullable|url|max:255',
             'instagram_url'       => 'nullable|url|max:255',
             'linkedin_url'        => 'nullable|url|max:255',
-            'hours_weekday'       => 'nullable|string|max:60',
-            'hours_saturday'      => 'nullable|string|max:60',
-            'hours_sunday'        => 'nullable|string|max:60',
+            'hours_weekly'        => 'nullable|string|max:60',
             'logo'                => 'nullable|image|max:2048',
             'favicon'             => 'nullable|image|max:1024',
         ];
@@ -116,7 +107,13 @@ class SettingIndex extends Component
         $settings = [
             'company_name'        => $this->company_name,
             'whatsapp_number'     => $this->whatsapp_number,
-            'company_phone'       => $this->company_phone,
+            /*
+             * Kunci telepon DIKOSONGKAN, bukan dibiarkan. Situs publik kini cuma
+             * memakai WhatsApp; nilai yang tertinggal di sini tidak punya isian
+             * lagi di panel, jadi ia tidak akan pernah bisa diperbaiki dari sana
+             * kalau suatu saat ada yang membacanya kembali.
+             */
+            'company_phone'       => '',
             'contact_email'       => $this->contact_email,
 
             /*
@@ -136,9 +133,18 @@ class SettingIndex extends Component
             'facebook_url'        => $this->facebook_url,
             'instagram_url'       => $this->instagram_url,
             'linkedin_url'        => $this->linkedin_url,
-            'hours_weekday'       => $this->hours_weekday,
-            'hours_saturday'      => $this->hours_saturday,
-            'hours_sunday'        => $this->hours_sunday,
+            'hours_weekly'        => $this->hours_weekly,
+
+            /*
+             * Ketiga kunci lama DIKOSONGKAN, bukan dibiarkan. Kaki situs dan
+             * halaman kontak masih membaca hours_weekday sebagai cadangan;
+             * selama nilainya tertinggal di sana, jam lama tetap tergambar
+             * berdampingan dengan jam baru dan dari panel keduanya tampak
+             * baik-baik saja karena hanya satu yang punya isian.
+             */
+            'hours_weekday'       => '',
+            'hours_saturday'      => '',
+            'hours_sunday'        => '',
         ];
 
         if ($this->logo) {

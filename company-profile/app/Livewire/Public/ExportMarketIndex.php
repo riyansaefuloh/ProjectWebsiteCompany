@@ -5,7 +5,6 @@ namespace App\Livewire\Public;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\ExportMarket;
-use App\Models\Setting;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
@@ -37,31 +36,12 @@ class ExportMarketIndex extends Component
             ->orderBy('sort_order')
             ->get();
 
-        // ── Statistik ────────────────────────────────────────────────────
-        $stats = [
-            [
-                'value' => $exportMarkets->count(),
-                'label' => __('site.stat_countries'),
-            ],
-            [
-                'value' => $exportMarkets->pluck('region')->filter()->unique()->count(),
-                'label' => __('site.stat_regions'),
-            ],
-            [
-                'value' => Setting::where('key', 'supply_capacity')->value('value'),
-                'label' => __('site.stat_volume'),
-            ],
-        ];
-
-        $stats = array_values(array_filter($stats, fn ($stat) => filled($stat['value'])));
-
         return view('livewire.public.export-market-index', [
             /* Isi kepala halaman ini bisa disunting dari menu Halaman;
                yang kosong jatuh ke teks bawaan di berkas bahasa. */
             'isi' => \App\Support\IsiHalaman::untuk('export-markets'),
 
             'exportMarkets' => $exportMarkets,
-            'stats'         => $stats,
         ]);
     }
 }

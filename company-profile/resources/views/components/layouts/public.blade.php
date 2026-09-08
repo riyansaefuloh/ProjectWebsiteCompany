@@ -26,8 +26,21 @@
         $organizationSchema = \App\Services\JsonLdService::organizationSchema();
     @endphp
     
+    {{-- Ikon tab SELALU dinyatakan, termasuk ketika tidak ada yang diunggah.
+
+         Halaman yang tidak menyebut ikon sama sekali membuat peramban jatuh ke
+         /favicon.ico, lalu mempertahankan ikon yang terakhir dikenalnya untuk
+         asal ini. Akibatnya favicon yang sudah dihapus tetap tampak di tab —
+         bukan karena aplikasinya masih menyimpannya, melainkan karena tidak ada
+         yang menggantikannya, dan itu membaca seperti penghapusan yang gagal.
+
+         Pernyataan yang eksplisit memutus itu: peramban memakai apa yang
+         disebutkan, bukan apa yang diingatnya. --}}
     @if($favicon)
-        <link rel="icon" type="image/x-icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+        <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+    @else
+        <link rel="icon" type="image/svg+xml"
+              href="{{ \App\Support\Monogram::favicon($companyName) }}">
     @endif
     
     <script type="application/ld+json">
@@ -36,27 +49,23 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    {{-- Empat rupa, empat tugas — keterangannya di app.css. Bobot yang
+         diminta sengaja sedikit; bobot yang DIPAKAI tapi tidak dimuat akan
+         ditebalkan sendiri oleh peramban, dan hasilnya huruf yang melar.
+         Parisienne karena itu tidak boleh dipanggil dengan bobot apa pun.
+         SOFT dan WONK dipatok di URL, bukan lewat font-variation-settings:
+         rupa yang dikirim Google sudah membawa sumbunya tertanam. --}}
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@100,1,9..144,500..700&family=Parisienne&family=Inter:wght@400;600;700&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         GOOGLE ANALYTICS
-
-         ID-nya sudah lama bisa diisi dari panel, tapi tidak pernah dipasang
-         di mana pun — jadi isian itu tersimpan rapi sambil tidak melacak
-         apa-apa. Hanya digambar kalau ID-nya benar-benar terisi.
-
-         Hanya di tata letak publik: kunjungan staf ke panel admin bukan lalu
-         lintas pengunjung, dan mencampurnya membuat angkanya menipu.
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- Blok penuh, BUKAN bentuk sebaris berkurung. Bentuk sebarisnya gagal
-         mencocokkan tanda kurung untuk ungkapan yang memuat ?? '' lalu
-         terkompilasi jadi tag PHP yang tidak pernah ditutup — menelan seluruh
-         sisa berkas ini dan mematikan setiap halaman publik.
-
-         Jangan pula menulis nama arahan Blade apa pun di dalam komentar ini:
-         Blade tetap mengompilasinya walau terletak di dalam tanda komentar. --}}
+    {{-- ══ GOOGLE ANALYTICS — hanya digambar kalau ID-nya benar-benar terisi,
+         dan hanya di tata letak publik: kunjungan staf ke panel bukan lalu
+         lintas pengunjung. ══ --}}
+    {{-- Blok @php penuh, BUKAN bentuk sebaris berkurung: bentuk sebarisnya
+         gagal mencocokkan kurung untuk ungkapan ber-?? lalu terkompilasi jadi
+         tag PHP yang tidak pernah ditutup — menelan sisa berkas dan mematikan
+         SETIAP halaman publik. --}}
     @php
         $gaId = trim($globalSettings['google_analytics_id'] ?? '');
     @endphp
@@ -74,8 +83,37 @@
     @stack('seo')
 </head>
 
-<body class="flex min-h-screen flex-col bg-canvas text-ink">
-    <x-site.header :company-name="$companyName" :logo="$logo" />
+{{-- .situs menimpa nilai token warna & huruf untuk seluruh keturunannya.
+     Satu kelas, dan hanya di sini — panel admin berdiri di layout lain dan
+     tidak ikut berubah. Hapus kelasnya, situs kembali ke rupa lamanya. --}}
+<body class="situs flex min-h-screen flex-col bg-canvas text-ink">
+    @php
+        /* Bilah kepala hanya boleh mengambang kalau ada bidang GELAP di
+           bawahnya. Yang menyediakannya cuma hero beranda — dan hero itu bisa
+           dimatikan atau dipindah urutannya dari panel. Kalau ia bukan bagian
+           teratas, huruf putih akan jatuh di atas krem dan lenyap.
+
+           Dibaca dari $globalSettings yang sudah dimuat di atas, bukan lewat
+           kueri baru. Larik kosong berarti susunan bawaan, dan di sana hero
+           memang teratas. */
+        $heroDiPuncak = false;
+
+        if (request()->routeIs('home')) {
+            $bagian = array_filter(
+                json_decode($globalSettings['home_sections'] ?? '[]', true) ?: [],
+                fn ($s) => ($s['active'] ?? false) === true && isset($s['id'])
+            );
+
+            if (empty($bagian)) {
+                $heroDiPuncak = true;
+            } else {
+                usort($bagian, fn ($a, $b) => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
+                $heroDiPuncak = str_replace('-', '_', reset($bagian)['id']) === 'hero';
+            }
+        }
+    @endphp
+
+    <x-site.header :company-name="$companyName" :logo="$logo" :over-hero="$heroDiPuncak" />
 
     @php
         $designedRoutes = [

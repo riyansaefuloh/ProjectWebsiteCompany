@@ -16,6 +16,17 @@
     'aksiTambah'     => null,
     'labelTambah'    => 'Tambah baru',
     'petunjukTambah' => 'Nama baru…',
+
+    /*
+     * Tong sampah di tiap baris — juga pilihan, juga mati kecuali diminta.
+     *
+     * Penegasannya dibuat DI DALAM barisnya sendiri: barisnya bertukar jadi
+     * "Hapus X?" dengan dua tombol. Bukan x-admin.confirm-delete seperti di
+     * tempat lain, karena daftar ini melayang di z-[120] sementara kotak
+     * penegas itu berdiri di z-[110] — ia akan muncul DI BALIK daftarnya.
+     */
+    'aksiHapus'  => null,
+    'labelHapus' => 'Hapus',
 ])
 
 @php
@@ -60,18 +71,12 @@
     $labelAwal = collect($daftar)->firstWhere('nilai', $sekarang)['label'] ?? $placeholder;
 @endphp
 
-{{-- $attributes->class([...]), BUKAN class="relative" ditambah {{ $attributes }}.
-     Yang kedua menggambar DUA atribut class di satu elemen, dan peramban hanya
-     membaca yang pertama — jadi setiap kelas yang dikirim pemakainya (mis.
-     "mt-2" untuk jarak ke judulnya) diam-diam dibuang. Itu yang membuat jarak
-     di atas menu pilih tidak pernah sama dengan kolom isian lain. --}}
-{{-- wire:key yang ikut berubah saat daftar pilihannya berubah.
-
-     x-data cuma dibaca sekali, saat elemennya lahir; morph DOM Livewire tidak
-     melahirkannya ulang. Jadi tanpa kunci ini, kategori yang baru saja dibuat
-     lewat baris "tambah baru" tersimpan di server tapi TIDAK pernah muncul di
-     daftarnya — menunya tetap memegang salinan lama. Kuncinya berubah hanya
-     kalau pilihannya berubah, jadi biasanya ia diam saja. --}}
+{{-- $attributes->class([...]), BUKAN class="relative" ditambah {{ $attributes
+     }} — yang kedua menggambar DUA atribut class di satu elemen, dan peramban
+     hanya membaca yang pertama. --}}
+{{-- wire:key ikut berubah saat daftar pilihannya berubah: x-data cuma dibaca
+     sekali saat elemennya lahir, dan morph DOM Livewire tidak melahirkannya
+     ulang. --}}
 <div wire:key="pilih-{{ $model }}-{{ substr(md5(json_encode($daftar)), 0, 8) }}"
      {{ $attributes->class(['relative']) }}
      x-data="{
@@ -92,6 +97,12 @@
              tambah: false,
          @endif
 
+         @if($aksiHapus)
+             /* Baris mana yang sedang menanyakan penegasan hapus. */
+             hapusId: null,
+             menghapus: false,
+         @endif
+
          get nilai() { return String($wire.{{ $model }} ?? '') },
 
          get terpilih() {
@@ -106,6 +117,10 @@
          bukaMenu() {
              this.buka   = true
              this.tambah = false
+             {{-- Titik koma WAJIB: @endif menelan baris barunya, jadi tanpa
+                  pemisah ini pernyataan berikutnya menempel dan seluruh
+                  x-data gagal diurai. --}}
+             @if($aksiHapus) this.hapusId = null; @endif
              this.sorot  = Math.max(0, this.daftar.findIndex(p => p.nilai === this.nilai))
              this.hitungLetak()
              this.$nextTick(() => this.keBaris())
@@ -149,6 +164,28 @@
              },
          @endif
 
+         @if($aksiHapus)
+             /*
+              * Daftarnya DITUTUP sesudahnya, berhasil maupun ditolak.
+              *
+              * Kalau ditolak — kategori yang masih dipakai berita — sebabnya
+              * digambar sebagai galat di bawah menunya, dan menu yang masih
+              * terbuka berdiri tepat menutupi tempat pesan itu muncul.
+              */
+             async hapusPilihan(p) {
+                 if (this.menghapus) return
+
+                 this.menghapus = true
+                 try {
+                     await $wire.call('{{ $aksiHapus }}', p.nilai)
+                 } finally {
+                     this.menghapus = false
+                     this.hapusId   = null
+                     this.buka      = false
+                 }
+             },
+         @endif
+
          /*
           * Letak daftarnya dihitung sendiri, dan daftarnya dipasang dengan
           * position: fixed.
@@ -179,7 +216,7 @@
                 atributnya di tengah jalan, sisanya terbaca sebagai atribut
                 sampah, dan Alpine melempar SyntaxError di tiap menu pilih. */
              const kaki   = {{ $aksiTambah ? 42 : 0 }}
-             const tinggi = Math.min(264 + kaki, this.daftar.length * 34 + 12 + kaki)
+             const tinggi = Math.min(264 + kaki, this.daftar.length * 40 + 12 + kaki)
              const bawah  = window.innerHeight - t.bottom - 12
              const keAtas = bawah < tinggi && t.top > bawah
 
@@ -210,17 +247,21 @@
 
          /* Baris yang sedang disorot digulung ke dalam pandangan — daftar
             produk lebih panjang dari kotaknya, dan tanpa ini panah bawah
-            menyorot baris yang tidak terlihat. */
+            menyorot baris yang tidak terlihat.
+
+            x-ref-nya menunjuk WADAH BARISNYA, bukan kotak daftarnya. Dulu
+            ia menunjuk kotak luar, yang anak-anaknya cuma dua — pembungkus
+            baris dan kaki daftar — jadi children[sorot] tidak pernah berupa
+            baris, dan panah bawah tidak pernah menggulung apa pun. */
          keBaris() {
-             this.$refs.menu?.children[this.sorot]?.scrollIntoView({ block: 'nearest' })
+             this.$refs.baris?.children[this.sorot]?.scrollIntoView({ block: 'nearest' })
          },
      }"
      x-on:keydown.escape.stop="buka && tutup()"
      x-on:click.outside="buka = false"
      {{-- Daftarnya melayang di titik yang dihitung saat dibuka, jadi begitu
-          apa pun bergulir ia tidak lagi berada di tempat yang benar. Ditutup
-          saja — kecuali gulungan yang datang dari dalam daftarnya sendiri,
-          yang justru kita picu sendiri lewat keBaris(). --}}
+          apa pun bergulir ia tidak lagi di tempat yang benar — kecuali
+          gulungan dari dalam daftarnya sendiri. --}}
      x-on:scroll.window.capture="buka && ! $refs.menu?.contains($event.target) && (buka = false)"
      x-on:resize.window="buka = false">
 
@@ -237,10 +278,9 @@
             class="admin-control admin-control-button"
             x-bind:class="buka && '!border-brand'">
 
-        <span class="min-w-0 truncate"
-              x-text="terpilih.label"
-              x-bind:class="nilai ? 'text-ink' : 'text-ink-muted'"
-              @class(['text-ink' => $sekarang !== '', 'text-ink-muted' => $sekarang === ''])>{{ $labelAwal }}</span>
+        {{-- Satu warna untuk kedua keadaan: text-ink, terpilih maupun belum.
+             Keadaan kosong yang diredupkan terbaca seperti kendali yang mati. --}}
+        <span class="min-w-0 truncate" x-text="terpilih.label">{{ $labelAwal }}</span>
 
         <svg class="h-3 w-3 shrink-0 text-ink-faint transition-transform duration-150"
              x-bind:class="buka && 'rotate-180'" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -249,54 +289,108 @@
         </svg>
     </button>
 
-    <div x-show="buka" x-cloak x-ref="menu" role="listbox"
+    {{-- Kotaknya kolom flex, BUKAN kotak yang menggulung sendiri: kaki
+         "tambah baru" yang sticky di dalam kotak bergulung akan MELAYANG di
+         atas barisnya. --}}
+    <div x-show="buka" x-cloak
          x-bind:style="gaya"
          x-transition:enter="transition ease-out duration-150"
          x-transition:enter-start="opacity-0 -translate-y-1"
          x-transition:enter-end="opacity-100 translate-y-0"
-         @class([
-             'admin-scroll fixed z-[120] max-h-[264px] overflow-y-auto overscroll-contain
-              rounded-corner border border-line bg-canvas py-1.5
-              shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]',
-             /* Kaki daftarnya menempel, jadi barisnya tetap terjangkau di
-                daftar yang panjang; py-1.5 dipindah ke isinya supaya kakinya
-                tidak ikut menggantung di atas bantalan bawah. */
-             '!py-0 pt-1.5' => (bool) $aksiTambah,
-         ])>
+         class="fixed z-[120] flex flex-col overflow-hidden rounded-corner border border-line
+                bg-canvas shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]">
 
+    {{-- Bantalan mendatar di SINI, bukan di kotak luarnya: kepingnya masuk
+         dari tepi panel, sementara kaki "+ tambah" di luar bungkus ini tetap
+         rata tepi. --}}
+    <div x-ref="baris" role="listbox"
+         class="admin-scroll min-h-0 max-h-[264px] flex-1 overflow-y-auto overscroll-contain px-1.5 py-1.5">
         <template x-for="(p, i) in daftar" x-bind:key="p.nilai">
-            <button type="button" role="option"
-                    x-on:click="pilih(p)"
-                    x-on:mousemove="sorot = i"
-                    x-bind:aria-selected="p.nilai === nilai ? 'true' : 'false'"
-                    x-bind:class="{
-                        'bg-mist': sorot === i,
-                        'font-semibold text-ink': p.nilai === nilai,
-                        'text-ink-muted': p.nilai !== nilai,
-                    }"
-                    class="flex w-full items-center justify-between gap-2 px-3.5 py-2
-                           text-left text-[13px] transition-colors">
+            {{-- Bentuk sama persis dengan baris "Lihat situs" di dropdown
+                 profil — ketiganya baris yang bisa ditindak. --}}
+            <div class="group/baris relative">
 
-                <span class="min-w-0 truncate" x-text="p.label"></span>
+                <button type="button" role="option"
+                        @if($aksiHapus) x-show="hapusId !== p.nilai" @endif
+                        x-on:click="pilih(p)"
+                        x-on:mousemove="sorot = i"
+                        x-bind:aria-selected="p.nilai === nilai ? 'true' : 'false'"
+                        x-bind:class="{
+                            'bg-mist text-brand-deep': sorot === i,
+                            'font-semibold text-ink': p.nilai === nilai,
+                        }"
+                        @class([
+                            'admin-menu-row w-full justify-between rounded-control hover:text-brand-deep',
+                            /* Ruang untuk tong sampah yang melayang di tepi
+                               kanan; tanpa ini nama yang panjang berjalan
+                               tepat di bawahnya. */
+                            'pr-9' => (bool) $aksiHapus,
+                        ])>
 
-                {{-- Centang, bukan sekadar huruf tebal: di daftar panjang
-                     yang isinya mirip-mirip, tebal huruf saja tidak cukup
-                     untuk menjawab "yang mana yang sedang aktif". --}}
-                <svg x-show="p.nilai === nilai" class="h-3.5 w-3.5 shrink-0 text-brand"
-                     viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <path d="m3.6 8.4 2.8 2.8 6-6" stroke="currentColor" stroke-width="1.8"
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
+                    <span class="min-w-0 truncate" x-text="p.label"></span>
+
+                    {{-- Centang, bukan sekadar huruf tebal: di daftar panjang
+                         yang isinya mirip-mirip, tebal huruf saja tidak cukup
+                         untuk menjawab "yang mana yang sedang aktif". --}}
+                    <svg x-show="p.nilai === nilai" class="h-3.5 w-3.5 shrink-0 text-brand"
+                         viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="m3.6 8.4 2.8 2.8 6-6" stroke="currentColor" stroke-width="1.8"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                @if($aksiHapus)
+                    {{-- Tong sampahnya MELAYANG di atas barisnya, bukan
+                         berdiri sebagai saudaranya: tombol di dalam tombol
+                         adalah HTML yang tidak sah. --}}
+                    <button type="button" x-show="p.nilai !== '' && hapusId !== p.nilai"
+                            x-on:click.stop="hapusId = p.nilai"
+                            x-bind:aria-label="'{{ $labelHapus }} ' + p.label"
+                            class="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center
+                                   justify-center rounded-control text-ink-faint opacity-0 transition
+                                   hover:bg-danger/10 hover:text-danger focus-visible:opacity-100
+                                   group-hover/baris:opacity-100">
+                        <x-icon.admin name="trash" size="h-3.5 w-3.5" />
+                    </button>
+
+                    {{-- Barisnya BERTUKAR jadi pertanyaan, bukan menumpuk
+                         kotak baru: daftar ini sudah melayang di z-[120], dan
+                         apa pun di atasnya harus lebih tinggi lagi. --}}
+                    <div x-show="hapusId === p.nilai" x-cloak
+                         class="flex items-center gap-1.5 rounded-control bg-danger/5 px-2.5 py-1.5">
+                        <span class="min-w-0 flex-1 truncate text-admin-caption text-ink-muted">
+                            Hapus <span class="font-semibold text-ink" x-text="p.label"></span>?
+                        </span>
+
+                        <button type="button" x-on:click.stop="hapusPilihan(p)"
+                                x-bind:disabled="menghapus"
+                                x-bind:aria-label="'Ya, hapus ' + p.label"
+                                class="inline-flex h-6 shrink-0 items-center rounded-control bg-danger px-2
+                                       text-admin-caption font-semibold text-white transition-colors
+                                       hover:bg-danger/90 disabled:opacity-50">
+                            Ya
+                        </button>
+
+                        <button type="button" x-on:click.stop="hapusId = null"
+                                aria-label="Batal menghapus"
+                                class="inline-flex h-6 shrink-0 items-center rounded-control border border-line
+                                       px-2 text-admin-caption font-semibold text-ink-muted
+                                       transition-colors hover:text-ink">
+                            Batal
+                        </button>
+                    </div>
+                @endif
+            </div>
         </template>
+    </div>
 
         @if($aksiTambah)
-            <div class="sticky bottom-0 border-t border-line bg-canvas">
+            <div class="shrink-0 border-t border-line bg-canvas">
 
                 {{-- Keadaan 1: barisnya masih tombol. --}}
                 <button type="button" x-show="! tambah" x-on:click="mulaiTambah()"
                         class="flex w-full items-center gap-2 px-3.5 py-2.5 text-left
-                               text-[13px] font-semibold text-brand transition-colors hover:bg-brand-wash">
+                               text-admin-body font-semibold text-brand transition-colors hover:bg-brand-wash">
                     <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <path d="M8 3.4v9.2M3.4 8h9.2" stroke="currentColor"
                               stroke-width="1.8" stroke-linecap="round"/>
@@ -304,12 +398,9 @@
                     {{ $labelTambah }}
                 </button>
 
-                {{-- Keadaan 2: barisnya jadi kotak ketik.
-
-                     .prevent.stop di Enter — tanpa keduanya, tombol Enter di
-                     sini ikut mengirim <form> modal yang membungkusnya, dan
-                     yang terjadi bukan "kategori tersimpan" melainkan
-                     "artikelnya tersimpan setengah jadi". --}}
+                {{-- Barisnya jadi kotak ketik. .prevent.stop di Enter WAJIB —
+                     tanpanya Enter ikut mengirim <form> modal yang
+                     membungkusnya. --}}
                 <div x-show="tambah" x-cloak class="flex items-center gap-1.5 p-1.5">
                     <input type="text" x-ref="isian" x-model="teksBaru"
                            placeholder="{{ $petunjukTambah }}"
@@ -317,7 +408,7 @@
                            maxlength="100"
                            x-on:keydown.enter.prevent.stop="simpanBaru()"
                            x-on:keydown.escape.prevent.stop="batalTambah()"
-                           class="admin-control min-w-0 flex-1 !py-1.5 text-[13px]">
+                           class="admin-control min-w-0 flex-1 !py-1.5 text-admin-body">
 
                     <button type="button" x-on:click="simpanBaru()"
                             x-bind:disabled="! teksBaru.trim() || menyimpan"

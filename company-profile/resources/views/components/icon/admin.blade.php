@@ -3,18 +3,8 @@
     'size' => 'h-[18px] w-[18px]',
 ])
 
-{{--
-    Ikon panel admin.
-
-    Dikumpulkan di satu berkas, bukan ditempel langsung di tata letak: dua belas
-    menu berarti dua belas SVG, dan kalau semuanya ditulis di tempatnya masing-
-    masing, tata letaknya jadi tiga kali lebih panjang dari isinya yang
-    sebenarnya — dan tebal garis antar-ikon cepat berbeda-beda tanpa ada yang
-    menyadarinya.
-
-    Semua digambar pada kanvas 20×20 dengan tebal garis 1,5 supaya bobotnya
-    seragam saat berdiri berderet.
---}}
+{{-- ══ Ikon panel admin — dikumpulkan di satu berkas supaya tata letaknya
+     tidak dipenuhi data path SVG. ══ --}}
 @switch($name)
 
     @case('dashboard')
@@ -105,6 +95,17 @@
         </svg>
         @break
 
+    @case('user')
+        {{-- Satu orang, bukan dua: 'users' yang berdampingan menggambar
+             kelompok dan dipakai menu Pengguna & Peran; yang ini menamai SATU
+             pembeli. --}}
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="6.8" r="3.2" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3.8 16.8c0-3.1 2.8-5 6.2-5s6.2 1.9 6.2 5" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        @break
+
     @case('users')
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
@@ -165,10 +166,9 @@
         @break
 
     @case('manage')
-        {{-- Dua tuas geser, bukan pensil. Pensil menjanjikan "ubah tulisannya";
-             yang sebenarnya dibuka tombol ini adalah panel untuk menyetel
-             status, menugaskan sales, dan menulis catatan internal — mengatur
-             perjalanan sebuah inquiry, bukan menyunting isinya. --}}
+        {{-- Dua tuas geser, bukan pensil: pensil menjanjikan "ubah
+             tulisannya", padahal yang dibuka adalah panel untuk menyetel
+             status dan menugaskan sales. --}}
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3.4 6.8h4.2M11.4 6.8h5.2M3.4 13.2h5.2M12.4 13.2h4.2"
                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -195,8 +195,11 @@
         @break
 
     @case('star')
-        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="m10 2.8 2.24 4.54 5.01.73-3.62 3.53.85 4.99L10 14.24l-4.48 2.35.85-4.99L2.75 8.07l5.01-.73z"/>
+        {{-- Bintang bersudut BULAT, bukan pentagram bersudut tajam — sudut
+             tajam bertabrakan dengan seluruh ikon lain di panel yang berujung
+             membulat. --}}
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/>
         </svg>
         @break
 
@@ -219,13 +222,23 @@
         </svg>
         @break
 
+    @case('send')
+        {{-- Pesawat kertas: "kirim", tanpa menyebut salurannya. Amplop hanya
+             menamai surel, padahal kartunya menawarkan surel DAN WhatsApp. --}}
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M17.4 2.6 2.6 8.4l6.3 2.5 2.7 6.5z" stroke="currentColor"
+                  stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M17.4 2.6 8.9 10.9" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        @break
+
     @case('whatsapp')
-        {{-- Lambang WhatsApp digambar apa adanya, bukan diganti ikon telepon
-             biasa: yang dikenali orang dari tombol ini justru bentuk itu, dan
-             gagang telepon polos bisa disangka panggilan suara. --}}
-        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path d="M10.02 2.4a7.55 7.55 0 0 0-6.4 11.54l-1.2 4.4 4.5-1.18A7.55 7.55 0 1 0 10.02 2.4m0 1.38a6.17 6.17 0 0 1 4.9 9.92 6.17 6.17 0 0 1-7.85 1.67l-.32-.18-2.67.7.71-2.6-.2-.33a6.17 6.17 0 0 1 5.43-9.18"/>
-            <path d="M7.62 6.2c-.16-.36-.33-.37-.48-.38h-.4a.79.79 0 0 0-.57.27 2.4 2.4 0 0 0-.75 1.78c0 1.05.77 2.07.87 2.21.11.14 1.48 2.37 3.65 3.23 1.8.71 2.17.57 2.56.53.4-.03 1.27-.51 1.44-1.01.18-.5.18-.93.13-1.02-.05-.09-.2-.14-.4-.25-.22-.1-1.28-.63-1.48-.7-.2-.07-.34-.11-.48.11-.14.21-.55.7-.68.84-.12.15-.25.16-.46.06-.22-.11-.91-.34-1.74-1.07-.64-.57-1.08-1.28-1.2-1.5-.13-.21-.02-.33.09-.44.1-.1.22-.25.32-.38.11-.13.15-.22.22-.36.08-.15.04-.27-.01-.38-.06-.11-.48-1.17-.65-1.6"/>
+        {{-- Lambang WhatsApp yang SEBENARNYA, bukan gambaran ulang — tiruan
+             buatan sendiri langsung terbaca salah oleh siapa pun yang
+             mengenali aslinya. --}}
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/>
         </svg>
         @break
 

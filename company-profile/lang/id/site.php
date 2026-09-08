@@ -44,33 +44,33 @@ return [
     'uncategorized'       => 'Tanpa Kategori',
 
     // ── Bilah alat katalog produk ────────────────────────────────────────
-    'sort_by'          => 'Urutkan',
-    'sort_featured'    => 'Unggulan dulu',
-    'sort_newest'      => 'Terbaru',
-    'sort_oldest'      => 'Terlama',
-    'sort_title_asc'   => 'Judul (A–Z)',
-    'sort_title_desc'  => 'Judul (Z–A)',
     'search_news_placeholder' => 'Cari artikel…',
     'news_count'       => '{0} Tidak ada artikel|[1,*] :count artikel',
+    'latest_news'      => 'Berita *Terbaru*',
     'featured_article' => 'Artikel terbaru',
+    'tags'             => 'Tanda',
     'related_articles' => 'Artikel lainnya',
-    'sort_name_asc'    => 'Nama (A–Z)',
-    'sort_name_desc'   => 'Nama (Z–A)',
     'reset_filters'    => 'Atur ulang filter',
+    'filtered_label'   => 'Disaring',
+    'filter_search'    => 'Cari',
+    'filter_category'  => 'Kategori',
+    'clear_all_filters' => 'Hapus semua',
     'products_count'   => '{0} Tidak ada produk|[1,*] :count produk',
     'featured'            => 'Unggulan',
     'offline_catalog'     => 'Katalog Offline',
     'offline_catalog_sub' => 'Dapatkan katalog produk lengkap kami dalam format PDF.',
 
     // ── Halaman formulir katalog PDF ─────────────────────────────────────
-    'catalog_headline'  => 'Bawa katalog lengkap kami',
-    'catalog_body'      => 'Dibangkitkan langsung dari daftar produk terkini — :count produk dalam :categories kategori, lengkap dengan spesifikasi, asal, dan sertifikasinya. Masukkan email Anda dan PDF-nya langsung terunduh.',
+    'catalog_headline'  => 'Bawa *katalog lengkap* kami',
+    'catalog_body'      => 'Dibangkitkan langsung dari daftar produk terkini, lengkap dengan spesifikasi, asal, dan sertifikasi untuk tiap produknya. Masukkan email Anda dan PDF-nya langsung terunduh.',
+    'catalog_form_title'      => 'Ambil salinan Anda',
     'catalog_privacy'   => 'Email Anda hanya kami pakai untuk menindaklanjuti unduhan ini. Tanpa newsletter, tanpa pihak ketiga.',
     'catalog_generated' => 'Dibangkitkan saat diminta, jadi isinya tidak pernah basi.',
     'download_pdf'        => 'Unduh Katalog PDF',
     'request_quotation'   => 'Minta Penawaran',
     'description'         => 'Deskripsi',
     'specifications'      => 'Spesifikasi',
+    'all_certifications'  => 'Semua *Sertifikasi*',
     'certifications'      => 'Sertifikasi',
     'back_to_products'    => '← Kembali ke Produk',
     'hs_code'             => 'Kode HS',
@@ -87,11 +87,27 @@ return [
     'downloaded_times'    => 'Diunduh :count kali',
     'enter_email'         => 'Masukkan email Anda',
     'download_pdf_btn'    => 'Unduh PDF',
+    'all_files'           => 'Semua *Berkas*',
+    'files_count'         => ':count berkas',
     'no_downloads'        => 'Tidak ada file yang tersedia untuk diunduh saat ini.',
+    'album_count'         => ':count item',
+    'albums_count'        => ':count album',
+    'all_albums'          => 'Semua *Album*',
     'no_gallery_items'    => 'Belum ada foto atau video yang ditambahkan.',
     'close'               => 'Tutup',
     'last_updated'        => 'Terakhir diperbarui',
     'other_pages'         => 'Halaman lain',
+
+    // ── Halaman galat ──────────────────────────────────────────────────────
+    'error_404_eyebrow'   => 'Galat 404',
+    'error_404_title'     => 'Halaman ini *tidak ada di sini*',
+    'error_404_body'      => 'Mungkin sudah dipindahkan, diganti namanya, atau dihapus. Semua yang ada di bawah masih di tempatnya.',
+    'error_404_links'     => 'Coba salah satu ini',
+    'error_500_eyebrow'   => 'Galat 500',
+    'error_500_title'     => 'Ada yang salah di sisi kami',
+    'error_500_body'      => 'Yang ini bukan kesalahan Anda. Tim kami sudah diberi tahu. Silakan coba lagi beberapa menit lagi.',
+    'error_back_home'     => 'Kembali ke Beranda',
+    'on_this_page'        => 'Di halaman ini',
     'download_gated_note'  => 'Masukkan email bisnis Anda untuk menerima berkas ini.',
     'download_email_required' => 'Silakan masukkan email Anda untuk mengunduh berkas ini.',
     'download_file_missing'   => 'Berkas ini sedang tidak tersedia di server.',
@@ -135,35 +151,29 @@ return [
     // Dua nomor terpisah di halaman kontak, sebutannya sama dengan kaki situs.
     'label_whatsapp'      => 'WhatsApp',
     'label_phone'         => 'Telepon',
+    'open_in_maps'        => 'Buka di Google Maps',
     'find_us'             => 'Temukan kami',
 
     'footer_contact'      => 'Hubungi Kami',
-    'footer_email'        => 'Email',
-    'footer_whatsapp'     => 'WhatsApp',
     'footer_address'      => 'Alamat',
     'footer_other_info'   => 'Informasi Lainnya',
     'footer_rights'       => 'Hak cipta dilindungi.',
 
     // ── Footer (susunan baru, mengikuti rujukan desain) ──────────────────
-    'footer_headline'     => 'Mulai perjalanan kopi Anda bersama kami.',
-    'footer_locations'    => 'Lokasi',
-    'footer_call_us'      => 'Telepon',
+    'footer_headline'     => 'Mulai *perjalanan kopi* Anda bersama kami.',
+    'footer_body'         => 'Sebutkan volume, grade, dan pelabuhan tujuannya. Kami balas dengan penawaran sekaligus rencana pengirimannya.',
     'footer_contact_us'   => 'Hubungi Kami',
-    'footer_open_time'    => 'Jam Operasional',
     'footer_navigation'   => 'Navigasi',
     'footer_resources'    => 'Sumber Daya',
-    'footer_social'       => 'Media sosial',
 
-    'hours_weekday_label'  => 'Sen – Jum',
-    'hours_saturday_label' => 'Sabtu',
-    'hours_sunday_label'   => 'Minggu',
+    'hours_week_label'     => 'Sen – Sab',
 
     'no_home_sections' => 'Tidak ada Bagian Beranda yang aktif. Silakan atur di Global Settings.',
     'welcome_company' => 'Selamat Datang di Perusahaan Kami',
     'hero_empty' => 'Silakan buat Halaman Statis dengan slug "hero" di Admin CMS untuk mengisi banner ini.',
 
     // ── Hero beranda ─────────────────────────────────────────────────────
-    'hero_title'      => 'Mitra Anda dalam Pengadaan Kopi Premium Indonesia',
+    'hero_title'      => 'Mitra Anda dalam Pengadaan *Kopi Premium* Indonesia',
     'hero_body'       => 'Kami menghubungkan roaster dan pembeli global dengan biji kopi origin terbaik Indonesia — green bean yang sepenuhnya tertelusur, lengkap dengan spesifikasi ekspor, kemasan khusus, dan Incoterms yang fleksibel.',
     'hero_descriptor' => 'Mitra Pengadaan & Ekspor Green Bean',
     'hero_years'      => 'Tahun pengalaman',
@@ -179,31 +189,28 @@ return [
     'certificate_number'   => 'No. sertifikat',
     'valid_until'          => 'Berlaku sampai',
     'expired_on'           => 'Kedaluwarsa',
-    'download_certificate' => 'Unduh sertifikat',
     'market_list' => 'Daftar Pasar (Sumber Data Peta)',
     'region' => 'Kawasan',
 
     // ── Statistik halaman Export Markets ─────────────────────────────────
-    'stat_countries' => 'Negara tujuan',
-    'stat_regions'   => 'Kawasan dilayani',
-    'stat_volume'    => 'Kapasitas bulanan',
+    'countries_count' => ':count negara',
     'no_export_markets' => 'Belum ada pasar ekspor yang dicatat.',
     'home_section_products' => 'Produk Unggulan',
 
     // ── Seksi Featured Products di beranda ───────────────────────────────
-    'products_title' => 'Green bean kelas ekspor, siap untuk roastery Anda',
+    'products_title' => 'Green bean *kelas ekspor*, siap untuk roastery Anda',
     'products_body'  => 'Pilihan dari panen berjalan — setiap lot tertelusur penuh sampai ke asalnya, lengkap dengan spesifikasi dan sampel yang tersedia atas permintaan.',
     'home_section_export_markets' => 'Pasar Ekspor',
 
     // ── Seksi Export Markets di beranda ──────────────────────────────────
-    'markets_title' => 'Mengirim ke :count negara di empat kawasan',
+    'markets_title' => 'Mengirim ke :count negara *di empat kawasan*',
     'markets_body'  => 'Arahkan kursor ke penanda untuk melihat negara tujuan. Jaringan logistik kami menjangkau pelabuhan utama di Eropa, Asia, Amerika Utara, dan Timur Tengah.',
     'home_section_news' => 'Berita Terbaru',
 
     // ── Seksi Latest News di beranda ─────────────────────────────────────
     'news_eyebrow'     => 'Blog Kami',
-    'news_title'       => 'Ikuti berita dan artikel terbaru',
-    'news_promo_title' => 'Lihat lebih banyak berita dan artikel dari kami',
+    'news_title'       => 'Ikuti *berita dan artikel* terbaru',
+    'news_body'        => 'Catatan tentang panen, sertifikasi, dan jalur pelayaran yang dilalui kopi kami — ditulis untuk yang membelinya.',
     'cta_see_more_news' => 'Lihat Berita Lain',
     'home_section_about' => 'Tentang Kami',
 
@@ -231,6 +238,7 @@ return [
     // ── Halaman About Us — seksi Core Values ─────────────────────────────
     'values_eyebrow' => 'Nilai Perusahaan',
     'values_title'   => 'Yang kami pegang saat tidak ada yang mengawasi',
+    'values_body'    => 'Empat pegangan yang menentukan apa yang kami terima, apa yang kami tolak, dan bagaimana kami bersikap ketika satu pengiriman meleset.',
 
     'value_1_title' => 'Integritas',
     'value_1_body'  => 'Kami menawarkan apa yang benar-benar bisa kami kirim. Bila panen meleset, pembeli mendengarnya dari kami sebelum mendengarnya dari jadwal kapal.',
@@ -250,8 +258,7 @@ return [
     'cta_view_certifications' => 'Lihat Sertifikasi',
 
     'history_eyebrow'      => 'Sejarah',
-    'history_title'        => 'Dua dekade',
-    'history_title_accent' => 'membangun kepercayaan',
+    'history_title'        => 'Dua dekade *membangun kepercayaan*',
 
     'milestone_1_title' => 'Tempat semuanya dimulai',
     'milestone_1_body'  => 'Sebuah unit pengolahan di Sumatra Tengah, membeli ceri kopi dari petani kecil sekitar dan mengeringkannya di para-para.',
@@ -272,7 +279,7 @@ return [
     'milestone_6_body'  => 'Pemetaan poligon digital dan catatan per lot menjawab dokumentasi yang kini diminta pembeli Eropa sebelum pengiriman berjalan.',
 
     'pillars_eyebrow' => 'Mengapa Memilih Kami',
-    'pillars_title'   => 'Dirancang untuk pembeli yang tidak bisa menoleransi kejutan',
+    'pillars_title'   => 'Dirancang untuk pembeli yang *tidak bisa menoleransi kejutan*',
     'pillars_body'    => 'Setiap pengiriman ditopang proses yang terdokumentasi, sertifikasi teraudit, dan tim yang menjawab dalam satu hari kerja.',
 
     'pillar_1_title' => 'Mutu Cita Rasa yang Konsisten',
@@ -293,7 +300,7 @@ return [
 
     // ── Banner penutup beranda ───────────────────────────────────────────
     'cta_whatsapp' => 'Chat via WhatsApp',
-    'cta_title'    => 'Biarkan kami menghitung kontainer Anda berikutnya',
+    'cta_title'    => 'Biarkan kami menghitung *kontainer Anda* berikutnya',
     'cta_body'     => 'Kirimkan spesifikasi, volume, dan pelabuhan tujuan Anda. Tim ekspor kami membalas dengan harga, lot yang tersedia, dan opsi sampel dalam satu hari kerja.',
 
 ];

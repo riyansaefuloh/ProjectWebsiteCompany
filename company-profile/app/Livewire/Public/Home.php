@@ -99,8 +99,13 @@ class Home extends Component
             ->limit(max(1, (int) $opsi('products', 'jumlah', 6)))
             ->get();
 
+        /*
+         * category dan tags ikut dimuat di muka: kartu berita di beranda kini
+         * menggambar keduanya, dan tanpa ini tiap artikel menembak kuerinya
+         * sendiri.
+         */
         $latestNews = News::where('status', 'published')
-            ->with(['translations', 'media'])
+            ->with(['translations', 'media', 'category', 'tags'])
             ->orderBy('published_at', 'desc')
             ->limit(3)
             ->get();
@@ -109,7 +114,14 @@ class Home extends Component
             ->with('translations')
             ->get();
 
-        $certifications = Certification::where('status', 'active')
+        /*
+         * berlaku(), bukan sekadar status aktif: bilah kepercayaan di beranda
+         * menyatakan standing yang BERLAKU SEKARANG, dan di sana tidak ada
+         * ruang untuk menjelaskan bahwa satu di antaranya sudah lewat tanggal.
+         * Halaman Sertifikasi tetap menampilkan yang kedaluwarsa — lihat
+         * keterangan pada cakupannya.
+         */
+        $certifications = Certification::berlaku()
             ->with(['translations', 'media'])
             ->orderBy('sort_order')
             ->get();
@@ -150,9 +162,12 @@ class Home extends Component
             ->mapWithKeys(fn ($sec) => [$samakan($sec['id']) => $sec['image'] ?? null])
             ->all();
 
-        $establishedYear = \App\Support\IsiHalaman::tahunBerdiri();
-        $yearsOfExperience = max(1, (int) date('Y') - $establishedYear);
-
+        /*
+         * "Tahun pengalaman" tidak lagi dihitung di sini: kartu angka yang dulu
+         * berdiri di atas foto hero sudah tidak digambar, dan kolom labelnya
+         * ikut dibuang dari panel. Tahun berdiri sendiri TETAP dipakai — oleh
+         * garis waktu di halaman Profile, lewat IsiHalaman::tahunBerdiri().
+         */
         return view('livewire.public.home', [
             'featuredProducts'  => $featuredProducts,
             'latestNews'        => $latestNews,
@@ -162,7 +177,6 @@ class Home extends Component
             'isi'               => $isi,
             'gambarBagian'      => $gambarBagian,
             'settings'          => $settings,
-            'yearsOfExperience' => $yearsOfExperience,
         ]);
     }
 }

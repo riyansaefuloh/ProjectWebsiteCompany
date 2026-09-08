@@ -74,6 +74,17 @@ class NewsIndex extends Component
     public string $activeTab = 'en';
     public bool $isTranslating = false;
 
+    /*
+     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
+     *
+     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
+     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
+     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
+     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
+     * tombolnya gagal tanpa mengatakan apa pun.
+     */
+    public ?string $galatTerjemah = null;
+
     protected function rules(): array
     {
         return [
@@ -108,6 +119,7 @@ class NewsIndex extends Component
     public function create(): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
         $this->resetForm();
         $this->published_at = date('Y-m-d\TH:i');
         $this->showModal = true;
@@ -116,14 +128,17 @@ class NewsIndex extends Component
 
     public function autoTranslate(): void
     {
+        $this->galatTerjemah = null;
+
         if (empty(trim($this->title_id)) && empty(trim($this->content_id))) {
-            session()->flash('error', 'Isi konten Bahasa Indonesia terlebih dahulu.');
+            $this->galatTerjemah = 'Isi dulu judul atau isi artikelnya dalam Bahasa Indonesia.';
             return;
         }
 
         $this->isTranslating = true;
 
-        $translated = app(TranslationService::class)->translateMany([
+        $layanan    = app(TranslationService::class);
+        $translated = $layanan->translateMany([
             'title'            => $this->title_id,
             'excerpt'          => $this->excerpt_id,
             'content'          => $this->content_id,
@@ -137,6 +152,10 @@ class NewsIndex extends Component
         if (!empty($translated['meta_title']))       $this->meta_title_en       = $translated['meta_title'];
         if (!empty($translated['meta_description'])) $this->meta_description_en = $translated['meta_description'];
 
+        if ($layanan->sebabGagal) {
+            $this->galatTerjemah = $layanan->sebabGagal;
+        }
+
         $this->isTranslating = false;
         $this->activeTab = 'en';
     }
@@ -144,6 +163,7 @@ class NewsIndex extends Component
     public function edit(string $id): void
     {
         $this->resetValidation();
+        $this->galatTerjemah = null;
 
         $news = News::with('translations')->findOrFail($id);
         $this->editingId = $news->id;
@@ -168,13 +188,41 @@ class NewsIndex extends Component
         $this->showModal = true;
     }
 
+    /*
+     * Kategori dan tag berita dikelola SEPENUHNYA dari modal ini — dibuat,
+     * dipilih, dan dihapus — sejak halaman "Kategori & Tag" dihapus.
+     *
+     * Alasannya: keduanya tidak pernah dibutuhkan di luar saat menulis
+     * artikel. Halaman terpisah memaksa penulis meninggalkan tulisannya yang
+     * belum tersimpan hanya untuk membuat satu tag, lalu kembali dan memulai
+     * lagi.
+     */
+
+    /**
+     * Slug yang dijamin belum terpakai.
+     *
+     * Dua nama berbeda bisa menghasilkan slug yang sama ("Ekspor & Impor" dan
+     * "Ekspor Impor" sama-sama jadi "ekspor-impor"), dan kolom slug itu unik.
+     * Sebelumnya tabrakan itu dijawab Str::random(8) — slug acak yang tidak
+     * ada hubungannya dengan namanya; sekarang dinomori di belakang seperti
+     * yang sudah dipakai di tempat lain.
+     */
+    private function slugUnik(string $kelas, string $nama): string
+    {
+        $dasar = Str::slug($nama) ?: 'item';
+        $slug  = $dasar;
+        $n     = 2;
+
+        while ($kelas::where('slug', $slug)->exists()) {
+            $slug = $dasar . '-' . $n++;
+        }
+
+        return $slug;
+    }
+
     /**
      * Membuat kategori berita baru dari dalam modal artikel, lalu langsung
      * memilihkannya.
-     *
-     * Dipanggil baris "tambah baru" di kaki menu pilihnya. Kategori berita
-     * belum punya halaman kelolanya sendiri, jadi tanpa ini satu-satunya cara
-     * membuatnya adalah lewat basis data langsung.
      */
     public function tambahKategori(string $nama): void
     {
@@ -198,10 +246,102 @@ class NewsIndex extends Component
         $kategori = NewsCategory::whereRaw('LOWER(name) = ?', [mb_strtolower($nama)])->first()
             ?? NewsCategory::create([
                 'name' => $nama,
-                'slug' => Str::slug($nama) ?: Str::random(8),
+                'slug' => $this->slugUnik(NewsCategory::class, $nama),
             ]);
 
         $this->news_category_id = $kategori->id;
+    }
+
+    /**
+     * Menghapus kategori dari dalam modal.
+     *
+     * Kategori yang masih dipakai berita DITOLAK, bukan dihapus paksa: kolom
+     * news_category_id di berita lain akan menggantung menunjuk baris yang
+     * sudah tidak ada.
+     */
+    public function hapusKategori(string $id): void
+    {
+        $this->resetValidation('news_category_id');
+
+        $kategori = NewsCategory::withCount('news')->find($id);
+
+        if (! $kategori) {
+            return;
+        }
+
+        if ($kategori->news_count > 0) {
+            $this->addError('news_category_id', 'Kategori "' . $kategori->name . '" masih dipakai '
+                . $kategori->news_count . ' berita. Pindahkan berita itu dulu.');
+
+            return;
+        }
+
+        /*
+         * Pilihan di borang ikut dikosongkan kalau yang dihapus justru yang
+         * sedang terpilih. Tanpa ini, menyimpan artikel akan gagal validasi
+         * exists: dengan pesan yang tidak menyebut sebabnya.
+         */
+        if ((string) $this->news_category_id === (string) $id) {
+            $this->news_category_id = null;
+        }
+
+        $kategori->delete();
+    }
+
+    /**
+     * Membuat tag baru dari dalam modal, lalu langsung mencentangnya.
+     */
+    public function tambahTag(string $nama): void
+    {
+        $nama = trim($nama);
+
+        $this->resetValidation('selectedTags');
+
+        if ($nama === '' || mb_strlen($nama) > 50) {
+            $this->addError('selectedTags', 'Nama tag 1–50 karakter.');
+
+            return;
+        }
+
+        $tag = NewsTag::whereRaw('LOWER(name) = ?', [mb_strtolower($nama)])->first()
+            ?? NewsTag::create([
+                'name' => $nama,
+                'slug' => $this->slugUnik(NewsTag::class, $nama),
+            ]);
+
+        /*
+         * Untai, bukan objek id: nilai yang datang dari kotak centang di
+         * peramban selalu untai, dan array campur tipe membuat in_array()
+         * longgar di blade-nya berperilaku berbeda untuk tag yang baru
+         * dibuat dibanding tag yang dimuat dari basis data.
+         */
+        if (! in_array((string) $tag->id, array_map('strval', $this->selectedTags), true)) {
+            $this->selectedTags[] = (string) $tag->id;
+        }
+    }
+
+    /**
+     * Menghapus tag dari dalam modal.
+     *
+     * Tag boleh dihapus kapan saja — kaitannya hidup di tabel pivot, jadi
+     * melepasnya tidak meninggalkan kolom yang menggantung. Yang perlu diurus
+     * cuma artikel lain yang memakainya, dan itu dilepas di sini.
+     */
+    public function hapusTag(string $id): void
+    {
+        $tag = NewsTag::find($id);
+
+        if (! $tag) {
+            return;
+        }
+
+        $tag->news()->detach();
+        $tag->delete();
+
+        $this->selectedTags = array_values(array_filter(
+            $this->selectedTags,
+            fn ($x) => (string) $x !== (string) $id
+        ));
     }
 
     public function save(): void

@@ -23,16 +23,15 @@
         };
     @endphp
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          KEPALA HALAMAN
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+            <h1 class="text-admin-display text-heading">
                 Sertifikasi
             </h1>
-            <p class="mt-1.5 text-[13px] text-ink-muted">
+            <p class="mt-1.5 text-admin-body text-ink-muted">
                 Bukti kelayakan yang ditampilkan sebagai jaminan di situs publik.
             </p>
         </div>
@@ -45,14 +44,8 @@
         </button>
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PERINGATAN MASA BERLAKU
-
-         Disalin apa adanya dari peringatan yang sama di dasbor — kalimat,
-         bentuk, dan rona barisnya. Dua tempat yang menyampaikan hal yang sama
-         tapi berbeda rupa membuat orang mengira keduanya hal yang berbeda.
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ══ PERINGATAN MASA BERLAKU — kalimat, bentuk, dan rona barisnya
+         disalin apa adanya dari peringatan yang sama di dasbor. ══ --}}
     @php
         $perluDiurus = collect($expiredCerts)->concat($expiringSoonCerts)
             ->unique('id')
@@ -65,16 +58,18 @@
     @endphp
 
     @if($perluDiurus->isNotEmpty())
-        <div class="mb-6 rounded-corner border border-line bg-canvas" role="alert">
+        <div class="card mb-6" role="alert">
 
-            <div class="flex flex-wrap items-start justify-between gap-4 px-5 py-4">
-                <div class="flex min-w-0 items-start gap-3">
+            {{-- Kepala bergaris bawah, keping 36px berikon 18px — sama persis
+                 dengan peringatan yang sama di dasbor. --}}
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
+                <div class="flex min-w-0 items-center gap-2.5">
                     <span @class([
-                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-control',
+                        'flex h-9 w-9 shrink-0 items-center justify-center rounded-control',
                         'bg-danger/10 text-danger' => $adaKedaluwarsa,
                         'bg-mist text-ink-muted'   => ! $adaKedaluwarsa,
                     ])>
-                        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <svg class="h-[18px] w-[18px]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                             <path d="M8 2.4 14.4 13.2H1.6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
                             <path d="M8 6.6v2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                             <circle cx="8" cy="11.4" r="0.85" fill="currentColor"/>
@@ -83,12 +78,11 @@
 
                     <div class="min-w-0">
                         {{-- Kalimatnya menyebut jumlah dan keadaannya, bukan
-                             jendela waktu kuerinya. "Akan kedaluwarsa dalam 30
-                             hari" sementara barisnya berbunyi "11 hari lagi"
-                             membuat pembacanya mengira ada dua hitungan yang
-                             berbeda. --}}
+                             jendela waktu kuerinya: "dalam 30 hari" di atas
+                             baris berbunyi "11 hari lagi" terbaca seperti dua
+                             hal berbeda. --}}
                         <p @class([
-                            'text-[14px] font-semibold',
+                            'text-admin-title',
                             'text-danger' => $adaKedaluwarsa,
                             'text-ink'    => ! $adaKedaluwarsa,
                         ])>
@@ -102,19 +96,24 @@
                             @endif
                         </p>
 
-                        <p class="mt-1 text-[13px] leading-relaxed text-ink-muted">
-                            Sertifikasi yang lewat tanggal berhenti tampil sebagai bukti kelayakan
-                            di situs publik, dan perpanjangannya makan waktu berminggu-minggu.
+                        <p class="mt-0.5 text-admin-label text-ink-muted">
+                            Sertifikasi yang kedaluwarsa tidak lagi ditampilkan sebagai bukti kelayakan di situs publik.
+                            Segera lakukan perpanjangan untuk memastikan informasi tetap valid.
                         </p>
                     </div>
                 </div>
+
+                {{-- Dasbor menaruh tautan "Kelola sertifikasi" di sini; di
+                     halaman ini tautan itu menunjuk ke halaman yang sedang
+                     dibuka, jadi sengaja tidak ikut. --}}
             </div>
 
-            <div class="space-y-2 px-5 pb-5">
+            <div class="space-y-2 p-5">
                 @foreach($perluDiurus as $cert)
                     @php
                         $namaAlert = $cert->translated_name ?: $cert->slug;
                         $lewatAlert = $cert->expires_at->isPast();
+                        $logoAlert = $cert->getFirstMedia('logos');
 
                         $hariAlert = (int) abs(
                             now()->startOfDay()->diffInDays($cert->expires_at->copy()->startOfDay())
@@ -127,19 +126,40 @@
                         'border-danger/20 bg-danger/5' => $lewatAlert,
                         'border-line bg-mist'          => ! $lewatAlert,
                     ])>
-                        <div class="min-w-0">
-                            <span class="block truncate text-[13px] font-semibold text-ink"
-                                  title="{{ $namaAlert }}">{{ $namaAlert }}</span>
-                            <span class="mt-0.5 block truncate text-[12px] text-ink-faint">{{ $cert->issuer }}</span>
+                        <div class="flex min-w-0 items-center gap-3">
+                            {{-- Logo 40px. Yang belum punya logo tetap
+                                 mendapat petaknya — berbingkai putus-putus —
+                                 supaya nama sertifikasi di seluruh daftar
+                                 tetap berawal di garis yang sama. --}}
+                            @if($logoAlert)
+                                <img src="{{ $logoAlert->getUrl() }}" alt=""
+                                     loading="lazy" width="40" height="40"
+                                     class="h-10 w-10 shrink-0 rounded-control border border-line
+                                            bg-canvas object-contain p-1"
+                                     title="Logo {{ $namaAlert }}">
+                            @else
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center
+                                             rounded-control border border-dashed border-line-strong
+                                             bg-canvas text-ink-faint"
+                                      title="Belum ada logo">
+                                    <x-icon.admin name="gallery" size="h-4 w-4" />
+                                </span>
+                            @endif
+
+                            <div class="min-w-0">
+                                <span class="block truncate text-admin-strong text-ink"
+                                      title="{{ $namaAlert }}">{{ $namaAlert }}</span>
+                                <span class="mt-0.5 block truncate text-admin-caption text-ink-faint">{{ $cert->issuer }}</span>
+                            </div>
                         </div>
 
                         <div class="flex shrink-0 items-center gap-3">
-                            <span class="text-[13px] tabular-nums text-ink-muted">
+                            <span class="text-admin-body tabular-nums text-ink-muted">
                                 {{ $cert->expires_at->locale('id')->translatedFormat('d M Y') }}
                             </span>
 
                             <span @class([
-                                'inline-flex w-[104px] justify-center rounded-full px-2.5 py-1 text-[11px] font-bold',
+                                'inline-flex w-[104px] justify-center rounded-full px-2.5 py-1 text-admin-caption font-semibold',
                                 'bg-danger/15 text-danger'                    => $lewatAlert,
                                 'border border-line bg-canvas text-ink-muted' => ! $lewatAlert,
                             ])>
@@ -151,7 +171,6 @@
             </div>
         </div>
     @endif
-
 
     {{-- ══════════════════════════════════════════════════════════════════
          PESAN SETELAH TERSIMPAN
@@ -167,7 +186,7 @@
                 </svg>
             </span>
 
-            <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+            <p class="min-w-0 flex-1 pt-1 text-admin-strong text-brand-deep">
                 {{ session('message') }}
             </p>
 
@@ -178,104 +197,109 @@
         </div>
     @endif
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PENYARING
-         ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card mb-6 overflow-visible">
-
-        {{-- Dua kendali berbagi satu baris — pencarian dua pertiga, status
-             sepertiga. Susunan yang sama dengan halaman Kategori. --}}
-        <div class="grid gap-4 p-5 lg:grid-cols-3">
-
-            <div class="relative lg:col-span-2">
-                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
-                </span>
-
-                <input type="search" wire:model.live="search" id="cari-sertifikasi"
-                       aria-label="Cari sertifikasi"
-                       placeholder="Cari nama sertifikasi atau penerbitnya…"
-                       class="admin-control pl-11 pr-10">
-
-                <span wire:loading wire:target="search"
-                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
-                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    </svg>
-                </span>
-            </div>
-
-            <x-admin.select model="selectedStatus" :value="$selectedStatus"
-                            label="Saring menurut status" placeholder="Semua status"
-                            :options="[
-                                ['nilai' => 'active',   'label' => 'Aktif'],
-                                ['nilai' => 'inactive', 'label' => 'Nonaktif'],
-                            ]" />
-        </div>
-
-        @if($penyaringAktif->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
-                        bg-mist/60 px-5 py-3">
-                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold
-                             uppercase tracking-[0.08em] text-ink-faint">
-                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
-                    Disaring
-                </span>
-
-                @foreach($penyaringAktif as $f)
-                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
-                                 bg-canvas py-1 pl-3 pr-1.5 text-[12px] text-ink-muted">
-                        <span class="min-w-0 truncate">
-                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
-                        </span>
-
-                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
-                                aria-label="Hapus penyaring {{ $f['label'] }}"
-                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
-                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
-                            <x-icon.admin name="close" size="h-3 w-3" />
-                        </button>
-                    </span>
-                @endforeach
-
-                @if($penyaringAktif->count() > 1)
-                    <button type="button"
-                            x-on:click="{{ $bersihkan(['search', 'selectedStatus']) }}"
-                            class="ml-auto shrink-0 text-[12px] font-semibold text-brand underline-offset-4 hover:underline">
-                        Hapus semua
-                    </button>
-                @endif
-            </div>
-        @endif
-    </div>
-
-
     {{-- ══════════════════════════════════════════════════════════════════
          TABEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card">
+    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
+         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
+         memotongnya tepat di garis bawah kartu. --}}
+    <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-mist text-ink-muted">
-                    <x-icon.admin name="certification" size="h-4 w-4" />
+                {{-- Keping lambang 36px berlatar hijau muda dengan ikon 18px — sama
+                     persis dengan kepala kartu di dasbor, Inquiry, Produk, dan
+                     Kategori. --}}
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
+                    <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
                 </span>
 
                 <div>
-                    <h2 class="font-ui text-[15px] font-semibold text-ink">Daftar sertifikasi</h2>
-                    <p class="mt-0.5 text-[12px] text-ink-muted">
+                    <h2 class="text-admin-title text-heading">Daftar sertifikasi</h2>
+                    <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
                 </div>
             </div>
 
             <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-mist
-                         px-3 py-1.5 text-[12px] font-semibold text-ink-muted">
+                         px-3 py-1.5 text-admin-label font-semibold text-ink-muted">
                 <span class="tabular-nums text-ink">{{ number_format($certifications->total()) }}</span>
                 {{ $penyaringAktif->isNotEmpty() ? 'hasil' : 'sertifikasi' }}
             </span>
+        </div>
+
+        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
+             berbingkai sendiri seperti tabelnya. ══ --}}
+        <div class="px-5 pt-5">
+            <div class="rounded-corner border border-line">
+
+                {{-- Dua kendali berbagi satu baris — pencarian dua pertiga, status
+                     sepertiga. Susunan yang sama dengan halaman Kategori. --}}
+                <div class="grid gap-4 p-5 lg:grid-cols-3">
+
+                    <div class="relative lg:col-span-2">
+                        <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <x-icon.admin name="search" size="h-[18px] w-[18px]" />
+                        </span>
+
+                        <input type="search" wire:model.live="search" id="cari-sertifikasi"
+                               aria-label="Cari sertifikasi"
+                               placeholder="Cari nama sertifikasi atau penerbitnya…"
+                               class="admin-control pl-11 pr-10">
+
+                        <span wire:loading wire:target="search"
+                              class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                            <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
+                                <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <x-admin.select model="selectedStatus" :value="$selectedStatus"
+                                    label="Saring menurut status" placeholder="Semua status"
+                                    :options="[
+                                        ['nilai' => 'active',   'label' => 'Aktif'],
+                                        ['nilai' => 'inactive', 'label' => 'Nonaktif'],
+                                    ]" />
+                </div>
+
+                @if($penyaringAktif->isNotEmpty())
+                    <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
+                                bg-mist/60 px-5 py-3">
+                        <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-admin-overline
+                                     uppercase text-ink-faint">
+                            <x-icon.admin name="filter" size="h-3.5 w-3.5" />
+                            Disaring
+                        </span>
+
+                        @foreach($penyaringAktif as $f)
+                            <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
+                                         bg-canvas py-1 pl-3 pr-1.5 text-admin-label text-ink-muted">
+                                <span class="min-w-0 truncate">
+                                    {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
+                                </span>
+
+                                <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
+                                        aria-label="Hapus penyaring {{ $f['label'] }}"
+                                        class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
+                                               text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
+                                    <x-icon.admin name="close" size="h-3 w-3" />
+                                </button>
+                            </span>
+                        @endforeach
+
+                        @if($penyaringAktif->count() > 1)
+                            <button type="button"
+                                    x-on:click="{{ $bersihkan(['search', 'selectedStatus']) }}"
+                                    class="ml-auto shrink-0 text-admin-label font-semibold text-brand underline-offset-4 hover:underline">
+                                Hapus semua
+                            </button>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
 
         <div class="p-5 transition-opacity duration-150"
@@ -313,7 +337,7 @@
                                 <tr class="border-b border-line bg-mist/60">
                                     @foreach($kolom as $i => $k)
                                         <th @class([
-                                            'py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint',
+                                            'py-3 text-admin-overline uppercase text-ink-faint',
                                             $k['lebar'], $k['rata'],
                                             'pl-5 pr-3' => $i === 0,
                                             'px-3'      => $i > 0 && $i < count($kolom) - 1,
@@ -361,24 +385,18 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Sertifikasi: logo, nama, nomor, dan berkas
-                                         PDF-nya dalam satu sel.
-
-                                         Garis merah di tepi kiri menandai yang sudah
-                                         lewat tanggal — penanda kedua di samping lencana
-                                         harinya, supaya baris yang bermasalah terlihat
-                                         dari ujung mata. --}}
-                                    <td @class([
-                                        'py-4 pl-5 pr-3 align-middle border-l-[3px]',
-                                        'border-danger'      => $lewat,
-                                        'border-transparent' => ! $lewat,
-                                    ])>
+                                    {{-- Garis tepi kiri dihapus — keadaan
+                                         kedaluwarsa sudah terbaca dari kolom
+                                         Berlaku sampai. --}}
+                                    <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
 
-                                            {{-- Logonya object-contain, bukan object-cover:
-                                                 lambang lembaga sertifikasi punya bentuk
-                                                 macam-macam, dan memotongnya sampai penuh
-                                                 kotak membuang justru bagian yang
+                                            {{-- object-contain, bukan
+                                                 object-cover: lambang lembaga
+                                                 sertifikasi bentuknya
+                                                 macam-macam, dan memotongnya
+                                                 sampai penuh kotak membuang
+                                                 bagian yang justru
                                                  mengenalinya. --}}
                                             @if($logo)
                                                 <img src="{{ $logo->getUrl() }}" alt=""
@@ -396,17 +414,18 @@
                                             @endif
 
                                             <div class="min-w-0">
-                                                <span class="block truncate text-[13px] font-semibold text-ink"
+                                                <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                {{-- Baris kedua: nomor sertifikatnya, dan
-                                                     keping PDF di sebelahnya kalau berkasnya
-                                                     ada. Nomornya berangka lebar seragam —
-                                                     yang dilakukan orang dengan nomor ini
-                                                     adalah mencocokkannya karakter demi
-                                                     karakter. --}}
+                                                {{-- Baris kedua: nomor
+                                                     sertifikat, berangka
+                                                     lebar seragam — yang
+                                                     dilakukan orang dengan
+                                                     nomor ini adalah
+                                                     mencocokkannya karakter
+                                                     per karakter. --}}
                                                 <span class="mt-0.5 flex items-center gap-2">
-                                                    <span class="min-w-0 truncate text-[12px] tabular-nums text-ink-faint"
+                                                    <span class="min-w-0 truncate text-admin-caption tabular-nums text-ink-faint"
                                                           title="Nomor sertifikat: {{ $cert->certificate_number }}">{{ $cert->certificate_number ?: 'Tanpa nomor' }}</span>
 
                                                     @if($pdf)
@@ -414,10 +433,10 @@
                                                            title="Buka berkas PDF {{ $nama }}"
                                                            aria-label="Buka berkas PDF {{ $nama }}"
                                                            class="inline-flex shrink-0 items-center gap-1 rounded-full
-                                                                  border border-line bg-canvas px-2 py-0.5 text-[10px]
-                                                                  font-bold text-ink-muted transition-colors
+                                                                  border border-line bg-canvas px-2.5 py-1 text-admin-caption
+                                                                  font-semibold text-ink-muted transition-colors
                                                                   hover:border-brand hover:text-brand">
-                                                            <x-icon.admin name="pdf" size="h-2.5 w-2.5" />
+                                                            <x-icon.admin name="pdf" size="h-3 w-3" />
                                                             PDF
                                                         </a>
                                                     @endif
@@ -427,7 +446,7 @@
                                     </td>
 
                                     <td class="px-3 py-4 align-middle">
-                                        <span class="block truncate text-[13px] font-semibold text-ink"
+                                        <span class="block truncate text-admin-strong text-ink"
                                               title="{{ $cert->issuer }}">{{ $cert->issuer }}</span>
                                     </td>
 
@@ -435,7 +454,7 @@
                                         @if($cert->expires_at)
                                             <time datetime="{{ $cert->expires_at->toDateString() }}"
                                                   @class([
-                                                      'block text-[13px] tabular-nums',
+                                                      'block text-admin-body tabular-nums',
                                                       'font-semibold text-danger' => $lewat,
                                                       'text-ink-muted'            => ! $lewat,
                                                   ])>
@@ -444,25 +463,26 @@
 
                                             @if($lewat || $segera)
                                                 <span @class([
-                                                    'mt-1 inline-flex items-center rounded-full px-2 py-0.5
-                                                     text-[10px] font-bold',
+                                                    'mt-1 inline-flex items-center rounded-full px-2.5 py-1
+                                                     text-admin-caption font-semibold',
                                                     'bg-danger/15 text-danger'                     => $lewat,
                                                     'border border-line bg-canvas text-ink-muted'  => ! $lewat,
                                                 ])>{{ $lewat ? 'Lewat ' . $hari . ' hari' : $hari . ' hari lagi' }}</span>
                                             @endif
                                         @else
-                                            <span class="text-[13px] text-ink-faint">Tanpa masa berlaku</span>
+                                            <span class="text-admin-body text-ink-faint">Tanpa masa berlaku</span>
                                         @endif
                                     </td>
 
-                                    {{-- Urutan tampil. Angka yang kembar diberi tanda:
-                                         dua sertifikasi berangka sama akan berurutan
-                                         seadanya di situs publik, dan tidak ada yang
-                                         memberi tahu kalau tandanya tidak ada. --}}
+                                    {{-- Angka urutan yang kembar diberi
+                                         tanda: dua sertifikasi berangka sama
+                                         akan berurutan seadanya di situs
+                                         publik, dan tanpa tanda tidak ada
+                                         yang memberi tahu. --}}
                                     <td class="px-3 py-4 align-middle">
                                         <span @class([
                                             'inline-flex h-7 min-w-7 items-center justify-center rounded-control
-                                             px-2 text-[13px] font-semibold tabular-nums',
+                                             px-2 text-admin-strong tabular-nums',
                                             'bg-mist text-ink-muted'                            => ! $urutanKembar,
                                             'border border-danger/25 bg-danger/5 text-danger'   => $urutanKembar,
                                         ])
@@ -486,15 +506,13 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            <button type="button" wire:click="delete('{{ $cert->id }}')"
-                                                    wire:confirm="Hapus sertifikasi &quot;{{ $nama }}&quot;? Logo dan berkas PDF-nya ikut terhapus, dan produk yang menautkannya kehilangan bukti kelayakan ini."
-                                                    title="Hapus {{ $nama }}"
-                                                    aria-label="Hapus {{ $nama }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-control
-                                                           border border-line bg-canvas text-ink-muted transition-colors
-                                                           hover:border-danger hover:bg-danger hover:text-white">
-                                                <x-icon.admin name="trash" size="h-4 w-4" />
-                                            </button>
+<x-admin.confirm-delete metode="delete"
+                                                                    :id="$cert->id"
+                                                                    :nama="$nama"
+                                                                    judul="Hapus sertifikasi?"
+                                                                    tombol="Ya, hapus sertifikasi">
+                                                Logo dan berkas PDF-nya ikut terhapus, dan produk yang menautkannya kehilangan bukti kelayakan ini.
+                                            </x-admin.confirm-delete>
                                         </div>
                                     </td>
                                 </tr>
@@ -509,10 +527,10 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada sertifikasi yang cocok
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Coba kosongkan kata pencariannya, atau kembalikan
                                                 statusnya ke "semua".
                                             </p>
@@ -523,10 +541,10 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada sertifikasi
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Sertifikasi yang ditambahkan di sini tampil sebagai bukti
                                                 kelayakan di situs publik.
                                             </p>
@@ -553,7 +571,6 @@
         </div>
     </div>
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          MODAL TAMBAH / UBAH SERTIFIKASI
          ══════════════════════════════════════════════════════════════════ --}}
@@ -567,26 +584,29 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            <div class="relative flex max-h-[90vh] w-full max-w-[900px] flex-col overflow-clip
+            <div class="relative flex max-h-[90vh] w-full max-w-[1000px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
 
                 <form wire:submit.prevent="save" class="flex min-h-0 flex-1 flex-col">
 
                     {{-- ── Kepala ──────────────────────────────────────── --}}
-                    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
-                        <div class="flex min-w-0 items-center gap-3">
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                                         bg-brand/10 text-brand">
-                                <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
+                    <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-5">
+                        <div class="flex min-w-0 items-center gap-3.5">
+                            {{-- Keping 52px, setinggi blok dua baris di
+                                 sebelahnya (judul 30px + jarak 6 + keterangan
+                                 17). --}}
+                            <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-corner
+                                         bg-brand-wash text-brand">
+                                <x-icon.admin name="certification" size="h-6 w-6" />
                             </span>
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-sertifikasi"
-                                    class="truncate font-ui text-[15px] font-semibold text-ink">
+                                    class="truncate text-admin-display text-heading">
                                     {{ $editingId ? 'Ubah sertifikasi' : 'Tambah sertifikasi' }}
                                 </h2>
-                                <p class="mt-0.5 text-[12px] text-ink-muted">
+                                <p class="mt-1.5 text-admin-label text-ink-muted">
                                     Isian bertanda <span class="font-bold text-brand">*</span> wajib diisi,
                                     termasuk nama di kedua bahasa.
                                 </p>
@@ -609,76 +629,148 @@
                         <div class="admin-scroll min-h-0 space-y-4 p-6
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Informasi sertifikasi
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                {{-- Sakelar bahasa dan tombol Terjemahkan duduk di KEPALA KARTU,
+                                     sebaris dengan judulnya — susunan yang sama dengan modal
+                                     Produk, Kategori, Pasar Ekspor, Berita, dan Halaman.
+                                
+                                     Sebelumnya keduanya berdiri di dalam badan kartu, dan karena
+                                     barisnya selebar kartu, tombolnya terlempar 201px dari
+                                     sakelarnya. Di modal lain jaraknya 8px. --}}
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
+                                        </span>
+
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-heading">Informasi sertifikasi</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Nama, lembaga penerbit, dan nomor.</p>
+                                        </div>
+                                    </div>
+
+                                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                                    <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
+                                                border border-line bg-mist p-0.5"
+                                         role="group" aria-label="Bahasa yang sedang disunting">
+                                        @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
+                                            @php
+                                                /* Titik penanda: bahasa ini masih kosong
+                                                   sementara bahasa satunya sudah diisi.
+                                                   Akibatnya tidak kentara dari panel —
+                                                   kartunya akan menampilkan teks bahasa
+                                                   satunya. */
+                                                $lain    = $kode === 'en' ? 'id' : 'en';
+                                                $isiIni  = filled(trim($kode === 'en' ? $name_en : $name_id));
+                                                $isiLain = filled(trim($lain === 'en' ? $name_en : $name_id));
+                                                $timpang = ! $isiIni && $isiLain;
+                                            @endphp
+
+                                            <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
+                                                    aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
+                                                    @class([
+                                                        'inline-flex items-center gap-1.5 rounded-full px-3 py-1
+                                                         text-admin-label font-semibold transition-colors
+                                                         focus-visible:outline-none focus-visible:ring-2
+                                                         focus-visible:ring-brand/30',
+                                                        'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
+                                                            => $activeTab === $kode,
+                                                        'text-ink-muted hover:text-ink' => $activeTab !== $kode,
+                                                    ])>
+                                                {{ $sebutan }}
+                                                @if($timpang)
+                                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-status-new"
+                                                          title="Belum diisi — kartu berbahasa ini akan memakai teks bahasa satunya"
+                                                          aria-label="Belum diisi"></span>
+                                                @endif
+                                            </button>
+                                        @endforeach
+                                    </div>
+
+                                    <button type="button" wire:click="autoTranslate"
+                                            wire:loading.attr="disabled" wire:target="autoTranslate"
+                                            title="Salin isian Indonesia ke English, lalu terjemahkan"
+                                            class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
+                                        <svg wire:loading wire:target="autoTranslate"
+                                             class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                        </svg>
+
+                                        <x-icon.admin name="send" size="h-3.5 w-3.5" class="shrink-0 text-brand"
+                                                      wire:loading.remove wire:target="autoTranslate" />
+
+                                        Terjemahkan
+                                    </button>
+                                </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 <div class="space-y-4">
 
-                                    {{-- Nama dalam dua bahasa, berdampingan — bukan di
-                                         balik sakelar bahasa seperti modal Produk dan
-                                         Kategori.
+                                    {{-- Dua bahasa BERDAMPINGAN, bukan di
+                                         balik sakelar seperti modal Produk
+                                         dan Kategori: di sini sakelarnya
+                                         hanya akan mengatur satu isian, dan
+                                         sakelar untuk satu isian cuma
+                                         menambah langkah. --}}
+                                    {{-- Sakelar bahasa DI SAMPING tombol terjemah, dan
+                                         kolomnya bertukar di tempat yang sama — pola
+                                         yang sama dengan modal Halaman.
 
-                                         Alasannya: di sana sakelarnya mengatur DUA isian
-                                         sekaligus (nama dan deskripsi) yang masing-masing
-                                         panjang, jadi menyembunyikan salah satunya
-                                         menghemat banyak. Sertifikasi cuma
-                                         menerjemahkan namanya — satu kolom pendek — dan
-                                         sakelar untuk satu kolom justru menyembunyikan
-                                         separuh pekerjaan tanpa menghemat apa pun. --}}
+                                         Yang lama menaruh kolom Indonesia dan Inggris
+                                         berdampingan: dua bahasa harus dibaca sekaligus
+                                         padahal yang dikerjakan satu, dan tiap kolom
+                                         cuma dapat separuh lebar — mahal untuk
+                                         keterangan sepanjang 300 karakter.
+
+                                         Sakelarnya berdiri di bingkai sendiri, terpisah
+                                         dari tombol terjemah: bingkai berlekuk begitu
+                                         berjanji "pilih salah satu", dan tombol tindakan
+                                         di dalamnya mengingkari janji itu. --}}
                                     <div>
-                                        <div class="flex items-center justify-between">
-                                            <label class="block text-[12px] font-semibold text-ink-faint">
-                                                Nama sertifikasi <span class="text-brand">*</span>
-                                            </label>
-                                            <button type="button" wire:click="autoTranslate" wire:loading.attr="disabled" wire:target="autoTranslate"
-                                                title="Terjemahkan ID ke EN otomatis"
-                                                class="inline-flex items-center gap-1.5 rounded-[5px] px-2 py-1 text-[11px] font-semibold bg-brand/10 text-brand hover:bg-brand/20 transition-colors">
-                                                <span wire:loading.remove wire:target="autoTranslate">🌐 Auto EN</span>
-                                                <span wire:loading wire:target="autoTranslate">⏳ ...</span>
-                                            </button>
-                                        </div>
 
-                                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
+                                        {{-- Pesan gagal-terjemah, tepat di bawah sakelar yang
+                                             dilayaninya — bukan di puncak jendela dan bukan
+                                             lewat flash. --}}
+                                        @if($galatTerjemah)
+                                            <p class="mt-2 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
+                                                <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                    <path d="M8 2.4 14.4 13.2H1.6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                                                    <path d="M8 6.6v2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                                    <circle cx="8" cy="11.4" r="0.85" fill="currentColor"/>
+                                                </svg>
+                                                {{ $galatTerjemah }}
+                                            </p>
+                                        @endif
+
+                                        <div class="mt-4">
                                             <div>
-                                                <div class="relative">
-                                                    <span class="pointer-events-none absolute left-3.5 top-1/2
-                                                                 -translate-y-1/2 text-[10px] font-bold
-                                                                 uppercase tracking-[0.06em] text-ink-faint">EN</span>
+                                                <label for="sertif-nama" class="block text-admin-label text-ink-faint">
+                                                    Nama sertifikasi <span class="text-brand">*</span>
+                                                </label>
 
-                                                    <input type="text" wire:model="name_en"
-                                                           aria-label="Nama sertifikasi dalam bahasa Inggris"
-                                                           placeholder="Nama sertifikasi"
-                                                           class="admin-control pl-11">
-                                                </div>
+                                                @foreach(['id', 'en'] as $bahasa)
+                                                    <div @class(['mt-2', 'hidden' => $activeTab !== $bahasa])>
+                                                        <input type="text" wire:model="name_{{ $bahasa }}"
+                                                               id="{{ $bahasa === 'id' ? 'sertif-nama' : 'sertif-nama-en' }}"
+                                                               aria-label="Nama sertifikasi dalam bahasa {{ $bahasa === 'id' ? 'Indonesia' : 'Inggris' }}"
+                                                               placeholder="Nama sertifikasi"
+                                                               class="admin-control">
 
-                                                @error('name_en')
-                                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-
-                                            <div>
-                                                <div class="relative">
-                                                    <span class="pointer-events-none absolute left-3.5 top-1/2
-                                                                 -translate-y-1/2 text-[10px] font-bold
-                                                                 uppercase tracking-[0.06em] text-ink-faint">ID</span>
-
-                                                    <input type="text" wire:model="name_id"
-                                                           aria-label="Nama sertifikasi dalam bahasa Indonesia"
-                                                           placeholder="Nama sertifikasi"
-                                                           class="admin-control pl-11">
-                                                </div>
-
-                                                @error('name_id')
-                                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                                @enderror
+                                                        @error('name_' . $bahasa)
+                                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label for="sertif-issuer" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="sertif-issuer" class="block text-admin-label text-ink-faint">
                                             Lembaga penerbit <span class="text-brand">*</span>
                                         </label>
 
@@ -687,12 +779,12 @@
                                                class="admin-control mt-2">
 
                                         @error('issuer')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label for="sertif-nomor" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="sertif-nomor" class="block text-admin-label text-ink-faint">
                                             Nomor sertifikat
                                         </label>
 
@@ -704,10 +796,11 @@
                                                class="admin-control mt-2 tabular-nums">
 
                                         @error('certificate_number')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
                             </section>
                         </div>
 
@@ -716,14 +809,24 @@
                                     lg:w-[42%] lg:border-t-0 lg:overflow-y-auto lg:overscroll-contain">
 
                             {{-- ── Kartu: masa berlaku ──────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Masa berlaku
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="chart" size="h-[18px] w-[18px]" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Masa berlaku</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tanggal terbit dan kedaluwarsa sertifikat.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 <div class="space-y-4">
                                     <div>
-                                        <label for="sertif-terbit" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="sertif-terbit" class="block text-admin-label text-ink-faint">
                                             Tanggal terbit
                                         </label>
 
@@ -731,47 +834,60 @@
                                                max="{{ $expires_at ?: '' }}" class="admin-control mt-2">
 
                                         @error('issued_at')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label for="sertif-kedaluwarsa" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="sertif-kedaluwarsa" class="block text-admin-label text-ink-faint">
                                             Tanggal kedaluwarsa
                                         </label>
 
-                                        {{-- min/max saling mengunci, mencerminkan aturan
-                                             after_or_equal:issued_at di komponennya —
-                                             tanggal yang mustahil tidak pernah sempat
-                                             terkirim, jadi galatnya tidak perlu muncul. --}}
+                                        {{-- min/max saling mengunci,
+                                             mencerminkan
+                                             after_or_equal:issued_at di
+                                             komponennya — tanggal yang
+                                             mustahil tidak pernah sempat
+                                             terkirim. --}}
                                         <input type="date" wire:model="expires_at" id="sertif-kedaluwarsa"
                                                min="{{ $issued_at ?: '' }}" class="admin-control mt-2">
 
                                         @error('expires_at')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
-                                    <p class="flex items-start gap-1.5 text-[12px] leading-relaxed text-ink-faint">
+                                    <p class="admin-hint flex items-start gap-1.5">
                                         <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                             <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/>
                                             <path d="M8 7.4v3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                                             <circle cx="8" cy="5.2" r="0.75" fill="currentColor"/>
                                         </svg>
-                                        Dikosongkan berarti tanpa masa berlaku. Yang lewat tanggal
-                                        berhenti tampil di situs publik.
+                                        Dikosongkan berarti tanpa masa berlaku. Tanggal yang sudah lewat
+                                        membuat sertifikasinya berhenti tampil di situs publik.
                                     </p>
                                 </div>
+                            </div>
                             </section>
 
                             {{-- ── Kartu: berkas ────────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Berkas
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="gallery" size="h-[18px] w-[18px]" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Berkas</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Logo lembaga dan dokumen sertifikat.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 {{-- ── Logo ─────────────────────────────── --}}
-                                <span class="block text-[12px] font-semibold text-ink-faint">Logo lembaga</span>
+                                <span class="block text-admin-label text-ink-faint">Logo lembaga</span>
 
                                 <div class="mt-2 grid grid-cols-2 gap-3">
                                     @if($editingId && filled($existingLogoUrl))
@@ -786,14 +902,16 @@
                                             <div class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t
                                                         from-ink/80 to-transparent p-2 opacity-0 transition-opacity
                                                         group-hover:opacity-100 group-focus-within:opacity-100">
-                                                <button type="button" wire:click="deleteLogo"
-                                                        wire:confirm="Hapus logo ini?"
-                                                        aria-label="Hapus logo"
-                                                        class="inline-flex h-[26px] w-[26px] shrink-0 items-center
-                                                               justify-center rounded-control bg-white/90 text-danger
-                                                               transition-colors hover:bg-white">
-                                                    <x-icon.admin name="trash" size="h-3.5 w-3.5" />
-                                                </button>
+                                                <x-admin.confirm-delete metode="deleteLogo"
+                                                                        label="Hapus logo"
+                                                                        judul="Hapus logo sertifikasi?"
+                                                                        tombol="Ya, hapus logo"
+                                                                        ikon="h-3.5 w-3.5"
+                                                                        kelas="inline-flex h-[26px] w-[26px] shrink-0 items-center
+                                                                               justify-center rounded-control bg-white/90 text-danger
+                                                                               transition-colors hover:bg-white">
+                                                    Berkasnya ikut terhapus dari penyimpanan, dan sertifikasi ini kembali tampil tanpa logo di situs publik.
+                                                </x-admin.confirm-delete>
                                             </div>
                                         </div>
                                     @endif
@@ -814,54 +932,32 @@
                                                      class="block h-full w-full object-contain p-2">
                                             @else
                                                 <span class="flex h-full w-full items-center justify-center px-3
-                                                             text-center text-[11px] leading-snug text-ink-muted">
+                                                             text-center text-admin-caption text-ink-muted">
                                                     {{ $logoFile->getClientOriginalName() }}
                                                 </span>
                                             @endif
 
                                             <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
-                                                         text-[10px] font-bold text-white">Baru</span>
+                                                         text-admin-caption font-semibold text-white">Baru</span>
                                         </div>
                                     @endif
 
-                                    <label title="{{ filled($existingLogoUrl) ? 'Ganti logo' : 'Tambah logo' }}"
-                                           class="flex aspect-square cursor-pointer items-center justify-center
-                                                  rounded-control border-2 border-dashed border-line-strong
-                                                  bg-mist/40 text-ink-faint transition-colors
-                                                  hover:border-brand hover:bg-brand-wash hover:text-brand
-                                                  focus-within:border-brand focus-within:text-brand">
-
-                                        <input type="file" wire:model="logoFile" id="sertif-logo"
-                                               accept="image/*"
-                                               aria-label="{{ filled($existingLogoUrl) ? 'Ganti logo' : 'Tambah logo' }}"
-                                               class="sr-only">
-
-                                        <span wire:loading.remove wire:target="logoFile">
-                                            <svg class="h-9 w-9" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                                                <path d="M18 9v18M9 18h18" stroke="currentColor"
-                                                      stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                        </span>
-
-                                        <svg wire:loading wire:target="logoFile"
-                                             class="h-7 w-7 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
-                                                  stroke-width="1.6" stroke-linecap="round"/>
-                                        </svg>
-                                    </label>
+                                    <x-admin.upload-tile model="logoFile"
+                                                         id="sertif-logo"
+                                                         judul="{{ filled($existingLogoUrl) ? 'Ganti logo' : 'Tambah logo' }}"
+                                                         label="{{ filled($existingLogoUrl) ? 'Ganti logo' : 'Tambah logo' }}" />
                                 </div>
 
-                                <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                <p class="admin-hint">
                                     Satu gambar saja, maksimal 2 MB.
                                 </p>
 
                                 @error('logoFile')
-                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
 
                                 {{-- ── Dokumen PDF ──────────────────────── --}}
-                                <span class="mt-5 block text-[12px] font-semibold text-ink-faint">Dokumen resmi</span>
+                                <span class="mt-5 block text-admin-label text-ink-faint">Dokumen resmi</span>
 
                                 <div class="mt-2 grid grid-cols-2 gap-3">
                                     @if($editingId && filled($existingPdfUrl))
@@ -871,21 +967,23 @@
                                             <x-icon.admin name="pdf" size="h-7 w-7" />
 
                                             <a href="{{ $existingPdfUrl }}" target="_blank" rel="noopener"
-                                               class="text-[11px] font-semibold text-brand underline-offset-4 hover:underline">
+                                               class="text-admin-caption font-semibold text-brand underline-offset-4 hover:underline">
                                                 Buka berkas
                                             </a>
 
                                             <div class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t
                                                         from-ink/80 to-transparent p-2 opacity-0 transition-opacity
                                                         group-hover:opacity-100 group-focus-within:opacity-100">
-                                                <button type="button" wire:click="deletePdf"
-                                                        wire:confirm="Hapus dokumen PDF ini?"
-                                                        aria-label="Hapus dokumen PDF"
-                                                        class="inline-flex h-[26px] w-[26px] shrink-0 items-center
-                                                               justify-center rounded-control bg-white/90 text-danger
-                                                               transition-colors hover:bg-white">
-                                                    <x-icon.admin name="trash" size="h-3.5 w-3.5" />
-                                                </button>
+                                                <x-admin.confirm-delete metode="deletePdf"
+                                                                        label="Hapus dokumen PDF"
+                                                                        judul="Hapus dokumen PDF?"
+                                                                        tombol="Ya, hapus dokumen"
+                                                                        ikon="h-3.5 w-3.5"
+                                                                        kelas="inline-flex h-[26px] w-[26px] shrink-0 items-center
+                                                                               justify-center rounded-control bg-white/90 text-danger
+                                                                               transition-colors hover:bg-white">
+                                                    Berkasnya ikut terhapus dari penyimpanan, dan tombol unduh sertifikat ini hilang dari situs publik.
+                                                </x-admin.confirm-delete>
                                             </div>
                                         </div>
                                     @endif
@@ -898,61 +996,51 @@
                                                     border-brand/50 bg-brand-wash px-3 text-center text-ink-muted">
                                             <x-icon.admin name="pdf" size="h-7 w-7" />
 
-                                            <span class="line-clamp-2 text-[11px] leading-snug">
+                                            <span class="line-clamp-2 text-admin-caption">
                                                 {{ $pdfFile->getClientOriginalName() }}
                                             </span>
 
                                             <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
-                                                         text-[10px] font-bold text-white">Baru</span>
+                                                         text-admin-caption font-semibold text-white">Baru</span>
                                         </div>
                                     @endif
 
-                                    <label title="{{ filled($existingPdfUrl) ? 'Ganti dokumen PDF' : 'Tambah dokumen PDF' }}"
-                                           class="flex aspect-square cursor-pointer items-center justify-center
-                                                  rounded-control border-2 border-dashed border-line-strong
-                                                  bg-mist/40 text-ink-faint transition-colors
-                                                  hover:border-brand hover:bg-brand-wash hover:text-brand
-                                                  focus-within:border-brand focus-within:text-brand">
-
-                                        <input type="file" wire:model="pdfFile" id="sertif-pdf"
-                                               accept="application/pdf"
-                                               aria-label="{{ filled($existingPdfUrl) ? 'Ganti dokumen PDF' : 'Tambah dokumen PDF' }}"
-                                               class="sr-only">
-
-                                        <span wire:loading.remove wire:target="pdfFile">
-                                            <svg class="h-9 w-9" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                                                <path d="M18 9v18M9 18h18" stroke="currentColor"
-                                                      stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                        </span>
-
-                                        <svg wire:loading wire:target="pdfFile"
-                                             class="h-7 w-7 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
-                                                  stroke-width="1.6" stroke-linecap="round"/>
-                                        </svg>
-                                    </label>
+                                    <x-admin.upload-tile model="pdfFile"
+                                                         id="sertif-pdf"
+                                                         accept="application/pdf"
+                                                         judul="{{ filled($existingPdfUrl) ? 'Ganti dokumen PDF' : 'Tambah dokumen PDF' }}"
+                                                         label="{{ filled($existingPdfUrl) ? 'Ganti dokumen' : 'Tambah dokumen' }}" />
                                 </div>
 
-                                <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                                <p class="admin-hint">
                                     Hanya berkas PDF, maksimal 5 MB.
                                 </p>
 
                                 @error('pdfFile')
-                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
+                            </div>
                             </section>
 
                             {{-- ── Kartu: penerbitan ────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Penerbitan
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="manage" size="h-[18px] w-[18px]" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan urutan sertifikasi di situs publik.</p>
+                                    </div>
+                                </div>
+
+                                <div class="p-5">
 
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-[12px] font-semibold text-ink-faint">Status</label>
+                                        <label class="block text-admin-label text-ink-faint">Status</label>
 
                                         {{-- :nullable="false" — sertifikasi selalu berada
                                              di salah satu dari dua keadaan ini. --}}
@@ -963,35 +1051,30 @@
                                                             ['nilai' => 'active',   'label' => 'Aktif'],
                                                             ['nilai' => 'inactive', 'label' => 'Nonaktif'],
                                                         ]" />
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Yang nonaktif tetap tersimpan di sini, tapi berhenti tampil
-                                            di beranda dan halaman Tentang Kami.
-                                        </p>
-
+                                        
                                         @error('status')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
 
                                     <div>
-                                        <label for="sertif-urutan" class="block text-[12px] font-semibold text-ink-faint">
+                                        <label for="sertif-urutan" class="block text-admin-label text-ink-faint">
                                             Urutan tampil
                                         </label>
 
                                         <input type="number" wire:model="sort_order" id="sertif-urutan"
                                                min="0" step="1" class="admin-control mt-2">
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Angka lebih kecil tampil lebih dulu. Dua sertifikasi berangka
-                                            sama akan berurutan seadanya.
+                                        
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
                                         </p>
 
                                         @error('sort_order')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
+                            </div>
                             </section>
                         </div>
                     </div>

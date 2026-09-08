@@ -18,6 +18,7 @@ class PageTranslation extends Model
     protected $fillable = [
         'page_id',
         'locale',
+        'label',
         'title',
         'content',
     ];

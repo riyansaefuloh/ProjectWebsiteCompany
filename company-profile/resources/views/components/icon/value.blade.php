@@ -3,6 +3,11 @@
     'size' => 'h-6 w-6',
 ])
 
+{{-- Ikon empat nilai inti. Namanya menggambarkan ISI kartunya, bukan urutannya,
+     supaya yang menukar urutan nilai di kode tidak diam-diam menukar maknanya.
+
+     Semuanya pada petak 24 dengan tebal goresan 1,7 dan tanpa isian — bobot
+     optiknya sama saat keempatnya disandingkan. --}}
 @switch($name)
 
     {{-- Integritas: neraca --}}
@@ -14,21 +19,16 @@
         </svg>
         @break
 
-    {{-- Konsistensi: sasaran --}}
-    @case('consistency')
+    {{-- Mutu: segel bertanda centang — standar yang dipegang, bukan hasil yang
+         diukur. Sengaja BUKAN biji kopi bercentang seperti di kartu pilar
+         beranda: yang di sana kemampuan, yang di sini nilai. --}}
+    @case('quality')
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="8.8" stroke="currentColor" stroke-width="1.7"/>
-            <circle cx="12" cy="12" r="4.8" stroke="currentColor" stroke-width="1.7"/>
-            <circle cx="12" cy="12" r="1.3" fill="currentColor"/>
-        </svg>
-        @break
-
-    {{-- Keberlanjutan: daun --}}
-    @case('sustainability')
-        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20.4 3.6c0 9.4-4.6 14.2-11 14.2-1.7 0-3.2-.4-4.4-1.1C5 8.5 10.4 3.6 17.6 3.6c1 0 1.9.1 2.8 0Z"
-                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="M3.6 20.4C6.2 14.2 10.2 9.8 16 7.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="12" cy="9.6" r="6.6" stroke="currentColor" stroke-width="1.7"/>
+            <path d="m9.3 9.6 2 2 3.4-3.7" stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.4 15.3 7 21.6l5-2.4 5 2.4-1.4-6.3" stroke="currentColor" stroke-width="1.7"
+                  stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         @break
 
@@ -37,6 +37,19 @@
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="8.6" cy="12" r="5.6" stroke="currentColor" stroke-width="1.7"/>
             <circle cx="15.4" cy="12" r="5.6" stroke="currentColor" stroke-width="1.7"/>
+        </svg>
+        @break
+
+    {{-- Tanggung jawab: daun di atas telapak terbuka — sesuatu yang dititipkan
+         dan dijaga, bukan sekadar tumbuh. --}}
+    @case('responsibility')
+        <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3.4 14.6c2.4-1.4 4.6-1.4 6.6 0h3.4a1.7 1.7 0 0 1 0 3.4h-3"
+                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 18h4.8l5.1-2.3a1.7 1.7 0 0 1 1.5 3l-6.6 3.4c-1 .5-2.1.6-3.2.3l-8.2-2.2"
+                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.4 10.6c-2.6 0-4.6-2-4.6-4.6 2.6 0 4.6 2 4.6 4.6ZM13.4 10.6c0-3 2.4-5.4 5.4-5.4 0 3-2.4 5.4-5.4 5.4Z"
+                  stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
         </svg>
         @break
 

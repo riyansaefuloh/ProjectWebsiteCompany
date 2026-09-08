@@ -20,16 +20,15 @@
         };
     @endphp
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          KEPALA HALAMAN
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+            <h1 class="text-admin-display text-heading">
                 Galeri
             </h1>
-            <p class="mt-1.5 text-[13px] text-ink-muted">
+            <p class="mt-1.5 text-admin-body text-ink-muted">
                 Album foto dan video fasilitas yang tampil di situs publik.
             </p>
         </div>
@@ -42,15 +41,10 @@
         </button>
     </div>
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          PESAN SETELAH TERSIMPAN
-
-         Tidak digambar saat modalnya terbuka: di sana pesannya sudah tampil di
-         dalam modal, dan spanduk kedua di halaman belakang cuma tertutup rapat
-         tanpa pernah terbaca.
          ══════════════════════════════════════════════════════════════════ --}}
-    @if(session()->has('message') && ! $isOpen)
+    @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
              role="status">
@@ -61,7 +55,7 @@
                 </svg>
             </span>
 
-            <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+            <p class="min-w-0 flex-1 pt-1 text-admin-strong text-brand-deep">
                 {{ session('message') }}
             </p>
 
@@ -72,89 +66,91 @@
         </div>
     @endif
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PENYARING
-         ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card mb-6 overflow-visible">
-
-        {{-- Satu kendali saja, jadi ia membentang selebar kartunya. Album
-             belum punya keterangan lain yang masuk akal disaring — status,
-             kategori, dan tanggal terbit tidak ada di tabelnya. --}}
-        <div class="p-5">
-            <div class="relative">
-                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
-                </span>
-
-                <input type="search" wire:model.live="search" id="cari-album"
-                       aria-label="Cari album"
-                       placeholder="Cari nama album…"
-                       class="admin-control pl-11 pr-10">
-
-                <span wire:loading wire:target="search"
-                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
-                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    </svg>
-                </span>
-            </div>
-        </div>
-
-        @if($penyaringAktif->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
-                        bg-mist/60 px-5 py-3">
-                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold
-                             uppercase tracking-[0.08em] text-ink-faint">
-                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
-                    Disaring
-                </span>
-
-                @foreach($penyaringAktif as $f)
-                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
-                                 bg-canvas py-1 pl-3 pr-1.5 text-[12px] text-ink-muted">
-                        <span class="min-w-0 truncate">
-                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
-                        </span>
-
-                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
-                                aria-label="Hapus penyaring {{ $f['label'] }}"
-                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
-                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
-                            <x-icon.admin name="close" size="h-3 w-3" />
-                        </button>
-                    </span>
-                @endforeach
-            </div>
-        @endif
-    </div>
-
-
     {{-- ══════════════════════════════════════════════════════════════════
          TABEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card">
+    {{-- overflow-visible: kendali penyaring di dalamnya melayang keluar
+         bingkai kartu, dan .card membawa overflow-hidden yang akan
+         memotongnya. --}}
+    <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-mist text-ink-muted">
-                    <x-icon.admin name="gallery" size="h-4 w-4" />
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
+                    <x-icon.admin name="gallery" size="h-[18px] w-[18px]" />
                 </span>
 
                 <div>
-                    <h2 class="font-ui text-[15px] font-semibold text-ink">Daftar album</h2>
-                    <p class="mt-0.5 text-[12px] text-ink-muted">
+                    <h2 class="text-admin-title text-heading">Daftar album</h2>
+                    <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut dari yang paling baru diperbarui.
                     </p>
                 </div>
             </div>
 
             <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-mist
-                         px-3 py-1.5 text-[12px] font-semibold text-ink-muted">
+                         px-3 py-1.5 text-admin-label font-semibold text-ink-muted">
                 <span class="tabular-nums text-ink">{{ number_format($galleries->total()) }}</span>
                 {{ $penyaringAktif->isNotEmpty() ? 'hasil' : 'album' }}
             </span>
+        </div>
+
+        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
+             berbingkai sendiri seperti tabelnya. ══ --}}
+        <div class="px-5 pt-5">
+            <div class="rounded-corner border border-line">
+
+                {{-- Satu kendali saja, jadi ia membentang selebar kartunya. Album
+                             belum punya keterangan lain yang masuk akal disaring — status,
+                             kategori, dan tanggal terbit tidak ada di tabelnya. --}}
+                        <div class="p-5">
+                            <div class="relative">
+                                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
+                                </span>
+
+                                <input type="search" wire:model.live="search" id="cari-album"
+                                       aria-label="Cari album"
+                                       placeholder="Cari nama album…"
+                                       class="admin-control pl-11 pr-10">
+
+                                <span wire:loading wire:target="search"
+                                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
+                                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+
+                        @if($penyaringAktif->isNotEmpty())
+                            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
+                                        bg-mist/60 px-5 py-3">
+                                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-admin-overline
+                                             uppercase text-ink-faint">
+                                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
+                                    Disaring
+                                </span>
+
+                                @foreach($penyaringAktif as $f)
+                                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
+                                                 bg-canvas py-1 pl-3 pr-1.5 text-admin-label text-ink-muted">
+                                        <span class="min-w-0 truncate">
+                                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
+                                        </span>
+
+                                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
+                                                aria-label="Hapus penyaring {{ $f['label'] }}"
+                                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
+                                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
+                                            <x-icon.admin name="close" size="h-3 w-3" />
+                                        </button>
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+            </div>
         </div>
 
         <div class="p-5 transition-opacity duration-150"
@@ -181,7 +177,7 @@
                                 <tr class="border-b border-line bg-mist/60">
                                     @foreach($kolom as $i => $k)
                                         <th @class([
-                                            'py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint',
+                                            'py-3 text-admin-overline uppercase text-ink-faint',
                                             $k['lebar'], $k['rata'],
                                             'pl-5 pr-3' => $i === 0,
                                             'px-3'      => $i > 0 && $i < count($kolom) - 1,
@@ -233,15 +229,10 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Album. Garis hijau di tepi kiri menandai album
-                                         yang sudah ada isinya — album kosong tidak
-                                         menggambar apa pun di situs publik, dan itu
-                                         perlu terlihat dari ujung mata. --}}
-                                    <td @class([
-                                        'py-4 pl-5 pr-3 align-middle border-l-[3px]',
-                                        'border-brand'       => $isi->isNotEmpty(),
-                                        'border-transparent' => $isi->isEmpty(),
-                                    ])>
+                                    {{-- Garis tepi kiri dihapus —
+                                         ada-tidaknya isi sudah terbaca dari
+                                         jumlah foto di kolom Isi. --}}
+                                    <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
                                             @if($alamatSampul)
                                                 <img src="{{ $alamatSampul }}" alt=""
@@ -269,10 +260,10 @@
                                             @endif
 
                                             <div class="min-w-0">
-                                                <span class="block truncate text-[13px] font-semibold text-ink"
+                                                <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                <span class="mt-0.5 block truncate text-[12px] text-ink-faint">
+                                                <span class="mt-0.5 block truncate text-admin-caption text-ink-faint">
                                                     @if($isi->isEmpty())
                                                         Belum ada isinya
                                                     @else
@@ -288,44 +279,38 @@
 
                                     <td class="px-3 py-4 align-middle">
                                         @if($gallery->updated_at)
-                                            <span class="block text-[13px] tabular-nums text-ink-muted">
+                                            <span class="block text-admin-body tabular-nums text-ink-muted">
                                                 {{ $gallery->updated_at->translatedFormat('d M Y') }}
                                             </span>
-                                            <span class="mt-0.5 block text-[12px] tabular-nums text-ink-faint">
+                                            <span class="mt-0.5 block text-admin-caption tabular-nums text-ink-faint">
                                                 {{ $gallery->updated_at->format('H:i') }}
                                             </span>
                                         @else
-                                            <span class="text-[13px] text-ink-faint">&mdash;</span>
+                                            <span class="text-admin-body text-ink-faint">&mdash;</span>
                                         @endif
                                     </td>
 
                                     <td class="py-4 pl-3 pr-5 text-right align-middle">
                                         <div class="flex items-center justify-end gap-1.5">
-                                            {{-- Ikon "kelola", bukan pensil: tombol ini
-                                                 bukan cuma mengubah namanya — ia juga
-                                                 tempat menambah dan menghapus isi
-                                                 albumnya. --}}
                                             <button type="button" wire:click="edit('{{ $gallery->id }}')"
-                                                    title="Kelola {{ $nama }}"
-                                                    aria-label="Kelola {{ $nama }}"
+                                                    title="Ubah {{ $nama }}"
+                                                    aria-label="Ubah {{ $nama }}"
                                                     class="inline-flex h-8 w-8 items-center justify-center rounded-control
                                                            border border-line bg-canvas text-ink-muted transition-colors
                                                            hover:border-brand hover:bg-brand hover:text-white">
-                                                <x-icon.admin name="manage" size="h-4 w-4" />
+                                                <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
                                             {{-- Penegasannya menyebut akibatnya, bukan
                                                  sekadar "yakin?": seluruh isi albumnya
                                                  ikut terhapus. --}}
-                                            <button type="button" wire:click="delete('{{ $gallery->id }}')"
-                                                    wire:confirm="Hapus album &quot;{{ $nama }}&quot;? {{ $isi->count() }} isi di dalamnya ikut terhapus, dan albumnya hilang dari galeri situs publik."
-                                                    title="Hapus {{ $nama }}"
-                                                    aria-label="Hapus {{ $nama }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-control
-                                                           border border-line bg-canvas text-ink-muted transition-colors
-                                                           hover:border-danger hover:bg-danger hover:text-white">
-                                                <x-icon.admin name="trash" size="h-4 w-4" />
-                                            </button>
+                                            <x-admin.confirm-delete metode="delete"
+                                                                    :id="$gallery->id"
+                                                                    :nama="$nama"
+                                                                    judul="Hapus album?"
+                                                                    tombol="Ya, hapus album">
+                                                {{ $isi->count() }} isi di dalamnya ikut terhapus, dan albumnya hilang dari galeri situs publik.
+                                            </x-admin.confirm-delete>
                                         </div>
                                     </td>
                                 </tr>
@@ -340,10 +325,10 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada album yang cocok
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Coba kosongkan kata pencariannya.
                                             </p>
 
@@ -353,10 +338,10 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada album
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Album mengelompokkan foto dan video fasilitas yang
                                                 tampil di galeri situs publik.
                                             </p>
@@ -408,16 +393,16 @@
                     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
                         <div class="flex min-w-0 items-center gap-3">
                             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                                         bg-brand/10 text-brand">
+                                         bg-brand-wash text-brand">
                                 <x-icon.admin name="gallery" size="h-[18px] w-[18px]" />
                             </span>
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-album"
-                                    class="truncate font-ui text-[15px] font-semibold text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $gallery_id ? 'Kelola album' : 'Tambah album' }}
                                 </h2>
-                                <p class="mt-0.5 text-[12px] text-ink-muted">
+                                <p class="mt-0.5 text-admin-label text-ink-muted">
                                     Isian bertanda <span class="font-bold text-brand">*</span> wajib diisi.
                                 </p>
                             </div>
@@ -431,27 +416,6 @@
                         </button>
                     </div>
 
-                    {{-- Pesan tersimpan digambar DI DALAM modalnya saat sedang
-                         menyunting. store() sengaja tidak menutup modal di
-                         keadaan itu, jadi pesan yang cuma tergambar di halaman
-                         belakang tertutup rapat oleh modalnya sendiri —
-                         menekan Simpan terasa seperti tidak terjadi apa-apa. --}}
-                    @if($gallery_id && session()->has('message'))
-                        <div class="flex shrink-0 items-center gap-2.5 border-b border-brand/25
-                                    bg-brand-wash px-6 py-3" role="status">
-                            <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full
-                                         bg-brand text-white">
-                                <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                    <path d="m4 8.4 2.8 2.8L12 5.6" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </span>
-                            <p class="min-w-0 text-[12px] font-semibold text-brand-deep">
-                                {{ session('message') }}
-                            </p>
-                        </div>
-                    @endif
-
                     {{-- ── Dua kolom ───────────────────────────────────── --}}
                     <div class="admin-scroll flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain
                                 lg:flex-row lg:divide-x lg:divide-line lg:overflow-visible">
@@ -461,27 +425,34 @@
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
                             {{-- ── Kartu: informasi album ───────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Informasi album
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="page" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div>
-                                    <label for="nama-album" class="block text-[12px] font-semibold text-ink-faint">
-                                        Nama album <span class="text-brand">*</span>
-                                    </label>
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Informasi album</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Nama yang jadi judul albumnya di situs publik.</p>
+                                    </div>
+                                </div>
 
-                                    <input type="text" wire:model="name" id="nama-album"
-                                           placeholder="mis. Fasilitas Pengolahan Kopi"
-                                           class="admin-control mt-2">
+                                <div class="p-5">
 
-                                    <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                        Nama ini jadi judul albumnya di galeri situs publik.
-                                    </p>
+                                    <div>
+                                        <label for="nama-album" class="block text-admin-label text-ink-faint">
+                                            Nama album <span class="text-brand">*</span>
+                                        </label>
 
-                                    @error('name')
-                                        <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                    @enderror
+                                        <input type="text" wire:model="name" id="nama-album"
+                                               placeholder="mis. Fasilitas Pengolahan Kopi"
+                                               class="admin-control mt-2">
+                                        
+                                        @error('name')
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </section>
                         </div>
@@ -490,198 +461,194 @@
                         <div class="admin-scroll min-h-0 space-y-4 border-t border-line p-6
                                     lg:w-[42%] lg:border-t-0 lg:overflow-y-auto lg:overscroll-contain">
 
-                            <section class="rounded-corner border border-line bg-canvas p-5">
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
                                 @php
                                     $isiAlbum = $editingGallery?->items ?? collect();
                                 @endphp
 
-                                <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <h3 class="font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                        Isi album
-                                    </h3>
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="gallery" size="h-[18px] w-[18px]" />
+                                        </span>
+
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-heading">Isi album</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Foto dan video di dalamnya.</p>
+                                        </div>
+                                    </div>
 
                                     @if($isiAlbum->isNotEmpty())
                                         <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border
-                                                     border-line bg-mist px-2.5 py-1 text-[12px] font-semibold text-ink-muted">
+                                                     border-line bg-mist px-2.5 py-1 text-admin-label font-semibold text-ink-muted">
                                             <span class="tabular-nums text-ink">{{ $isiAlbum->count() }}</span> isi
                                         </span>
                                     @endif
                                 </div>
 
-                                {{-- Petak 4:3 — nisbah yang dipotong konversi 'thumb'
-                                     (1200×900). Petak persegi akan menjanjikan bingkai
-                                     yang bukan bingkai sebenarnya di situs publik. --}}
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="p-5">
 
-                                    @foreach($isiAlbum as $item)
-                                        @php
-                                            /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                               kedua mengembalikan untai kosong saat tidak ada
-                                               berkasnya, dan untai kosong di src membuat
-                                               peramban memuat ulang HALAMAN ini sebagai
-                                               gambar. */
-                                            $berkas = $item->getFirstMedia('gallery');
+                                    {{-- Ubin persegi, sama dengan modal
+                                         Produk, Kategori, Sertifikasi, dan
+                                         Berita. Fotonya dipotong konversi
+                                         'thumb' ke 4:3, jadi ubin persegi ini
+                                         memangkas sisi kiri-kanannya. --}}
+                                    <div class="grid grid-cols-2 gap-3">
 
-                                            $alamat = $berkas
-                                                ? ($berkas->hasGeneratedConversion('thumb')
-                                                    ? $berkas->getUrl('thumb')
-                                                    : $berkas->getUrl())
-                                                : null;
-                                        @endphp
+                                        @foreach($isiAlbum as $item)
+                                            @php
+                                                /* getFirstMedia(), bukan getFirstMediaUrl(): yang
+                                                   kedua mengembalikan untai kosong saat tidak ada
+                                                   berkasnya, dan untai kosong di src membuat
+                                                   peramban memuat ulang HALAMAN ini sebagai
+                                                   gambar. */
+                                                $berkas = $item->getFirstMedia('gallery');
 
-                                        <div class="group/isi relative aspect-[4/3] overflow-hidden
-                                                    rounded-control border border-line bg-mist">
+                                                $alamat = $berkas
+                                                    ? ($berkas->hasGeneratedConversion('thumb')
+                                                        ? $berkas->getUrl('thumb')
+                                                        : $berkas->getUrl())
+                                                    : null;
+                                            @endphp
 
-                                            @if($item->type === 'video')
-                                                <a href="{{ $item->video_url }}" target="_blank" rel="noopener"
-                                                   class="flex h-full w-full flex-col items-center justify-center
-                                                          gap-1.5 bg-ink px-3 text-center text-white transition-opacity
-                                                          hover:opacity-90"
-                                                   title="Buka {{ $item->video_url }}">
-                                                    <svg class="h-6 w-6 shrink-0" viewBox="0 0 16 16"
-                                                         fill="currentColor" aria-hidden="true">
-                                                        <path d="M5.5 3.8v8.4l7-4.2z"/>
-                                                    </svg>
-                                                    <span class="w-full truncate text-[11px] text-white/70">
-                                                        {{ $item->video_url }}
+                                            <div class="group/isi relative aspect-square overflow-hidden
+                                                        rounded-control border border-line bg-mist">
+
+                                                @if($item->type === 'video')
+                                                    <a href="{{ $item->video_url }}" target="_blank" rel="noopener"
+                                                       class="flex h-full w-full flex-col items-center justify-center
+                                                              gap-1.5 bg-ink px-3 text-center text-white transition-opacity
+                                                              hover:opacity-90"
+                                                       title="Buka {{ $item->video_url }}">
+                                                        <svg class="h-6 w-6 shrink-0" viewBox="0 0 16 16"
+                                                             fill="currentColor" aria-hidden="true">
+                                                            <path d="M5.5 3.8v8.4l7-4.2z"/>
+                                                        </svg>
+                                                        <span class="w-full truncate text-admin-caption text-white/70">
+                                                            {{ $item->video_url }}
+                                                        </span>
+                                                    </a>
+                                                @elseif($alamat)
+                                                    <img src="{{ $alamat }}" alt=""
+                                                         loading="lazy"
+                                                         class="block h-full w-full object-cover">
+                                                @else
+                                                    <span class="flex h-full w-full flex-col items-center justify-center
+                                                                 gap-1.5 px-3 text-center text-ink-faint">
+                                                        <x-icon.admin name="gallery" size="h-5 w-5" />
+                                                        <span class="text-admin-caption">Berkasnya tidak ada</span>
                                                     </span>
-                                                </a>
-                                            @elseif($alamat)
-                                                <img src="{{ $alamat }}" alt=""
-                                                     loading="lazy"
-                                                     class="block h-full w-full object-cover">
-                                            @else
-                                                <span class="flex h-full w-full flex-col items-center justify-center
-                                                             gap-1.5 px-3 text-center text-ink-faint">
-                                                    <x-icon.admin name="gallery" size="h-5 w-5" />
-                                                    <span class="text-[11px] leading-snug">Berkasnya tidak ada</span>
-                                                </span>
-                                            @endif
+                                                @endif
 
-                                            <div class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t
-                                                        from-ink/80 to-transparent p-2 opacity-0 transition-opacity
-                                                        group-hover/isi:opacity-100 group-focus-within/isi:opacity-100">
-                                                <button type="button" wire:click="deleteItem('{{ $item->id }}')"
-                                                        wire:confirm="Hapus isi ini dari albumnya? Berkasnya ikut terhapus."
-                                                        aria-label="Hapus isi album"
-                                                        class="inline-flex h-[26px] w-[26px] shrink-0 items-center
-                                                               justify-center rounded-control bg-white/90 text-danger
-                                                               transition-colors hover:bg-white">
-                                                    <x-icon.admin name="trash" size="h-3.5 w-3.5" />
-                                                </button>
+                                                <div class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t
+                                                            from-ink/80 to-transparent p-2 opacity-0 transition-opacity
+                                                            group-hover/isi:opacity-100 group-focus-within/isi:opacity-100">
+                                                    <x-admin.confirm-delete metode="deleteItem"
+                                                                            :id="$item->id"
+                                                                            judul="Hapus isi album?"
+                                                                            tombol="Ya, hapus isi"
+                                                                            ikon="h-3.5 w-3.5"
+                                                                            kelas="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-control bg-white/90 text-danger transition-colors hover:bg-white">
+                                                        Berkasnya ikut terhapus dari penyimpanan, dan isinya hilang dari album ini di situs publik.
+                                                    </x-admin.confirm-delete>
+                                                </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
 
-                                    {{-- Berkas yang baru dipilih tapi belum tersimpan.
-                                         temporaryUrl() dibungkus try: ia melempar galat
-                                         untuk berkas yang bukan gambar, dan atribut
-                                         accept cuma menyaring tampilan penjelajah
-                                         berkas — bukan jaminan. --}}
-                                    @foreach($photos ?? [] as $foto)
-                                        @php
-                                            try {
-                                                $pratinjau = $foto->temporaryUrl();
-                                            } catch (\Throwable $e) {
-                                                $pratinjau = null;
-                                            }
-                                        @endphp
+                                        {{-- temporaryUrl() dibungkus try: ia
+                                             melempar galat untuk berkas yang
+                                             bukan gambar, dan atribut accept
+                                             hanya menyaring tampilan
+                                             penjelajah berkas. --}}
+                                        @foreach($photos ?? [] as $foto)
+                                            @php
+                                                try {
+                                                    $pratinjau = $foto->temporaryUrl();
+                                                } catch (\Throwable $e) {
+                                                    $pratinjau = null;
+                                                }
+                                            @endphp
 
-                                        <div class="relative aspect-[4/3] overflow-hidden rounded-control
-                                                    border border-dashed border-brand/50 bg-brand-wash">
-                                            @if($pratinjau)
-                                                <img src="{{ $pratinjau }}" alt=""
-                                                     class="block h-full w-full object-cover">
-                                            @else
-                                                <span class="flex h-full w-full items-center justify-center px-3
-                                                             text-center text-[11px] leading-snug text-ink-muted">
-                                                    {{ $foto->getClientOriginalName() }}
-                                                </span>
-                                            @endif
+                                            <div class="relative aspect-square overflow-hidden rounded-control
+                                                        border border-dashed border-brand/50 bg-brand-wash">
+                                                @if($pratinjau)
+                                                    <img src="{{ $pratinjau }}" alt=""
+                                                         class="block h-full w-full object-cover">
+                                                @else
+                                                    <span class="flex h-full w-full items-center justify-center px-3
+                                                                 text-center text-admin-caption text-ink-muted">
+                                                        {{ $foto->getClientOriginalName() }}
+                                                    </span>
+                                                @endif
 
-                                            <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
-                                                         text-[10px] font-bold text-white">Baru</span>
-                                        </div>
-                                    @endforeach
+                                                <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
+                                                             text-admin-caption font-semibold text-white">Baru</span>
+                                            </div>
+                                        @endforeach
 
-                                    <label title="Tambah foto"
-                                           class="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center
-                                                  gap-2 rounded-control border-2 border-dashed border-line-strong
-                                                  bg-mist/40 text-ink-faint transition-colors
-                                                  hover:border-brand hover:bg-brand-wash hover:text-brand
-                                                  focus-within:border-brand focus-within:text-brand">
+                                        <x-admin.upload-tile model="photos"
+                                                             id="foto-album"
+                                                             accept="image/jpeg,image/png,image/webp,image/gif"
+                                                             multiple
+                                                             judul="Tambah foto"
+                                                             label="Tambah foto" />
+                                    </div>
 
-                                        <input type="file" wire:model="photos" id="foto-album"
-                                               multiple accept="image/jpeg,image/png,image/webp,image/gif"
-                                               aria-label="Tambah foto ke album"
-                                               class="sr-only">
-
-                                        <span wire:loading.remove wire:target="photos"
-                                              class="flex flex-col items-center gap-1.5">
-                                            <svg class="h-7 w-7" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                                                <path d="M18 9v18M9 18h18" stroke="currentColor"
-                                                      stroke-width="2" stroke-linecap="round"/>
-                                            </svg>
-                                            <span class="text-[11px] font-semibold">Tambah foto</span>
-                                        </span>
-
-                                        <svg wire:loading wire:target="photos"
-                                             class="h-6 w-6 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
-                                                  stroke-width="1.6" stroke-linecap="round"/>
-                                        </svg>
-                                    </label>
-                                </div>
-
-                                <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
-                                    JPG, PNG, WebP, atau GIF; maksimal 5&nbsp;MB per foto. Bisa
-                                    pilih beberapa sekaligus, dan semuanya diubah otomatis jadi WebP.
-                                    Foto baru masuk begitu tombol simpan ditekan.
-                                </p>
-
-                                @error('photos.*')
-                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                @enderror
-
-                                @if(! $gallery_id)
-                                    <p class="mt-3 rounded-control border border-dashed border-line-strong
-                                              bg-mist/40 px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-muted">
-                                        Album ini belum tersimpan. Foto dan video yang dipilih sekarang
-                                        ikut masuk begitu albumnya disimpan.
+                                    <p class="admin-hint">
+                                        JPG, PNG, WebP, atau GIF, maksimal 5&nbsp;MB, diubah otomatis jadi WebP.
                                     </p>
-                                @endif
+
+                                    @error('photos.*')
+                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                    @enderror
+
+                                    @if(! $gallery_id)
+                                        <p class="mt-3 rounded-control border border-dashed border-line-strong
+                                                  bg-mist/40 px-3.5 py-2.5 text-admin-label text-ink-muted">
+                                            Album ini belum tersimpan. Foto dan video yang dipilih sekarang
+                                            ikut masuk begitu albumnya disimpan.
+                                        </p>
+                                    @endif
+                                </div>
                             </section>
 
                             {{-- ── Kartu: tambah video ──────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Tambah video
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="external" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div>
-                                    <label for="video-album" class="block text-[12px] font-semibold text-ink-faint">
-                                        Tautan video
-                                    </label>
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Tambah video</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tautan YouTube atau Vimeo, satu per simpan.</p>
+                                    </div>
+                                </div>
 
-                                    <input type="url" wire:model="videoUrl" id="video-album"
-                                           placeholder="https://youtube.com/watch?v=…"
-                                           class="admin-control mt-2">
+                                <div class="p-5">
 
-                                    {{-- Satu tautan per simpan, bukan daftar: itulah yang
-                                         dilakukan store() — ia membuat satu isi video lalu
-                                         mengosongkan kotaknya. Menjanjikan lebih dari itu
-                                         di layar cuma membuat isian yang diam-diam
-                                         terbuang. --}}
-                                    <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                        Tautan YouTube atau Vimeo. Satu tautan per simpan —
-                                        kotaknya dikosongkan lagi sesudahnya, jadi video
-                                        berikutnya bisa langsung ditambahkan.
-                                    </p>
+                                    <div>
+                                        <label for="video-album" class="block text-admin-label text-ink-faint">
+                                            Tautan video
+                                        </label>
 
-                                    @error('videoUrl')
-                                        <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                    @enderror
+                                        <input type="url" wire:model="videoUrl" id="video-album"
+                                               placeholder="https://youtube.com/watch?v=…"
+                                               class="admin-control mt-2">
+
+                                        {{-- Satu tautan per simpan, bukan
+                                             daftar: store() membuat satu isi
+                                             video lalu mengosongkan kotaknya. --}}
+                                        <p class="admin-hint">
+                                            Tautan YouTube atau Vimeo.
+                                        </p>
+
+                                        @error('videoUrl')
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </section>
                         </div>
@@ -689,12 +656,12 @@
 
                     {{-- ── Kaki ────────────────────────────────────────── --}}
                     <div class="flex shrink-0 items-center justify-end gap-2 border-t border-line px-6 py-4">
-                        {{-- "Selesai", bukan "Batal", saat menyunting: perubahannya
-                             sudah tersimpan tiap kali tombol simpan ditekan, jadi
-                             menutup modal tidak membatalkan apa pun. --}}
+                        {{-- "Batal" di kedua keadaan: menekan Simpan menutup
+                             modalnya, jadi tidak ada lagi keadaan "sudah
+                             tersimpan tapi masih di dalam modal". --}}
                         <button type="button" wire:click="closeModal"
                                 class="admin-btn admin-btn-quiet">
-                            {{ $gallery_id ? 'Selesai' : 'Batal' }}
+                            Batal
                         </button>
 
                         <button type="submit" wire:loading.attr="disabled" wire:target="store, photos"

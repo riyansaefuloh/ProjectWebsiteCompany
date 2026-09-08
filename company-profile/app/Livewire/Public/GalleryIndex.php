@@ -33,11 +33,29 @@ class GalleryIndex extends Component
     {
         $albums = Gallery::with('items.media')->get()
             ->map(function ($gallery) {
+                /*
+                 * ->toBase() di dua tempat di bawah bukan hiasan — tanpanya
+                 * halaman ini mati dengan 500 untuk SETIAP album yang punya
+                 * foto tapi tidak punya video, yaitu keadaan yang biasa.
+                 *
+                 * Eloquent\Collection::map() cuma turun ke koleksi biasa kalau
+                 * HASILNYA mengandung sesuatu yang bukan Model. Untuk hasil
+                 * kosong pemeriksaan itu false, jadi kelasnya tetap Eloquent.
+                 * Album tanpa video menghasilkan $videos yang kosong tapi
+                 * masih ber-kelas Eloquent — dan Eloquent\Collection::merge()
+                 * memanggil getKey() pada tiap isi yang dioper kepadanya.
+                 * Isi $photos adalah string URL, bukan Model.
+                 *
+                 * Keduanya memang berisi string, jadi keduanya diturunkan ke
+                 * koleksi biasa sejak awal, bukan cuma yang kebetulan kosong.
+                 */
+
                 // [PERUBAHAN: YouTube Support] — Pisahkan foto dan video
                 $photos = $gallery->items
                     ->filter(fn ($item) => $item->type !== 'video')
                     ->map(fn ($item) => $item->getFirstMediaUrl('gallery', 'webp')
                                      ?: $item->getFirstMediaUrl('gallery'))
+                    ->toBase()
                     ->filter()
                     ->values();
 
@@ -46,6 +64,7 @@ class GalleryIndex extends Component
                 $videos = $gallery->items
                     ->filter(fn ($item) => $item->type === 'video' && filled($item->video_url))
                     ->map(fn ($item) => 'youtube:' . $item->video_url)
+                    ->toBase()
                     ->values();
 
                 // [PERUBAHAN: YouTube Support] — Gabungkan: video tampil pertama, foto setelahnya
@@ -77,8 +96,23 @@ class GalleryIndex extends Component
                yang kosong jatuh ke teks bawaan di berkas bahasa. */
             'isi' => \App\Support\IsiHalaman::untuk('gallery'),
 
-            'featured' => $albums->first(),
-            'albums'   => $albums->skip(1)->values(),
+            /*
+             * SELURUH album masuk ke satu kisi, tidak ada lagi yang disorot.
+             *
+             * Album pertama dulu digambar selebar halaman bernisbah 16:9 —
+             * tiga kali luas album lain — padahal yang menjadikannya pertama
+             * cuma urutan di panel, bukan isinya. Yang menempati tempat sorotan
+             * itu sekarang video, dan video memang dipilih untuk disorot.
+             */
+            'albums' => $albums,
+
+            /*
+             * Alamat video diambil dari opsi halaman, bukan dari isi per
+             * bahasa: satu alamat berlaku untuk kedua bahasa.
+             */
+            'videoSematan' => \App\Support\Youtube::sematan(
+                \App\Support\IsiHalaman::opsi('gallery')['video_url'] ?? null
+            ),
         ]);
     }
 }

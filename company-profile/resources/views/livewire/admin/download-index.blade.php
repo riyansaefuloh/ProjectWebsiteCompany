@@ -32,16 +32,15 @@
         };
     @endphp
 
-
     {{-- ══════════════════════════════════════════════════════════════════
          KEPALA HALAMAN
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="font-ui text-[24px] font-bold leading-[1.2] tracking-[-0.02em] text-ink sm:text-[26px]">
+            <h1 class="text-admin-display text-heading">
                 Unduhan
             </h1>
-            <p class="mt-1.5 text-[13px] text-ink-muted">
+            <p class="mt-1.5 text-admin-body text-ink-muted">
                 Katalog dan brosur PDF yang bisa diunduh pembeli dari situs publik.
             </p>
         </div>
@@ -53,7 +52,6 @@
             Tambah berkas
         </button>
     </div>
-
 
     {{-- ══════════════════════════════════════════════════════════════════
          PESAN SETELAH TERSIMPAN
@@ -69,7 +67,7 @@
                 </svg>
             </span>
 
-            <p class="min-w-0 flex-1 pt-1 text-[13px] font-semibold text-brand-deep">
+            <p class="min-w-0 flex-1 pt-1 text-admin-strong text-brand-deep">
                 {{ session('message') }}
             </p>
 
@@ -80,111 +78,111 @@
         </div>
     @endif
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PENYARING
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible supaya menu turun penyaringnya tidak terpotong —
-         .card membawa overflow-hidden. --}}
-    <div class="card mb-6 overflow-visible">
-
-        {{-- Dua kendali, jadi keduanya berbagi satu baris — pencarian dua
-             pertiga, akses sepertiga. Susunan yang sama dengan halaman
-             Kategori, Sertifikasi, dan Berita. --}}
-        <div class="grid gap-4 p-5 lg:grid-cols-3">
-
-            <div class="relative lg:col-span-2">
-                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
-                </span>
-
-                <input type="search" wire:model.live="search" id="cari-unduhan"
-                       aria-label="Cari berkas unduhan"
-                       placeholder="Cari judul berkas…"
-                       class="admin-control pl-11 pr-10">
-
-                <span wire:loading wire:target="search"
-                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
-                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
-                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    </svg>
-                </span>
-            </div>
-
-            {{-- Nilainya '1' dan '0', bukan true/false: menu pilih ini
-                 mengirimkan untai, dan properti penyaringnya pun bertipe untai
-                 supaya "belum dipilih" ('') bisa dibedakan dari "Terbuka"
-                 ('0'). --}}
-            <x-admin.select model="selectedGate" :value="$selectedGate"
-                            label="Saring menurut akses" placeholder="Semua akses"
-                            :options="[
-                                ['nilai' => '1', 'label' => 'Perlu email'],
-                                ['nilai' => '0', 'label' => 'Terbuka'],
-                            ]" />
-        </div>
-
-        @if($penyaringAktif->isNotEmpty())
-            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
-                        bg-mist/60 px-5 py-3">
-                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold
-                             uppercase tracking-[0.08em] text-ink-faint">
-                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
-                    Disaring
-                </span>
-
-                @foreach($penyaringAktif as $f)
-                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
-                                 bg-canvas py-1 pl-3 pr-1.5 text-[12px] text-ink-muted">
-                        <span class="min-w-0 truncate">
-                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
-                        </span>
-
-                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
-                                aria-label="Hapus penyaring {{ $f['label'] }}"
-                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
-                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
-                            <x-icon.admin name="close" size="h-3 w-3" />
-                        </button>
-                    </span>
-                @endforeach
-
-                @if($penyaringAktif->count() > 1)
-                    <button type="button"
-                            x-on:click="{{ $bersihkan(['search', 'selectedGate']) }}"
-                            class="ml-auto shrink-0 text-[12px] font-semibold text-brand underline-offset-4 hover:underline">
-                        Hapus semua
-                    </button>
-                @endif
-            </div>
-        @endif
-    </div>
-
-
     {{-- ══════════════════════════════════════════════════════════════════
          TABEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <div class="card">
+    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
+         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
+         memotongnya tepat di garis bawah kartu. --}}
+    <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-mist text-ink-muted">
-                    <x-icon.admin name="download" size="h-4 w-4" />
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
+                    <x-icon.admin name="download" size="h-[18px] w-[18px]" />
                 </span>
 
                 <div>
-                    <h2 class="font-ui text-[15px] font-semibold text-ink">Daftar berkas</h2>
-                    <p class="mt-0.5 text-[12px] text-ink-muted">
+                    <h2 class="text-admin-title text-heading">Daftar berkas</h2>
+                    <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
                 </div>
             </div>
 
             <span class="inline-flex shrink-0 items-center gap-2 rounded-full border border-line bg-mist
-                         px-3 py-1.5 text-[12px] font-semibold text-ink-muted">
+                         px-3 py-1.5 text-admin-label font-semibold text-ink-muted">
                 <span class="tabular-nums text-ink">{{ number_format($downloads->total()) }}</span>
                 {{ $penyaringAktif->isNotEmpty() ? 'hasil' : 'berkas' }}
             </span>
+        </div>
+
+        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
+             berbingkai sendiri seperti tabelnya. ══ --}}
+        <div class="px-5 pt-5">
+            <div class="rounded-corner border border-line">
+
+                {{-- Dua kendali, jadi keduanya berbagi satu baris — pencarian dua
+                             pertiga, akses sepertiga. Susunan yang sama dengan halaman
+                             Kategori, Sertifikasi, dan Berita. --}}
+                        <div class="grid gap-4 p-5 lg:grid-cols-3">
+
+                            <div class="relative lg:col-span-2">
+                                <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                                    <x-icon.admin name="search" size="h-[18px] w-[18px]" />
+                                </span>
+
+                                <input type="search" wire:model.live="search" id="cari-unduhan"
+                                       aria-label="Cari berkas unduhan"
+                                       placeholder="Cari judul berkas…"
+                                       class="admin-control pl-11 pr-10">
+
+                                <span wire:loading wire:target="search"
+                                      class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                                    <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.25"/>
+                                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                            </div>
+
+                            {{-- Nilainya '1' dan '0', bukan true/false: menu
+                                 pilih mengirim untai, dan propertinya pun
+                                 untai supaya "belum dipilih" ('') bisa
+                                 dibedakan dari "Terbuka" ('0'). --}}
+                            <x-admin.select model="selectedGate" :value="$selectedGate"
+                                            label="Saring menurut akses" placeholder="Semua akses"
+                                            :options="[
+                                                ['nilai' => '1', 'label' => 'Perlu email'],
+                                                ['nilai' => '0', 'label' => 'Terbuka'],
+                                            ]" />
+                        </div>
+
+                        @if($penyaringAktif->isNotEmpty())
+                            <div class="flex flex-wrap items-center gap-2 rounded-b-corner border-t border-line
+                                        bg-mist/60 px-5 py-3">
+                                <span class="mr-1 inline-flex shrink-0 items-center gap-1.5 text-admin-overline
+                                             uppercase text-ink-faint">
+                                    <x-icon.admin name="filter" size="h-3.5 w-3.5" />
+                                    Disaring
+                                </span>
+
+                                @foreach($penyaringAktif as $f)
+                                    <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-line
+                                                 bg-canvas py-1 pl-3 pr-1.5 text-admin-label text-ink-muted">
+                                        <span class="min-w-0 truncate">
+                                            {{ $f['label'] }}: <span class="font-semibold text-ink">{{ $f['nilai'] }}</span>
+                                        </span>
+
+                                        <button type="button" x-on:click="{{ $bersihkan($f['props']) }}"
+                                                aria-label="Hapus penyaring {{ $f['label'] }}"
+                                                class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full
+                                                       text-ink-faint transition-colors hover:bg-mist-deep hover:text-ink">
+                                            <x-icon.admin name="close" size="h-3 w-3" />
+                                        </button>
+                                    </span>
+                                @endforeach
+
+                                @if($penyaringAktif->count() > 1)
+                                    <button type="button"
+                                            x-on:click="{{ $bersihkan(['search', 'selectedGate']) }}"
+                                            class="ml-auto shrink-0 text-admin-label font-semibold text-brand underline-offset-4 hover:underline">
+                                        Hapus semua
+                                    </button>
+                                @endif
+                            </div>
+                        @endif
+            </div>
         </div>
 
         <div class="p-5 transition-opacity duration-150"
@@ -210,7 +208,7 @@
                                 <tr class="border-b border-line bg-mist/60">
                                     @foreach($kolom as $i => $k)
                                         <th @class([
-                                            'py-3 text-[11px] font-bold uppercase tracking-[0.08em] text-ink-faint',
+                                            'py-3 text-admin-overline uppercase text-ink-faint',
                                             $k['lebar'], $k['rata'],
                                             'pl-5 pr-3' => $i === 0,
                                             'px-3'      => $i > 0 && $i < count($kolom) - 1,
@@ -244,14 +242,11 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Berkas. Garis hijau di tepi kiri menandai baris
-                                         yang berkasnya benar-benar ada — tanpa berkas,
-                                         barisnya tidak bisa diunduh siapa pun. --}}
-                                    <td @class([
-                                        'py-4 pl-5 pr-3 align-middle border-l-[3px]',
-                                        'border-brand'       => $adaBerkas,
-                                        'border-transparent' => ! $adaBerkas,
-                                    ])>
+                                    {{-- Garis tepi kiri dihapus —
+                                         ada-tidaknya berkas sudah terbaca
+                                         dari keterangan di bawah nama
+                                         unduhannya. --}}
+                                    <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
                                             <span @class([
                                                 'flex h-10 w-10 shrink-0 items-center justify-center rounded-control border',
@@ -262,10 +257,10 @@
                                             </span>
 
                                             <div class="min-w-0">
-                                                <span class="block truncate text-[13px] font-semibold text-ink"
+                                                <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $judul }}">{{ $judul }}</span>
 
-                                                <span class="mt-0.5 flex items-center gap-2 text-[12px]">
+                                                <span class="mt-0.5 flex items-center gap-2 text-admin-caption">
                                                     @if($adaBerkas)
                                                         <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($dl->file_path) }}"
                                                            target="_blank" rel="noopener"
@@ -273,16 +268,17 @@
                                                                   transition-colors hover:text-brand hover:underline"
                                                            title="Buka {{ $namaBerkas }}">{{ $namaBerkas }}</a>
                                                     @elseif($namaBerkas)
-                                                        {{-- Tersimpan di basis data, hilang di disk.
-
-                                                             Tanpa py dan tanpa leading sendiri: keping yang
-                                                             lebih tinggi dari teks 12px di sebelahnya akan
-                                                             menarik tinggi barisnya jadi 75px, dan tabel ini
-                                                             kehilangan irama 73px yang dipakai semua halaman
-                                                             lain. --}}
+                                                        {{-- Tanpa py dan
+                                                             tanpa leading
+                                                             sendiri: keping
+                                                             yang lebih tinggi
+                                                             dari teks 12px di
+                                                             sebelahnya akan
+                                                             menarik tinggi
+                                                             barisnya. --}}
                                                         <span class="inline-flex shrink-0 items-center rounded-full
-                                                                     bg-status-rejected/10 px-1.5 text-[10px]
-                                                                     font-bold text-status-rejected"
+                                                                     bg-status-rejected/10 px-1.5 text-admin-caption
+                                                                     font-semibold text-status-rejected"
                                                               title="Tercatat sebagai {{ $dl->file_path }}, tapi berkasnya tidak ada di penyimpanan">
                                                             Berkas hilang
                                                         </span>
@@ -299,7 +295,7 @@
                                     </td>
 
                                     <td class="px-3 py-4 align-middle">
-                                        <span class="text-[13px] tabular-nums text-ink-muted">
+                                        <span class="text-admin-body tabular-nums text-ink-muted">
                                             <span class="font-semibold text-ink">{{ number_format($dl->download_count) }}</span>
                                             kali
                                         </span>
@@ -307,7 +303,7 @@
 
                                     <td class="px-3 py-4 align-middle">
                                         <span class="inline-flex h-7 min-w-7 items-center justify-center rounded-control
-                                                     bg-mist px-2 text-[13px] font-semibold tabular-nums text-ink-muted"
+                                                     bg-mist px-2 text-admin-strong tabular-nums text-ink-muted"
                                               title="Urutan tampil: {{ $dl->sort_order }}">{{ $dl->sort_order }}</span>
                                     </td>
 
@@ -322,19 +318,18 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasannya menyebut akibatnya, bukan
-                                                 sekadar "yakin?": berkas PDF-nya ikut
-                                                 dihapus dari penyimpanan, dan tautan
-                                                 unduhnya di situs publik jadi mati. --}}
-                                            <button type="button" wire:click="delete('{{ $dl->id }}')"
-                                                    wire:confirm="Hapus &quot;{{ $judul }}&quot;? Berkas PDF-nya ikut terhapus dari penyimpanan, dan tautan unduhnya di situs publik jadi mati."
-                                                    title="Hapus {{ $judul }}"
-                                                    aria-label="Hapus {{ $judul }}"
-                                                    class="inline-flex h-8 w-8 items-center justify-center rounded-control
-                                                           border border-line bg-canvas text-ink-muted transition-colors
-                                                           hover:border-danger hover:bg-danger hover:text-white">
-                                                <x-icon.admin name="trash" size="h-4 w-4" />
-                                            </button>
+                                            {{-- Penegasan menyebut akibatnya,
+                                                 bukan sekadar "yakin?":
+                                                 berkas PDF-nya ikut terhapus
+                                                 dan tautan unduh di situs
+                                                 publik jadi mati. --}}
+                                            <x-admin.confirm-delete metode="delete"
+                                                                    :id="$dl->id"
+                                                                    :nama="$judul"
+                                                                    judul="Hapus unduhan?"
+                                                                    tombol="Ya, hapus unduhan">
+                                                Berkas PDF-nya ikut terhapus dari penyimpanan, dan tautan unduhnya di situs publik jadi mati.
+                                            </x-admin.confirm-delete>
                                         </div>
                                     </td>
                                 </tr>
@@ -349,10 +344,10 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada berkas yang cocok
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Coba kosongkan kata pencariannya, atau kembalikan
                                                 aksesnya ke "semua".
                                             </p>
@@ -363,10 +358,10 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-[14px] font-semibold text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada berkas unduhan
                                             </p>
-                                            <p class="mx-auto mt-1.5 max-w-[380px] text-[13px] leading-relaxed text-ink-muted">
+                                            <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                                                 Katalog dan brosur PDF yang ditambahkan di sini muncul
                                                 di halaman unduhan situs publik.
                                             </p>
@@ -431,16 +426,16 @@
                     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
                         <div class="flex min-w-0 items-center gap-3">
                             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
-                                         bg-brand/10 text-brand">
+                                         bg-brand-wash text-brand">
                                 <x-icon.admin name="download" size="h-[18px] w-[18px]" />
                             </span>
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-unduhan"
-                                    class="truncate font-ui text-[15px] font-semibold text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $editingId ? 'Ubah berkas' : 'Tambah berkas' }}
                                 </h2>
-                                <p class="mt-0.5 text-[12px] text-ink-muted">
+                                <p class="mt-0.5 text-admin-label text-ink-muted">
                                     Isian bertanda <span class="font-bold text-brand">*</span> wajib diisi.
                                 </p>
                             </div>
@@ -462,79 +457,56 @@
                         <div class="admin-scroll min-h-0 space-y-4 p-6
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Informasi berkas
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="page" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div class="space-y-4">
-                                    <div>
-                                        <label for="judul-unduhan" class="block text-[12px] font-semibold text-ink-faint">
-                                            Judul berkas <span class="text-brand">*</span>
-                                        </label>
-
-                                        <input type="text" wire:model="title" id="judul-unduhan"
-                                               placeholder="mis. Katalog Biji Kopi 2026"
-                                               class="admin-control mt-2">
-
-                                        <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                            Judul ini yang dibaca pembeli di halaman unduhan situs publik.
-                                        </p>
-
-                                        @error('title')
-                                            <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                        @enderror
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Informasi berkas</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Judul dan siapa yang boleh mengunduhnya.</p>
                                     </div>
+                                </div>
 
-                                    {{-- Sakelar dari kotak centang asli yang disembunyikan,
-                                         pola yang sama dengan "Produk unggulan" dan "Pasar
-                                         aktif". require_email itu boolean, jadi menu pilih
-                                         tidak dipakai: x-admin.select selalu mengirim untai,
-                                         dan untai yang jatuh ke properti bertipe bool
-                                         melempar galat tipe.
+                                <div class="p-5">
 
-                                         Seluruh rona digerakkan peer-checked dan
-                                         has-[:checked] di CSS, bukan oleh nilai di sisi PHP:
-                                         wire:model di sini bersifat tunda, jadi nilai di
-                                         server baru menyusul pada permintaan berikutnya. --}}
-                                    <div>
-                                        <span class="block text-[12px] font-semibold text-ink-faint">Akses unduhan</span>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label for="judul-unduhan" class="block text-admin-label text-ink-faint">
+                                                Judul berkas <span class="text-brand">*</span>
+                                            </label>
 
-                                        <label class="mt-2 flex cursor-pointer items-start justify-between gap-4
-                                                      rounded-control border border-line p-3.5 transition-colors
-                                                      hover:border-line-strong
-                                                      has-[:checked]:border-brand/40 has-[:checked]:bg-brand-wash">
+                                            <input type="text" wire:model="title" id="judul-unduhan"
+                                                   placeholder="mis. Katalog Biji Kopi 2026"
+                                                   class="admin-control mt-2">
+                                            
+                                            @error('title')
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
 
-                                            <span class="min-w-0">
-                                                <span class="block text-[13px] font-semibold text-ink">Minta email dulu</span>
-                                                <span class="mt-0.5 block text-[12px] leading-relaxed text-ink-muted">
-                                                    Pembeli mengisi email sebelum berkasnya diberikan, dan
-                                                    emailnya masuk sebagai prospek. Dimatikan berarti
-                                                    berkasnya bisa diunduh langsung siapa saja.
-                                                </span>
-                                            </span>
+                                        {{-- Menu pilih, bukan sakelar geser:
+                                             pil di tabel dan menu penyaring
+                                             di atasnya memakai dua kata yang
+                                             sama, dan sakelar akan
+                                             menanyakannya dengan cara ketiga. --}}
+                                        <div>
+                                            <label class="block text-admin-label text-ink-faint">Akses unduhan</label>
 
-                                            <span class="relative mt-0.5 inline-flex shrink-0 items-center">
-                                                {{-- @checked() supaya keadaannya sudah benar di
-                                                     gambar pertama. wire:model sendiri tidak
-                                                     menuliskan atribut itu — ia baru menyetel
-                                                     sifat .checked sesudah Livewire hidup. --}}
-                                                <input type="checkbox" role="switch" wire:model="require_email"
-                                                       @checked($require_email)
-                                                       class="peer sr-only">
-
-                                                {{-- Jalurnya --}}
-                                                <span class="block h-6 w-11 rounded-full bg-mist-deep transition-colors
-                                                             peer-checked:bg-brand
-                                                             peer-focus-visible:ring-2 peer-focus-visible:ring-brand
-                                                             peer-focus-visible:ring-offset-2"></span>
-
-                                                {{-- Bulatannya --}}
-                                                <span class="pointer-events-none absolute left-0.5 block h-5 w-5 rounded-full
-                                                             bg-white shadow-[0_1px_3px_rgba(26,29,27,0.28)]
-                                                             transition-transform peer-checked:translate-x-5"></span>
-                                            </span>
-                                        </label>
+                                            <x-admin.select model="akses" :value="$akses" class="mt-2"
+                                                            label="Akses unduhan" placeholder="Perlu email"
+                                                            :nullable="false"
+                                                            :options="[
+                                                                ['nilai' => 'gated', 'label' => 'Perlu email'],
+                                                                ['nilai' => 'open',  'label' => 'Terbuka'],
+                                                            ]" />
+                                            
+                                            @error('akses')
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </section>
@@ -545,143 +517,140 @@
                                     lg:w-[42%] lg:border-t-0 lg:overflow-y-auto lg:overscroll-contain">
 
                             {{-- ── Kartu: berkas PDF ────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Berkas PDF
-                                </h3>
-
-                                {{-- Berkas PDF tidak bisa dipratinjau sebagai gambar, jadi
-                                     yang ditampilkan namanya. --}}
-                                @if($editingId && $adaBerkasLama)
-                                    <div class="mb-3 flex items-center gap-3 rounded-control border border-line
-                                                bg-mist/40 p-3">
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center
-                                                     rounded-control border border-line bg-canvas text-ink-muted">
-                                            <x-icon.admin name="pdf" size="h-4 w-4" />
-                                        </span>
-
-                                        <span class="min-w-0 flex-1">
-                                            <span class="block truncate text-[12px] font-semibold text-ink"
-                                                  title="{{ $namaBerkasLama }}">{{ $namaBerkasLama }}</span>
-
-                                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($existingFilePath) }}"
-                                               target="_blank" rel="noopener"
-                                               class="mt-0.5 inline-block text-[12px] font-semibold text-brand
-                                                      underline-offset-4 hover:underline">
-                                                Buka berkas
-                                            </a>
-                                        </span>
-                                    </div>
-                                @elseif($editingId && filled($existingFilePath))
-                                    {{-- Tercatat di basis data, hilang di disk. --}}
-                                    <div class="mb-3 flex items-start gap-3 rounded-control border border-status-rejected/30
-                                                bg-status-rejected/5 p-3">
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-control
-                                                     border border-dashed border-status-rejected/40 text-status-rejected">
-                                            <x-icon.admin name="pdf" size="h-4 w-4" />
-                                        </span>
-
-                                        <span class="min-w-0 flex-1">
-                                            <span class="block text-[12px] font-semibold text-status-rejected">
-                                                Berkas hilang
-                                            </span>
-                                            <span class="mt-0.5 block break-all text-[12px] leading-relaxed text-ink-muted">
-                                                Tercatat sebagai <span class="font-semibold">{{ $existingFilePath }}</span>,
-                                                tapi berkasnya tidak ada di penyimpanan. Unggah ulang untuk
-                                                memperbaikinya.
-                                            </span>
-                                        </span>
-                                    </div>
-                                @endif
-
-                                {{-- Berkas yang baru dipilih tapi belum tersimpan. --}}
-                                @if($pdfFile)
-                                    <div class="mb-3 flex items-center gap-3 rounded-control border border-dashed
-                                                border-brand/50 bg-brand-wash p-3">
-                                        <span class="flex h-10 w-10 shrink-0 items-center justify-center
-                                                     rounded-control border border-brand/30 bg-canvas text-brand">
-                                            <x-icon.admin name="pdf" size="h-4 w-4" />
-                                        </span>
-
-                                        <span class="min-w-0 flex-1">
-                                            <span class="block truncate text-[12px] font-semibold text-ink"
-                                                  title="{{ $pdfFile->getClientOriginalName() }}">
-                                                {{ $pdfFile->getClientOriginalName() }}
-                                            </span>
-                                            <span class="mt-0.5 inline-block rounded-full bg-brand px-2 py-0.5
-                                                         text-[10px] font-bold text-white">Baru</span>
-                                        </span>
-                                    </div>
-                                @endif
-
-                                <label title="{{ $editingId ? 'Ganti berkas PDF' : 'Pilih berkas PDF' }}"
-                                       class="flex cursor-pointer flex-col items-center justify-center gap-2
-                                              rounded-control border-2 border-dashed border-line-strong
-                                              bg-mist/40 px-4 py-7 text-ink-faint transition-colors
-                                              hover:border-brand hover:bg-brand-wash hover:text-brand
-                                              focus-within:border-brand focus-within:text-brand">
-
-                                    <input type="file" wire:model="pdfFile" id="pdf-unduhan"
-                                           accept="application/pdf"
-                                           aria-label="{{ $editingId ? 'Ganti berkas PDF' : 'Pilih berkas PDF' }}"
-                                           class="sr-only">
-
-                                    <span wire:loading.remove wire:target="pdfFile"
-                                          class="flex flex-col items-center gap-2">
-                                        <svg class="h-8 w-8" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                                            <path d="M18 9v18M9 18h18" stroke="currentColor"
-                                                  stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                        <span class="text-[12px] font-semibold">
-                                            {{ $editingId ? 'Ganti berkas PDF' : 'Pilih berkas PDF' }}
-                                        </span>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="pdf" size="h-[18px] w-[18px]" />
                                     </span>
 
-                                    <svg wire:loading wire:target="pdfFile"
-                                         class="h-7 w-7 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                        <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor"
-                                              stroke-width="1.6" stroke-linecap="round"/>
-                                    </svg>
-                                </label>
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Berkas PDF</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Berkas yang diunduh pembeli.</p>
+                                    </div>
+                                </div>
 
-                                <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
-                                    @if($editingId)
-                                        Hanya PDF, maksimal 10&nbsp;MB. Dikosongkan berarti berkas
-                                        yang sekarang tetap dipakai; mengunggah yang baru
-                                        menghapus yang lama.
-                                    @else
-                                        Hanya PDF, maksimal 10&nbsp;MB. Wajib diisi — tanpa berkas,
-                                        tidak ada yang bisa diunduh.
+                                <div class="p-5">
+
+                                    {{-- Petak ubin, sama dengan modal Produk,
+                                         Kategori, Berita, dan Galeri. PDF
+                                         tidak bisa dipratinjau sebagai
+                                         gambar. --}}
+                                    <div class="grid grid-cols-2 gap-3">
+
+                                        @if($editingId && $adaBerkasLama)
+                                            {{-- Ubinnya SENDIRI yang jadi
+                                                 tautan, bukan tautan kecil di
+                                                 dalamnya: seluruh petak sudah
+                                                 berarti "berkas ini". --}}
+                                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($existingFilePath) }}"
+                                               target="_blank" rel="noopener"
+                                               title="Buka {{ $namaBerkasLama }}"
+                                               class="group/ubin flex aspect-square flex-col items-center justify-center
+                                                      gap-2 overflow-hidden rounded-control border border-line bg-mist/40
+                                                      px-3 text-center text-ink-muted transition-colors
+                                                      hover:border-brand hover:bg-brand-wash hover:text-brand">
+                                                <x-icon.admin name="pdf" size="h-7 w-7" />
+
+                                                <span class="w-full truncate text-admin-caption font-semibold text-ink">
+                                                    {{ $namaBerkasLama }}
+                                                </span>
+
+                                                <span class="text-admin-caption text-ink-faint transition-colors
+                                                             group-hover/ubin:text-brand">Buka berkas</span>
+                                            </a>
+                                        @elseif($editingId && filled($existingFilePath))
+                                            {{-- Tercatat di basis data, hilang di disk. Ubinnya cuma
+                                                 menyebut keadaannya; keterangan panjangnya berdiri
+                                                 di bawah petak, tempat ia muat dibaca. --}}
+                                            <div class="flex aspect-square flex-col items-center justify-center gap-2
+                                                        rounded-control border border-dashed border-status-rejected/40
+                                                        bg-status-rejected/5 px-3 text-center text-status-rejected">
+                                                <x-icon.admin name="pdf" size="h-7 w-7" />
+
+                                                <span class="text-admin-caption font-semibold">Berkas hilang</span>
+                                            </div>
+                                        @endif
+
+                                        {{-- Berkas yang baru dipilih tapi belum tersimpan. --}}
+                                        @if($pdfFile)
+                                            <div class="relative flex aspect-square flex-col items-center justify-center
+                                                        gap-2 overflow-hidden rounded-control border border-dashed
+                                                        border-brand/50 bg-brand-wash px-3 text-center text-brand">
+                                                <x-icon.admin name="pdf" size="h-7 w-7" />
+
+                                                <span class="w-full truncate text-admin-caption font-semibold text-ink"
+                                                      title="{{ $pdfFile->getClientOriginalName() }}">
+                                                    {{ $pdfFile->getClientOriginalName() }}
+                                                </span>
+
+                                                <span class="absolute left-2 top-2 rounded-full bg-brand px-2 py-0.5
+                                                             text-admin-caption font-semibold text-white">Baru</span>
+                                            </div>
+                                        @endif
+
+                                        <x-admin.upload-tile model="pdfFile"
+                                                             id="pdf-unduhan"
+                                                             accept="application/pdf"
+                                                             judul="{{ $editingId ? 'Ganti berkas PDF' : 'Pilih berkas PDF' }}"
+                                                             label="{{ $editingId ? 'Ganti berkas' : 'Pilih berkas' }}" />
+                                    </div>
+
+                                    @if($editingId && ! $adaBerkasLama && filled($existingFilePath))
+                                        <p class="mt-3 break-all text-admin-label text-status-rejected">
+                                            Tercatat sebagai <span class="font-semibold">{{ $existingFilePath }}</span>,
+                                            tapi berkasnya tidak ada di penyimpanan. Unggah ulang untuk
+                                            memperbaikinya.
+                                        </p>
                                     @endif
-                                </p>
 
-                                @error('pdfFile')
-                                    <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                @enderror
+                                    <p class="admin-hint">
+                                        @if($editingId)
+                                            Hanya PDF, maksimal 10&nbsp;MB.
+                                        @else
+                                            Hanya PDF, maksimal 10&nbsp;MB. Wajib diisi — tanpa berkas,
+                                            tidak ada yang bisa diunduh.
+                                        @endif
+                                    </p>
+
+                                    @error('pdfFile')
+                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </section>
 
                             {{-- ── Kartu: penerbitan ────────────────────── --}}
-                            <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 font-ui text-[14px] font-bold uppercase tracking-[0.1em] text-ink">
-                                    Penerbitan
-                                </h3>
+                            <section class="overflow-hidden rounded-corner border border-line bg-canvas">
+                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                 rounded-control bg-brand-wash text-brand">
+                                        <x-icon.admin name="manage" size="h-[18px] w-[18px]" />
+                                    </span>
 
-                                <div>
-                                    <label for="urutan-unduhan" class="block text-[12px] font-semibold text-ink-faint">
-                                        Urutan tampil
-                                    </label>
+                                    <div class="min-w-0">
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Urutan tampil berkas di situs publik.</p>
+                                    </div>
+                                </div>
 
-                                    <input type="number" wire:model="sort_order" id="urutan-unduhan"
-                                           min="0" step="1" class="admin-control mt-2">
+                                <div class="p-5">
 
-                                    <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
-                                        Angka lebih kecil tampil lebih dulu di situs publik.
-                                    </p>
+                                    <div>
+                                        <label for="urutan-unduhan" class="block text-admin-label text-ink-faint">
+                                            Urutan tampil
+                                        </label>
 
-                                    @error('sort_order')
-                                        <span class="mt-1.5 block text-[12px] text-danger">{{ $message }}</span>
-                                    @enderror
+                                        <input type="number" wire:model="sort_order" id="urutan-unduhan"
+                                               min="0" step="1" class="admin-control mt-2">
+                                        
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
+                                        </p>
+
+                                        @error('sort_order')
+                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
                                 </div>
                             </section>
                         </div>
