@@ -39,6 +39,17 @@ class CertificationIndex extends Component
     // Form Fields
     public string $name_en = '';
     public string $name_id = '';
+
+
+    /*
+     * Bahasa yang sedang disunting. Sama dengan modal Halaman: kolom Indonesia
+     * dan Inggris BERTUKAR di tempat yang sama, bukan berdiri berdampingan.
+     *
+     * Berdampingan memaksa dua bahasa dibaca sekaligus padahal yang dikerjakan
+     * satu, dan menyempitkan tiap kolom jadi separuh — mahal untuk keterangan
+     * yang panjangnya sampai 300 karakter.
+     */
+    public string $activeTab = 'id';
     public string $issuer = '';
     public ?string $certificate_number = null;
     public ?string $issued_at = null;
@@ -142,15 +153,23 @@ class CertificationIndex extends Component
 
         $this->isTranslating = true;
 
-        $layanan    = app(TranslationService::class);
-        $translated = $layanan->translate($this->name_id, 'id', 'en');
+        $layanan = app(TranslationService::class);
 
-        if (! empty($translated)) {
-            $this->name_en = $translated;
-        } else {
+        $nama = $layanan->translate($this->name_id, 'id', 'en');
+
+        if (empty($nama)) {
             $this->galatTerjemah = $layanan->sebabGagal
                 ?: 'Terjemahan tidak berhasil. Coba lagi, atau isi sendiri.';
+            $this->isTranslating = false;
+
+            return;
         }
+
+        $this->name_en = $nama;
+
+        /* Hasilnya ada di kolom Inggris — tidak ada gunanya menerjemahkan lalu
+           membiarkan pemakainya menebak ke mana perginya. */
+        $this->activeTab = 'en';
 
         $this->isTranslating = false;
     }
@@ -197,6 +216,12 @@ class CertificationIndex extends Component
         // Simpan Terjemahan Nama (EN & ID)
         $cert->translations()->updateOrCreate(
             ['locale' => 'en'],
+            /*
+             * Kolom description TIDAK ikut ditulis. Ia tidak punya isian di panel
+             * dan tidak dibaca di mana pun; menuliskannya berarti mengosongkan
+             * nilai yang terlanjur ada di basis data tiap kali sertifikat
+             * disimpan, tanpa satu pun tanda di layar.
+             */
             ['name' => $this->name_en]
         );
         $cert->translations()->updateOrCreate(
@@ -259,6 +284,7 @@ class CertificationIndex extends Component
         $this->editingId = null;
         $this->name_en = '';
         $this->name_id = '';
+        $this->activeTab = 'id';
         $this->issuer = '';
         $this->certificate_number = null;
         $this->issued_at = null;

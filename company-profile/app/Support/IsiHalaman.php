@@ -130,6 +130,22 @@ class IsiHalaman
     }
 
     /**
+     * Alamat gambar tiap tonggak sejarah, berkunci nama slotnya.
+     *
+     * Terpisah dari gambar() karena keduanya menyimpan hal yang berbeda: yang
+     * satu foto milik halaman, yang satu lagi sekumpulan gambar milik baris di
+     * dalamnya.
+     *
+     * @return array<string, string>
+     */
+    public static function gambarTonggak(string $halaman): array
+    {
+        $nilai = self::semua()[$halaman]['milestone_images'] ?? [];
+
+        return is_array($nilai) ? array_filter($nilai, 'filled') : [];
+    }
+
+    /**
      * Seluruh isi halaman, apa adanya dari pengaturan.
      *
      * Dibaca sekali per permintaan lalu diingat: satu halaman publik bisa

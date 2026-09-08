@@ -23,8 +23,10 @@ class PageIndex extends Component
     public $status = 'draft';
     
     // Translation fields (id and en)
-    public $title_id, $content_id;
-    public $title_en, $content_en;
+    /* Label = kata kecil di atas judul halaman publik. Ikut diterjemahkan,
+       karena ia dibaca pengunjung sama seperti judulnya. */
+    public $label_id, $title_id, $content_id;
+    public $label_en, $title_en, $content_en;
     public bool $isTranslating = false;
 
     /*
@@ -122,13 +124,22 @@ class PageIndex extends Component
         'Kata yang diapit bintang — *seperti ini* — digambar dengan huruf serif miring, sebagai penekanan di dalam judul.';
 
     public const BIDANG_BAGIAN = [
+        /*
+         * Urutan medan mengikuti urutan yang TERGAMBAR di hero, dari atas ke
+         * bawah: label kecil, judul besar, deskripsi, lalu dua tombol. Kolom
+         * yang disusun mengikuti hasilnya bisa diperiksa sambil diisi; yang
+         * disusun mengikuti sejarah penambahannya tidak.
+         *
+         * 'years_label' dibuang — kartu "Angka pengalaman" yang dulu berdiri di
+         * atas foto hero sudah tidak digambar lagi, dan kolom yang tidak
+         * menghasilkan apa pun di halaman adalah janji yang tidak ditepati.
+         */
         'hero' => [
-            ['kelompok' => 'Judul & deskripsi', 'nama' => 'title',         'label' => 'Judul besar',        'jenis' => 'teks',  'bawaan' => 'site.hero_title', 'catatan' => self::CATATAN_TEKANAN],
+            ['kelompok' => 'Judul & deskripsi', 'nama' => 'descriptor', 'label' => 'Label', 'jenis' => 'teks', 'bawaan' => 'site.hero_descriptor'],
+            ['nama' => 'title',         'label' => 'Judul besar',        'jenis' => 'teks',  'bawaan' => 'site.hero_title', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'body',          'label' => 'Deskripsi',          'jenis' => 'kaya',  'bawaan' => 'site.hero_body'],
-            ['nama' => 'descriptor',    'label' => 'Kalimat pendamping', 'jenis' => 'teks',  'bawaan' => 'site.hero_descriptor'],
             ['kelompok' => 'Tombol', 'nama' => 'cta_primary',   'label' => 'Tombol utama',       'jenis' => 'teks',  'bawaan' => 'site.cta_request_quote'],
             ['nama' => 'cta_secondary', 'label' => 'Tombol kedua',       'jenis' => 'teks',  'bawaan' => 'site.cta_explore_products'],
-            ['kelompok' => 'Angka pengalaman', 'nama' => 'years_label',   'label' => 'Label tahun pengalaman', 'jenis' => 'teks', 'bawaan' => 'site.hero_years'],
         ],
 
         'products' => [
@@ -136,6 +147,7 @@ class PageIndex extends Component
             ['nama' => 'title',   'label' => 'Judul',                     'jenis' => 'teks', 'bawaan' => 'site.products_title', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'body',    'label' => 'Deskripsi',                 'jenis' => 'kaya', 'bawaan' => 'site.products_body'],
             ['kelompok' => 'Daftar produk', 'nama' => 'cta',     'label' => 'Label tombol',              'jenis' => 'teks', 'bawaan' => 'site.cta_explore_products'],
+            ['nama' => 'view_label', 'label' => 'Label tautan tiap produk', 'jenis' => 'teks', 'bawaan' => 'site.view_details'],
             ['nama' => 'empty',   'label' => 'Teks saat belum ada produk unggulan', 'jenis' => 'teks', 'bawaan' => 'site.no_featured_products'],
         ],
 
@@ -173,17 +185,10 @@ class PageIndex extends Component
         'news' => [
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'eyebrow',     'label' => 'Label kecil di atas judul', 'jenis' => 'teks', 'bawaan' => 'site.news_eyebrow'],
             ['nama' => 'title',       'label' => 'Judul',                     'jenis' => 'teks', 'bawaan' => 'site.news_title', 'catatan' => self::CATATAN_TEKANAN],
+            ['nama' => 'body',        'label' => 'Deskripsi',                 'jenis' => 'kaya', 'bawaan' => 'site.news_body'],
             ['kelompok' => 'Daftar artikel', 'nama' => 'read_label',  'label' => 'Label tautan tiap artikel', 'jenis' => 'teks', 'bawaan' => 'site.read_article'],
+            ['nama' => 'cta',   'label' => 'Label tombol ke halaman berita', 'jenis' => 'teks', 'bawaan' => 'site.cta_see_more_news'],
             ['nama' => 'empty', 'label' => 'Teks saat belum ada artikel', 'jenis' => 'teks', 'bawaan' => 'site.no_news_found'],
-            [
-                'kelompok'    => 'Kartu ajakan',
-                'nama'    => 'promo_title',
-                'label'   => 'Judul kartu ajakan',
-                'jenis'   => 'teks',
-                'bawaan'  => 'site.news_promo_title',
-                'catatan' => 'Kartu besar di kanan, berlatar sampul artikel ketiga.',
-            ],
-            ['nama' => 'cta',   'label' => 'Label tombol kartu ajakan', 'jenis' => 'teks', 'bawaan' => 'site.cta_see_more_news'],
         ],
 
         'contact' => [
@@ -322,6 +327,7 @@ class PageIndex extends Component
         'values' => [
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'values_eyebrow', 'label' => 'Label kecil', 'jenis' => 'teks', 'bawaan' => 'site.values_eyebrow'],
             ['nama' => 'values_title',   'label' => 'Judul',       'jenis' => 'teks', 'bawaan' => 'site.values_title', 'catatan' => self::CATATAN_TEKANAN],
+            ['nama' => 'values_body',    'label' => 'Deskripsi',   'jenis' => 'kaya', 'bawaan' => 'site.values_body'],
             ['kelompok' => 'Empat kartu nilai', 'nama' => 'value_1_title', 'label' => 'Nilai 1 — judul', 'jenis' => 'teks', 'bawaan' => 'site.value_1_title'],
             ['nama' => 'value_1_body',  'label' => 'Nilai 1 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.value_1_body'],
             ['nama' => 'value_2_title', 'label' => 'Nilai 2 — judul',      'jenis' => 'teks',    'bawaan' => 'site.value_2_title'],
@@ -335,7 +341,6 @@ class PageIndex extends Component
         'history' => [
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'history_eyebrow', 'label' => 'Label kecil', 'jenis' => 'teks', 'bawaan' => 'site.history_eyebrow'],
             ['nama' => 'history_title',        'label' => 'Judul',                   'jenis' => 'teks', 'bawaan' => 'site.history_title', 'catatan' => self::CATATAN_TEKANAN],
-            ['nama' => 'history_title_accent', 'label' => 'Judul — bagian berwarna', 'jenis' => 'teks', 'bawaan' => 'site.history_title_accent'],
 
             /*
              * Garis waktu: tahun berdiri, lalu keenam tonggak sebagai rangkai
@@ -355,26 +360,32 @@ class PageIndex extends Component
             ['nama' => 'milestone_1_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_1_title', 'label' => 'Tonggak 1 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_1_title'],
             ['nama' => 'milestone_1_body',  'label' => 'Tonggak 1 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_1_body'],
+            ['nama' => 'milestone_1_image', 'label' => 'Tonggak 1 — gambar', 'jenis' => 'gambar'],
 
             ['nama' => 'milestone_2_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_2_title', 'label' => 'Tonggak 2 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_2_title'],
             ['nama' => 'milestone_2_body',  'label' => 'Tonggak 2 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_2_body'],
+            ['nama' => 'milestone_2_image', 'label' => 'Tonggak 2 — gambar', 'jenis' => 'gambar'],
 
             ['nama' => 'milestone_3_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_3_title', 'label' => 'Tonggak 3 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_3_title'],
             ['nama' => 'milestone_3_body',  'label' => 'Tonggak 3 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_3_body'],
+            ['nama' => 'milestone_3_image', 'label' => 'Tonggak 3 — gambar', 'jenis' => 'gambar'],
 
             ['nama' => 'milestone_4_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_4_title', 'label' => 'Tonggak 4 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_4_title'],
             ['nama' => 'milestone_4_body',  'label' => 'Tonggak 4 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_4_body'],
+            ['nama' => 'milestone_4_image', 'label' => 'Tonggak 4 — gambar', 'jenis' => 'gambar'],
 
             ['nama' => 'milestone_5_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_5_title', 'label' => 'Tonggak 5 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_5_title'],
             ['nama' => 'milestone_5_body',  'label' => 'Tonggak 5 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_5_body'],
+            ['nama' => 'milestone_5_image', 'label' => 'Tonggak 5 — gambar', 'jenis' => 'gambar'],
 
             ['nama' => 'milestone_6_year',  'jenis' => 'opsi'],
             ['nama' => 'milestone_6_title', 'label' => 'Tonggak 6 — judul',      'jenis' => 'teks',    'bawaan' => 'site.milestone_6_title'],
             ['nama' => 'milestone_6_body',  'label' => 'Tonggak 6 — keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.milestone_6_body'],
+            ['nama' => 'milestone_6_image', 'label' => 'Tonggak 6 — gambar', 'jenis' => 'gambar'],
         ],
 
         'certification' => [
@@ -401,6 +412,32 @@ class PageIndex extends Component
      * halaman Profile akan membuat beranda bergantung pada isi halaman lain.
      * Yang berpindah cuma tempat menyuntingnya.
      */
+    /**
+     * Pengaturan bukan-teks milik HALAMAN publik.
+     *
+     * Bentuknya sama dengan opsiProfil(): yang menentukan label, jenis, dan
+     * tempat simpannya cuma satu tempat — di sini — sementara BIDANG_HALAMAN
+     * cuma menyatakan DI MANA ia muncul di antara kolom teksnya.
+     */
+    public static function opsiHalaman(): array
+    {
+        return [
+            'gallery' => [
+                [
+                    'nama'    => 'video_url',
+                    'label'   => 'Alamat video YouTube',
+                    'jenis'   => 'teks',
+                    'bawaan'  => '',
+                    'catatan' => 'Tempelkan alamat videonya — bentuk apa pun boleh: '
+                               . 'youtube.com/watch?v=…, youtu.be/…, atau Shorts. '
+                               . 'Videonya tergambar di halaman Galeri, tepat di bawah '
+                               . 'deskripsi. Dikosongkan berarti bloknya tidak digambar '
+                               . 'sama sekali — bukan kotak kosong.',
+                ],
+            ],
+        ];
+    }
+
     public static function opsiProfil(): array
     {
         return [
@@ -493,10 +530,19 @@ class PageIndex extends Component
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'eyebrow', 'label' => 'Label kecil di atas judul', 'jenis' => 'teks', 'bawaan' => 'site.home_section_products'],
             ['nama' => 'title',   'label' => 'Judul',                     'jenis' => 'teks', 'bawaan' => 'site.page_products', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'body',    'label' => 'Deskripsi',                 'jenis' => 'kaya', 'bawaan' => 'site.page_products_sub'],
-            ['kelompok' => 'Daftar produk', 'nama' => 'empty',   'label' => 'Teks saat tidak ada produk yang cocok', 'jenis' => 'teks', 'bawaan' => 'site.no_products_found'],
+            ['kelompok' => 'Daftar produk', 'nama' => 'view_label', 'label' => 'Label tautan tiap produk', 'jenis' => 'teks', 'bawaan' => 'site.view_details'],
+            ['nama' => 'empty',   'label' => 'Teks saat tidak ada produk yang cocok', 'jenis' => 'teks', 'bawaan' => 'site.no_products_found'],
 
-            ['kelompok' => 'Kartu katalog', 'nama' => 'catalog_title', 'label' => 'Judul', 'jenis' => 'teks', 'bawaan' => 'site.offline_catalog'],
-            ['nama' => 'catalog_body', 'label' => 'Keterangan', 'jenis' => 'panjang', 'bawaan' => 'site.offline_catalog_sub'],
+            /*
+             * SATU label tombol, bukan judul dan keterangan kartu.
+             *
+             * Kartu katalognya sudah tidak ada di halaman publik — yang tersisa
+             * sebuah tombol. Dua kolom yang mengisi judul dan keterangan kartu itu
+             * jadi kolom yang bisa diisi tapi tidak muncul di mana pun, dan itu
+             * lebih buruk daripada tidak ada kolomnya: yang mengisinya akan
+             * mencari-cari hasilnya di halaman yang tidak pernah berubah.
+             */
+            ['kelompok' => 'Tombol katalog', 'nama' => 'catalog_cta', 'label' => 'Label tombol', 'jenis' => 'teks', 'bawaan' => 'site.download_pdf'],
         ],
 
         'export-markets' => [
@@ -519,6 +565,16 @@ class PageIndex extends Component
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'eyebrow', 'label' => 'Label kecil di atas judul', 'jenis' => 'teks', 'bawaan' => 'site.nav_gallery'],
             ['nama' => 'title',   'label' => 'Judul',                     'jenis' => 'teks', 'bawaan' => 'site.page_gallery', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'body',    'label' => 'Deskripsi',                 'jenis' => 'kaya', 'bawaan' => 'site.page_gallery_sub'],
+
+            /*
+             * Video sorotan: satu alamat YouTube, bukan teks per bahasa.
+             *
+             * Alamatnya sama dibaca dalam bahasa mana pun — menaruhnya di kartu
+             * teks berarti ia diketik dua kali dan bisa berbeda antara Indonesia
+             * dan English, sesuatu yang tidak masuk akal untuk dijawab.
+             */
+            ['kelompok' => 'Video sorotan', 'nama' => 'video_url', 'jenis' => 'opsi'],
+
             ['kelompok' => 'Daftar album', 'nama' => 'empty',   'label' => 'Teks saat belum ada isi galeri', 'jenis' => 'teks', 'bawaan' => 'site.no_gallery_items'],
         ],
 
@@ -545,10 +601,24 @@ class PageIndex extends Component
          */
         'footer' => [
             ['kelompok' => 'Ajakan', 'nama' => 'headline', 'label' => 'Ajakan besar di kepala footer', 'jenis' => 'panjang', 'bawaan' => 'site.footer_headline', 'catatan' => self::CATATAN_TEKANAN],
+            [
+                'nama'    => 'body',
+                'label'   => 'Deskripsi di atas tombol',
+                'jenis'   => 'panjang',
+                'bawaan'  => 'site.footer_body',
+                'catatan' => 'Dua sampai tiga baris, berdiri tepat di atas tombol Minta Penawaran.',
+            ],
         ],
 
         'contact' => [
-            ['kelompok' => 'Judul & deskripsi', 'nama' => 'headline',   'label' => 'Judul halaman', 'jenis' => 'teks', 'bawaan' => 'site.inquiry_headline', 'catatan' => self::CATATAN_TEKANAN],
+            /*
+             * Label kecil di atas judul — kolom yang selama ini TIDAK ada di
+             * halaman ini saja, sementara enam halaman publik lain punya.
+             * Akibatnya kepala halaman Kontak berdiri tanpa penanda golongan,
+             * dan yang menyuntingnya dari panel tidak punya cara menambahkannya.
+             */
+            ['kelompok' => 'Judul & deskripsi', 'nama' => 'eyebrow', 'label' => 'Label kecil di atas judul', 'jenis' => 'teks', 'bawaan' => 'site.nav_contact'],
+            ['nama' => 'headline',   'label' => 'Judul halaman', 'jenis' => 'teks', 'bawaan' => 'site.inquiry_headline', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'intro',      'label' => 'Deskripsi',     'jenis' => 'kaya', 'bawaan' => 'site.inquiry_intro'],
             ['kelompok' => 'Peta', 'nama' => 'map_title',  'label' => 'Judul peta',    'jenis' => 'teks', 'bawaan' => 'site.find_us'],
 
@@ -610,6 +680,18 @@ class PageIndex extends Component
 
     public $gambarBagian;
     public ?string $gambarBagianLama = null;
+
+    /*
+     * Gambar per tonggak sejarah, berkunci nama slotnya (milestone_1_image, …).
+     *
+     * Terpisah dari $gambarBagian karena keduanya menjawab hal yang berbeda:
+     * yang satu foto MILIK BAGIAN — satu untuk seluruh halaman Profile — yang
+     * satu lagi gambar milik satu baris di dalam bagian. Menumpangkannya pada
+     * kunci 'image' yang sama akan membuat gambar tonggak keenam menimpa foto
+     * halamannya.
+     */
+    public array $gambarTonggak = [];
+    public array $gambarTonggakLama = [];
 
     public function mount(): void
     {
@@ -702,19 +784,38 @@ class PageIndex extends Component
     }
 
     /**
-     * Memindahkan foto hero yang dulu tersimpan sebagai pengaturan lepas.
+     * MEMINDAHKAN foto yang dulu tersimpan sebagai pengaturan lepas — sekali,
+     * lalu kunci lamanya dibuang.
      *
-     * Foto hero kini menempel pada bagiannya sendiri, bukan pada kunci
-     * 'hero_image' yang berdiri terpisah. Foto yang sudah terlanjur diunggah
-     * ke kunci lama disalin sekali ke bagiannya supaya beranda tidak mendadak
-     * kehilangan gambarnya sesudah pembaruan ini.
+     * Foto hero dan foto ajakan kini menempel pada bagiannya sendiri, bukan
+     * pada kunci 'hero_image' / 'cta_image' yang berdiri terpisah.
      *
-     * Kunci lamanya sengaja TIDAK dihapus: kalau perpindahan ini ternyata
-     * keliru, alamat aslinya masih ada untuk dikembalikan.
+     * Kunci lamanya DULU sengaja dibiarkan, supaya alamat aslinya masih ada
+     * kalau perpindahannya keliru. Itu ternyata membuat foto tidak bisa
+     * dihapus sama sekali:
+     *
+     *   1. Bagiannya dikosongkan dari panel — kuncinya benar-benar dibuang.
+     *   2. Beranda membaca $gambarBagian['hero'] ?? $settings['hero_image'],
+     *      lalu jatuh ke kunci lama dan menggambar foto LAIN yang tidak
+     *      pernah dihapus siapa pun.
+     *   3. Pada mount berikutnya, pemindahan di bawah melihat bagiannya
+     *      kosong dan kunci lamanya terisi — lalu MENYALINNYA KEMBALI.
+     *
+     * Jadi ada dua jalan yang masing-masing menghidupkan ulang foto yang sudah
+     * dihapus, dan tidak satu pun meninggalkan jejak yang bisa dilihat dari
+     * panel. Yang menyembuhkan keduanya cuma satu hal: sesudah dipindahkan,
+     * kunci lamanya HARUS hilang. Tidak ada lagi yang menulisnya — dicek: tidak
+     * satu pun berkas di app/ atau database/ menyetel ketiga kunci ini — jadi
+     * begitu dibuang, ia tidak akan kembali.
+     *
+     * Kuncinya dibuang juga ketika bagiannya SUDAH punya foto sendiri: nilai
+     * lama itu sudah tergantikan, dan membiarkannya cuma menyisakan jebakan
+     * yang sama untuk penghapusan berikutnya.
      */
     private function pindahkanFotoHeroLama($nilai): void
     {
         $perlu = false;
+        $bekas = [];
 
         foreach (['hero' => 'hero_image', 'contact' => 'cta_image'] as $bagian => $kunciLama) {
             $lama = $nilai[$kunciLama] ?? null;
@@ -725,16 +826,26 @@ class PageIndex extends Component
 
             $index = $this->cariBagian($bagian);
 
-            if ($index === null || filled($this->home_sections[$index]['image'] ?? null)) {
+            /* Bagiannya belum ada di susunan — kunci lamanya JANGAN dibuang
+               dulu, karena belum ada tempat untuk memindahkannya. */
+            if ($index === null) {
                 continue;
             }
 
-            $this->home_sections[$index]['image'] = $lama;
-            $perlu = true;
+            if (! filled($this->home_sections[$index]['image'] ?? null)) {
+                $this->home_sections[$index]['image'] = $lama;
+                $perlu = true;
+            }
+
+            $bekas[] = $kunciLama;
         }
 
         if ($perlu) {
             $this->simpanBagian();
+        }
+
+        if ($bekas !== []) {
+            Setting::whereIn('key', $bekas)->delete();
         }
 
         $this->pindahkanFotoProfilLama($nilai);
@@ -803,16 +914,21 @@ class PageIndex extends Component
         $this->simpanHalaman();
     }
 
+    /** Sama seperti di atas, dan karena alasan yang sama kunci lamanya dibuang. */
     private function pindahkanFotoProfilLama($nilai): void
     {
         $lama = $nilai['about_image'] ?? null;
 
-        if (! filled($lama) || filled($this->halaman_publik['profile']['image'] ?? null)) {
+        if (! filled($lama)) {
             return;
         }
 
-        $this->halaman_publik['profile']['image'] = $lama;
-        $this->simpanHalaman();
+        if (! filled($this->halaman_publik['profile']['image'] ?? null)) {
+            $this->halaman_publik['profile']['image'] = $lama;
+            $this->simpanHalaman();
+        }
+
+        Setting::where('key', 'about_image')->delete();
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -993,6 +1109,8 @@ class PageIndex extends Component
 
         $this->gambarBagian     = null;
         $this->gambarBagianLama = $sumber['image'] ?? null;
+        $this->gambarTonggak    = [];
+        $this->gambarTonggakLama = $sumber['milestone_images'] ?? [];
         $this->activeTab        = 'en';
         $this->jenisDibuka      = $jenis;
         $this->bagianDibuka     = $id;
@@ -1022,11 +1140,12 @@ class PageIndex extends Component
     /**
      * Medan yang benar-benar teks per bahasa.
      *
-     * Daftar medan boleh memuat slot ber-'jenis' => 'opsi' — penanda tempat
-     * bagi pengaturan bukan-teks yang ingin berdiri di tengah teks, seperti
-     * tahun tiap tonggak sejarah. Slot itu tidak punya isi per bahasa, dan
-     * memperlakukannya sebagai teks akan membuat panel menyediakan dua kotak
-     * untuk satu angka.
+     * Daftar medan boleh memuat slot ber-'jenis' => 'opsi' atau 'gambar' —
+     * penanda tempat bagi isian bukan-teks yang ingin berdiri di tengah teks,
+     * seperti tahun dan gambar tiap tonggak sejarah. Keduanya tidak punya isi
+     * per bahasa, dan memperlakukannya sebagai teks akan membuat panel
+     * menyediakan dua kotak untuk satu angka — atau dua unggahan untuk satu
+     * gambar.
      *
      * @param  array<int, array<string, mixed>>  $bidang
      * @return array<int, array<string, mixed>>
@@ -1035,16 +1154,17 @@ class PageIndex extends Component
     {
         return array_values(array_filter(
             $bidang,
-            fn ($b) => ($b['jenis'] ?? null) !== 'opsi'
+            fn ($b) => ! in_array($b['jenis'] ?? null, ['opsi', 'gambar'], true)
         ));
     }
 
     private function skemaOpsi(string $jenis, string $id): array
     {
         return match ($jenis) {
-            'bagian' => self::OPSI_BAGIAN[$id] ?? [],
-            'profil' => self::opsiProfil()[$id] ?? [],
-            default  => [],
+            'bagian'  => self::OPSI_BAGIAN[$id] ?? [],
+            'profil'  => self::opsiProfil()[$id] ?? [],
+            'halaman' => self::opsiHalaman()[$id] ?? [],
+            default   => [],
         };
     }
 
@@ -1057,6 +1177,8 @@ class PageIndex extends Component
         $this->opsiBagian       = [];
         $this->gambarBagian     = null;
         $this->gambarBagianLama = null;
+        $this->gambarTonggak    = [];
+        $this->gambarTonggakLama = [];
     }
 
     public function simpanIsiBagian(): void
@@ -1070,8 +1192,14 @@ class PageIndex extends Component
          * Kalau batasnya ditulis dua kali, kotak isian dan pemeriksaannya bisa
          * lama-lama berbeda — dan yang kalah selalu pemakainya.
          */
-        $aturan = ['gambarBagian' => 'nullable|image|max:4096'];
-        $sebutan = ['gambarBagian' => 'foto bagian'];
+        $aturan = [
+            'gambarBagian'    => 'nullable|image|max:4096',
+            'gambarTonggak.*' => 'nullable|image|max:4096',
+        ];
+        $sebutan = [
+            'gambarBagian'    => 'foto bagian',
+            'gambarTonggak.*' => 'gambar tonggak',
+        ];
 
         foreach ($this->skemaOpsi($this->jenisDibuka, $this->bagianDibuka) as $opsi) {
             if ($opsi['jenis'] === 'angka') {
@@ -1092,6 +1220,16 @@ class PageIndex extends Component
 
                 $aturan['opsiBagian.' . $opsi['nama']] =
                     $wajib . '|integer|min:' . $opsi['min'] . '|max:' . $opsi['max'];
+                $sebutan['opsiBagian.' . $opsi['nama']] = mb_strtolower($opsi['label']);
+            }
+
+            /*
+             * Opsi bertipe teks selalu boleh kosong: mengosongkannya berarti
+             * bagian yang memakainya tidak digambar sama sekali, dan itu
+             * jawaban yang sah.
+             */
+            if ($opsi['jenis'] === 'teks') {
+                $aturan['opsiBagian.' . $opsi['nama']] = 'nullable|string|max:255';
                 $sebutan['opsiBagian.' . $opsi['nama']] = mb_strtolower($opsi['label']);
             }
         }
@@ -1186,7 +1324,7 @@ class PageIndex extends Component
                 continue;
             }
 
-            $opsi[$skema['nama']] = $skema['jenis'] === 'angka' ? (int) $nilai : $nilai;
+            $opsi[$skema['nama']] = $skema['jenis'] === 'angka' ? (int) $nilai : trim((string) $nilai);
         }
 
         /*
@@ -1216,6 +1354,21 @@ class PageIndex extends Component
         if ($this->gambarBagian) {
             $this->tulisIsi('image', $this->gambarBagian->store('settings', 'public'));
         }
+
+        /*
+         * Gambar tonggak DIGABUNG dengan yang sudah tersimpan, bukan ditimpa:
+         * yang diunggah kali ini hanya satu atau dua, dan menulisnya apa adanya
+         * akan menghapus gambar tonggak lain yang tidak disentuh.
+         */
+        $tonggak = $this->gambarTonggakLama;
+
+        foreach ($this->gambarTonggak as $nama => $berkas) {
+            if ($berkas) {
+                $tonggak[$nama] = $berkas->store('settings', 'public');
+            }
+        }
+
+        $this->tulisIsi('milestone_images', $tonggak === [] ? null : $tonggak);
 
         $this->simpanSumber();
 
@@ -1248,6 +1401,27 @@ class PageIndex extends Component
 
         $this->gambarBagianLama = null;
         $this->gambarBagian     = null;
+
+        $this->simpanSumber();
+    }
+
+    /**
+     * Membuang gambar satu tonggak.
+     *
+     * Berkasnya di disk TIDAK ikut dihapus, dengan alasan yang sama seperti
+     * foto bagian: alamat yang sama bisa masih dirujuk dari tempat lain, dan
+     * berkas yatim jauh lebih murah daripada gambar yang mendadak hilang di
+     * halaman yang sedang tayang.
+     */
+    public function hapusGambarTonggak(string $nama): void
+    {
+        if ($this->bagianDibuka === null) {
+            return;
+        }
+
+        unset($this->gambarTonggakLama[$nama], $this->gambarTonggak[$nama]);
+
+        $this->tulisIsi('milestone_images', $this->gambarTonggakLama === [] ? null : $this->gambarTonggakLama);
 
         $this->simpanSumber();
     }
@@ -1467,12 +1641,23 @@ class PageIndex extends Component
 
         $this->isTranslating = true;
 
-        $layanan    = app(TranslationService::class);
-        $translated = $layanan->translateMany([
+        $layanan = app(TranslationService::class);
+
+        /* Label ikut dikirim HANYA kalau diisi. Untai kosong yang dikirim ke
+           layanan terjemahan menghabiskan satu putaran untuk mengembalikan
+           kosong juga. */
+        $bahan = [
             'title'   => (string) $this->title_id,
             'content' => (string) $this->content_id,
-        ]);
+        ];
 
+        if (filled($this->label_id)) {
+            $bahan['label'] = (string) $this->label_id;
+        }
+
+        $translated = $layanan->translateMany($bahan);
+
+        if (!empty($translated['label']))   $this->label_en   = $translated['label'];
         if (!empty($translated['title']))   $this->title_en   = $translated['title'];
         if (!empty($translated['content'])) {
             $this->content_en = $translated['content'];
@@ -1528,6 +1713,8 @@ class PageIndex extends Component
     public function store()
     {
         $this->validate([
+            'label_en' => 'nullable|string|max:60',
+            'label_id' => 'nullable|string|max:60',
             'title_en' => 'required|string|max:255',
             'title_id' => 'required|string|max:255',
             'status' => 'required|in:draft,published',
@@ -1540,16 +1727,27 @@ class PageIndex extends Component
             'status' => $this->status,
         ]);
 
+        /* Label kosong disimpan sebagai NULL, bukan untai kosong: halaman
+           publik memutuskan menggambar labelnya atau tidak dari isian ini, dan
+           '' yang tersimpan tetap "ada" bagi filled(). */
         // Save English translation
         PageTranslation::updateOrCreate(
             ['page_id' => $page->id, 'locale' => 'en'],
-            ['title' => $this->title_en, 'content' => $this->content_en]
+            [
+                'label'   => filled($this->label_en) ? trim($this->label_en) : null,
+                'title'   => $this->title_en,
+                'content' => $this->content_en,
+            ]
         );
 
         // Save Indonesian translation
         PageTranslation::updateOrCreate(
             ['page_id' => $page->id, 'locale' => 'id'],
-            ['title' => $this->title_id, 'content' => $this->content_id]
+            [
+                'label'   => filled($this->label_id) ? trim($this->label_id) : null,
+                'title'   => $this->title_id,
+                'content' => $this->content_id,
+            ]
         );
 
         session()->flash('message', 
@@ -1568,9 +1766,11 @@ class PageIndex extends Component
         $this->slug = $page->slug;
         $this->status = $page->status;
 
+        $this->label_en = $page->getTranslation('label', 'en');
         $this->title_en = $page->getTranslation('title', 'en');
         $this->content_en = $page->getTranslation('content', 'en');
         
+        $this->label_id = $page->getTranslation('label', 'id');
         $this->title_id = $page->getTranslation('title', 'id');
         $this->content_id = $page->getTranslation('content', 'id');
         $this->activeTab = 'en';
@@ -1594,8 +1794,10 @@ class PageIndex extends Component
         $this->page_id = null;
         $this->slug = '';
         $this->status = 'draft';
+        $this->label_id = '';
         $this->title_id = '';
         $this->content_id = '';
+        $this->label_en = '';
         $this->title_en = '';
         $this->content_en = '';
         $this->activeTab = 'en';

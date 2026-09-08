@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Download;
 use App\Models\Inquiry;
-use App\Models\Product;
 use App\Services\PdfCatalogService;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\SEOMeta;
@@ -36,10 +34,7 @@ class DownloadController extends Controller
         TwitterCard::setTitle(__('site.offline_catalog') . ' - ' . $appName);
         TwitterCard::setDescription(__('site.offline_catalog_sub'));
 
-        return view('public.download-catalog', [
-            'productCount'  => Product::where('status', 'published')->count(),
-            'categoryCount' => Category::where('status', 'active')->count(),
-        ]);
+        return view('public.download-catalog');
     }
 
     public function downloadCatalog(Request $request, PdfCatalogService $pdfService): Response

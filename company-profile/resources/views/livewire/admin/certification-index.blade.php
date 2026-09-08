@@ -652,74 +652,79 @@
                                          hanya akan mengatur satu isian, dan
                                          sakelar untuk satu isian cuma
                                          menambah langkah. --}}
+                                    {{-- Sakelar bahasa DI SAMPING tombol terjemah, dan
+                                         kolomnya bertukar di tempat yang sama — pola
+                                         yang sama dengan modal Halaman.
+
+                                         Yang lama menaruh kolom Indonesia dan Inggris
+                                         berdampingan: dua bahasa harus dibaca sekaligus
+                                         padahal yang dikerjakan satu, dan tiap kolom
+                                         cuma dapat separuh lebar — mahal untuk
+                                         keterangan sepanjang 300 karakter.
+
+                                         Sakelarnya berdiri di bingkai sendiri, terpisah
+                                         dari tombol terjemah: bingkai berlekuk begitu
+                                         berjanji "pilih salah satu", dan tombol tindakan
+                                         di dalamnya mengingkari janji itu. --}}
                                     <div>
-                                        <div class="flex items-center justify-between">
-                                            <label class="block text-admin-label text-ink-faint">
-                                                Nama sertifikasi <span class="text-brand">*</span>
-                                            </label>
-                                            {{-- Tombol tindakan berbentuk
-                                                 baku panel, bukan keping
-                                                 berlekuk dengan emotikon —
-                                                 rupa emotikon berbeda-beda
-                                                 menurut sistem operasi
-                                                 pembacanya. --}}
+                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                            <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
+                                                        border border-line bg-mist p-0.5"
+                                                 role="group" aria-label="Bahasa yang sedang disunting">
+                                                @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
+                                                    @php
+                                                        /* Titik penanda: bahasa ini masih kosong
+                                                           sementara bahasa satunya sudah diisi.
+                                                           Akibatnya tidak kentara dari panel —
+                                                           kartunya akan menampilkan teks bahasa
+                                                           satunya. */
+                                                        $lain    = $kode === 'en' ? 'id' : 'en';
+                                                        $isiIni  = filled(trim($kode === 'en' ? $name_en : $name_id));
+                                                        $isiLain = filled(trim($lain === 'en' ? $name_en : $name_id));
+                                                        $timpang = ! $isiIni && $isiLain;
+                                                    @endphp
+
+                                                    <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
+                                                            aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
+                                                            @class([
+                                                                'inline-flex items-center gap-1.5 rounded-full px-3 py-1
+                                                                 text-admin-label font-semibold transition-colors
+                                                                 focus-visible:outline-none focus-visible:ring-2
+                                                                 focus-visible:ring-brand/30',
+                                                                'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
+                                                                    => $activeTab === $kode,
+                                                                'text-ink-muted hover:text-ink' => $activeTab !== $kode,
+                                                            ])>
+                                                        {{ $sebutan }}
+                                                        @if($timpang)
+                                                            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-status-new"
+                                                                  title="Belum diisi — kartu berbahasa ini akan memakai teks bahasa satunya"
+                                                                  aria-label="Belum diisi"></span>
+                                                        @endif
+                                                    </button>
+                                                @endforeach
+                                            </div>
+
                                             <button type="button" wire:click="autoTranslate"
                                                     wire:loading.attr="disabled" wire:target="autoTranslate"
-                                                    title="Salin nama Indonesia ke English, lalu terjemahkan"
-                                                    class="admin-btn admin-btn-quiet shrink-0 !px-2.5 !py-1 disabled:opacity-60">
+                                                    title="Salin isian Indonesia ke English, lalu terjemahkan"
+                                                    class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
                                                 <svg wire:loading wire:target="autoTranslate"
-                                                     class="h-3 w-3 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                     class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                                     <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
                                                     <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                                                 </svg>
-                                            
-                                                <x-icon.admin name="send" size="h-3 w-3" class="shrink-0 text-brand"
+
+                                                <x-icon.admin name="send" size="h-3.5 w-3.5" class="shrink-0 text-brand"
                                                               wire:loading.remove wire:target="autoTranslate" />
-                                            
-                                                <span class="text-admin-caption">Terjemahkan</span>
+
+                                                Terjemahkan
                                             </button>
                                         </div>
 
-                                        <div class="mt-2 grid gap-3 sm:grid-cols-2">
-                                            <div>
-                                                <div class="relative">
-                                                    <span class="pointer-events-none absolute left-3.5 top-1/2
-                                                                 -translate-y-1/2 text-admin-overline
-                                                                 uppercase text-ink-faint">ID</span>
-
-                                                    <input type="text" wire:model="name_id"
-                                                           aria-label="Nama sertifikasi dalam bahasa Indonesia"
-                                                           placeholder="Nama sertifikasi"
-                                                           class="admin-control pl-11">
-                                                </div>
-
-                                                @error('name_id')
-                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-
-                                            <div>
-                                                <div class="relative">
-                                                    <span class="pointer-events-none absolute left-3.5 top-1/2
-                                                                 -translate-y-1/2 text-admin-overline
-                                                                 uppercase text-ink-faint">EN</span>
-
-                                                    <input type="text" wire:model="name_en"
-                                                           aria-label="Nama sertifikasi dalam bahasa Inggris"
-                                                           placeholder="Nama sertifikasi"
-                                                           class="admin-control pl-11">
-                                                </div>
-
-                                                @error('name_en')
-                                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        {{-- Pesan gagal-terjemah, tepat di
-                                             bawah kedua kolom yang
-                                             dilayaninya — bukan di puncak
-                                             jendela dan bukan lewat flash. --}}
+                                        {{-- Pesan gagal-terjemah, tepat di bawah sakelar yang
+                                             dilayaninya — bukan di puncak jendela dan bukan
+                                             lewat flash. --}}
                                         @if($galatTerjemah)
                                             <p class="mt-2 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                                 <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -730,6 +735,28 @@
                                                 {{ $galatTerjemah }}
                                             </p>
                                         @endif
+
+                                        <div class="mt-4">
+                                            <div>
+                                                <label for="sertif-nama" class="block text-admin-label text-ink-faint">
+                                                    Nama sertifikasi <span class="text-brand">*</span>
+                                                </label>
+
+                                                @foreach(['id', 'en'] as $bahasa)
+                                                    <div @class(['mt-2', 'hidden' => $activeTab !== $bahasa])>
+                                                        <input type="text" wire:model="name_{{ $bahasa }}"
+                                                               id="{{ $bahasa === 'id' ? 'sertif-nama' : 'sertif-nama-en' }}"
+                                                               aria-label="Nama sertifikasi dalam bahasa {{ $bahasa === 'id' ? 'Indonesia' : 'Inggris' }}"
+                                                               placeholder="Nama sertifikasi"
+                                                               class="admin-control">
+
+                                                        @error('name_' . $bahasa)
+                                                            <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div>

@@ -37,6 +37,34 @@ class Certification extends Model implements HasMedia
         ];
     }
 
+    /**
+     * Sertifikat yang MASIH BERLAKU hari ini.
+     *
+     * status = 'active' saja tidak cukup. Status itu disetel tangan dan tidak
+     * ada yang membaliknya saat tanggalnya lewat, jadi sertifikat yang sudah
+     * kedaluwarsa tetap berstatus aktif sampai ada yang ingat menyuntingnya.
+     * Tanggalnya yang tahu, bukan statusnya.
+     *
+     * expires_at kosong berarti tidak berbatas waktu — bukan berarti
+     * kedaluwarsa. Tanpa cabang IS NULL, sertifikat tanpa tanggal habis justru
+     * yang pertama hilang.
+     *
+     * SENGAJA tidak dipakai di halaman Sertifikasi. Halaman itu catatan
+     * lengkap: ia menampilkan yang kedaluwarsa juga, dengan label "Expired on"
+     * alih-alih "Valid until" — dan itu jujur. Yang tidak boleh menampilkannya
+     * adalah bilah kepercayaan di beranda, karena di sana tidak ada ruang untuk
+     * mengatakan bahwa satu di antaranya sudah lewat; deretan lambang di sana
+     * terbaca sebagai klaim yang berlaku SEKARANG.
+     */
+    public function scopeBerlaku($query)
+    {
+        return $query->where('status', 'active')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhereDate('expires_at', '>=', now()->toDateString());
+            });
+    }
+
     //Relasi ke data terjemahan sertifikat.
     public function translations(): HasMany
     {

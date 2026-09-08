@@ -6,7 +6,6 @@ use Livewire\Component;
 use Livewire\Attributes\Layout;
 use App\Models\Page;
 use App\Models\Setting;
-use App\Models\Certification;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\TwitterCard;
@@ -46,11 +45,6 @@ class About extends Component
 
         $settings = Setting::pluck('value', 'key')->toArray();
 
-        $certifications = Certification::where('status', 'active')
-            ->with('translations')
-            ->orderBy('sort_order')
-            ->get();
-
         /*
          * Susunan bagian halaman ini — urutan dan tampil-tidaknya — diatur di
          * menu Halaman. Yang belum pernah diatur memakai susunan bawaan, jadi
@@ -78,7 +72,6 @@ class About extends Component
             'profilSections' => $bagian,
             'page'           => $page,
             'settings'       => $settings,
-            'certifications' => $certifications,
         ]);
     }
 }

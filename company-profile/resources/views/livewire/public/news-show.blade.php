@@ -13,48 +13,79 @@
     {{-- ══════════════════════════════════════════════════════════════════
          KEPALA ARTIKEL
          ══════════════════════════════════════════════════════════════════ --}}
-    <article class="pb-20 pt-12 md:pt-16 lg:pb-24">
+    <article class="pb-20 pt-6 md:pt-8 lg:pb-24 lg:pt-10">
         <div class="shell">
-            <div class="mx-auto max-w-[46rem]">
 
-                <a href="{{ route('news.index') }}" class="link-arrow">
-                    <span class="rotate-180">
-                        <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    {{ __('site.page_news') }}
-                </a>
+            {{-- Tautan kembali berupa pil pucat bercincin, rupa yang sama dengan
+                 jalan kembali di halaman detail produk dan gerbang katalog. Yang
+                 lama .link-arrow — tautan telanjang berpanah kecil dari keluarga
+                 tombol lama yang sudah tidak dipakai di halaman publik mana pun
+                 lagi.
 
+                 Berdiri di lebar penuh, bukan di dalam lajur baca: ia bukan
+                 bagian dari artikelnya, melainkan jalan keluar darinya. --}}
+            <a href="{{ route('news.index') }}"
+               class="inline-flex h-10 w-max items-center gap-2.5 rounded-full pl-3 pr-5
+                      bg-site-paper text-site-forest ring-1 ring-line-strong
+                      font-site-body text-site-small font-semibold whitespace-nowrap
+                      transition-colors duration-300 hover:bg-site-line">
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full
+                             bg-site-canvas text-site-forest">
+                    <svg class="h-3.5 w-3.5 rotate-180" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                {{ __('site.page_news') }}
+            </a>
+
+            {{-- Lajur baca 46rem — sekitar 75 huruf per baris pada 16px. Isi
+                 artikel adalah satu-satunya tempat di situs ini yang benar-benar
+                 dibaca dari awal ke akhir, dan lebar itu yang menahan mata tidak
+                 kehilangan awal baris berikutnya. --}}
+            <div class="mx-auto mt-8 max-w-[46rem] lg:mt-10">
                 @if($news->category)
-                    <p class="eyebrow mt-8">{{ $news->category->name }}</p>
+                    <p class="eyebrow">{{ $news->category->name }}</p>
                 @endif
 
-                <h1 class="display mt-5 text-site-h1">
+                {{-- 42px cokelat, ukuran dan warna yang sama dengan judul halaman
+                     lain. Yang lama 48px hitam — ukuran hero. --}}
+                <h1 class="display mt-4 text-site-h2 text-site-forest">
                     {!! \App\Support\Judul::sorot($news->translated_title) !!}
                 </h1>
 
-                <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-line pb-6 text-ink-muted text-site-small">
-                    @if($news->published_at)
-                        <span class="flex items-center gap-2">
-                            <svg class="h-4 w-4 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                <rect x="2.2" y="3.4" width="11.6" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.3"/>
-                                <path d="M2.2 6.6h11.6M5.6 2.2v2.4M10.4 2.2v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                            </svg>
-                            <time datetime="{{ $news->published_at->toDateString() }}">
-                                {{ $news->published_at->translatedFormat('d F Y') }}
-                            </time>
-                        </span>
+                {{-- Penulis di kiri, tanggal terbit rata kanan pada garis yang
+                     sama — susunan yang sama dengan kartu di halaman daftar, jadi
+                     pembaca yang baru menekan sebuah kartu menemukan keterangan
+                     yang sama di tempat yang sama.
+
+                     Garis rambut di bawahnya menutup kepala artikel dan membuka
+                     isinya. --}}
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-x-5 gap-y-3
+                            border-b border-line pb-6">
+                    @if($news->author?->name)
+                        <p class="flex items-center gap-2.5 text-ink-muted text-site-small">
+                            {{-- Monogram, bukan ikon orang: proyek ini tidak
+                                 menyimpan foto pengguna, dan inisial jelas
+                                 diturunkan dari nama di sebelahnya sementara ikon
+                                 generik tidak menyatakan apa pun. --}}
+                            <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center
+                                         rounded-full bg-site-paper font-site-accent text-site-micro
+                                         font-semibold text-site-forest"
+                                  aria-hidden="true">
+                                {{ \App\Support\Monogram::inisial($news->author->name) ?: '·' }}
+                            </span>
+                            {{ $news->author->name }}
+                        </p>
+                    @else
+                        <span></span>
                     @endif
 
-                    @if($news->author?->name)
-                        <span class="flex items-center gap-2">
-                            <svg class="h-4 w-4 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                <circle cx="8" cy="5.6" r="2.8" stroke="currentColor" stroke-width="1.3"/>
-                                <path d="M2.8 13.6c0-2.4 2.3-4 5.2-4s5.2 1.6 5.2 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                            </svg>
-                            {{ $news->author->name }}
-                        </span>
+                    @if($news->published_at)
+                        <time datetime="{{ $news->published_at->toDateString() }}"
+                              class="shrink-0 text-ink-muted text-site-small">
+                            {{ $news->published_at->translatedFormat('d F Y') }}
+                        </time>
                     @endif
                 </div>
 
@@ -68,11 +99,33 @@
                 </div>
 
                 @if($news->tags->isNotEmpty())
-                    <ul class="mt-10 flex flex-wrap gap-2 border-t border-line pt-8">
-                        @foreach($news->tags as $tag)
-                            <li class="chip">{{ $tag->name }}</li>
-                        @endforeach
-                    </ul>
+                    {{-- Tanda jadi pil bergaris rambut, rupa yang sama dengan pil
+                         kategori di halaman daftar. Yang lama .chip — keping
+                         berlatar dari palet sebelum Karamel Sangrai.
+
+                         Diberi label, karena tanpa itu deretan pil yang muncul
+                         begitu saja sesudah isi artikel tidak menyatakan dirinya
+                         apa: pembaca yang sampai di sana melihat dua kata
+                         berbingkai dan harus menebak apakah itu penulisnya,
+                         kategorinya, atau tautan ke suatu tempat.
+
+                         Labelnya sebaris DENGAN pilnya, bukan bertumpuk di
+                         atasnya. Ia satu kata; baris sendiri untuk satu kata
+                         menambah tinggi tanpa menambah kejelasan, dan sejajar
+                         di kiri ia terbaca sebagai judul deretan itu — cara
+                         yang sama dengan label di lembar spesifikasi produk. --}}
+                    <div class="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line pt-8">
+                        <p class="eyebrow shrink-0">{{ __('site.tags') }}</p>
+
+                        <ul class="flex flex-wrap gap-2">
+                            @foreach($news->tags as $tag)
+                                <li class="inline-flex h-9 items-center rounded-full border border-line px-4
+                                           font-site-body text-site-small font-semibold text-ink-muted">
+                                    {{ $tag->name }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 @endif
             </div>
         </div>
@@ -82,22 +135,36 @@
          ARTIKEL LAINNYA
          ══════════════════════════════════════════════════════════════════ --}}
     @if($related->isNotEmpty())
-        <section class="section border-t border-line">
+        <section class="border-t border-line py-16 lg:py-20">
             <div class="shell">
-                <div class="flex flex-wrap items-end justify-between gap-6">
-                    <h2 class="display max-w-[20ch] text-site-h2">
+                <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+                    {{-- Judul seksi 26px, bukan 42px: ia bawahan judul artikelnya,
+                         dan dua judul seukuran di satu halaman membuat keduanya
+                         sama-sama tidak terbaca sebagai puncak. --}}
+                    <h2 class="display max-w-[20ch] text-site-h3 text-site-forest">
                         {!! \App\Support\Judul::sorot(__('site.related_articles')) !!}
                     </h2>
 
-                    <a href="{{ route('news.index') }}" class="btn btn-outline btn-arrow">
+                    {{-- Tautan berpanah, bukan tombol bergaris: ia bukan tindakan
+                         utama halaman ini — yang utama adalah membaca artikel yang
+                         sedang dibuka. Rupanya sama dengan "Read Article" di kartu
+                         di bawahnya. --}}
+                    <a href="{{ route('news.index') }}"
+                       class="group inline-flex shrink-0 items-center gap-2 font-site-body text-site-small
+                              font-semibold text-site-forest transition-colors hover:text-site-gilt-deep">
                         {{ __('site.cta_see_more_news') }}
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                             viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </a>
                 </div>
 
-                <ul class="mt-10 grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {{-- Kartu tanpa bingkai, sama dengan kisi di halaman daftar:
+                     gambar berbulatan penuh di keempat sudutnya, tulisan jatuh
+                     langsung di bidang halaman. --}}
+                <ul class="mt-8 grid auto-rows-fr gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($related as $article)
                         @php
                             $relatedCover = $article->getFirstMediaUrl('covers', 'thumb')
@@ -106,36 +173,73 @@
 
                         <li class="flex">
                             <a href="{{ route('news.show', $article->slug) }}"
-                               class="card group flex h-full w-full flex-col transition-colors hover:border-line-strong">
+                               class="group flex h-full w-full flex-col">
 
-                                <span class="relative block h-[170px] shrink-0 overflow-hidden bg-mist-deep">
+                                {{-- Nisbah 5:3, sama dengan kartu di halaman daftar,
+                                     supaya tinggi gambarnya sepadan dengan blok
+                                     tulisan di bawahnya. --}}
+                                <span class="relative block aspect-[5/3] w-full shrink-0 overflow-hidden
+                                             rounded-panel bg-site-paper">
                                     @if($relatedCover)
                                         <img src="{{ $relatedCover }}" alt="" aria-hidden="true" loading="lazy"
-                                             class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]">
+                                             class="absolute inset-0 h-full w-full object-cover
+                                                    transition-transform duration-500 group-hover:scale-[1.03]">
                                     @else
                                         <x-site.image-placeholder class="absolute inset-0 h-full w-full" icon="h-10 w-10" />
                                     @endif
                                 </span>
 
-                                <span class="flex flex-1 flex-col p-6">
-                                    @if($article->published_at)
-                                        <time datetime="{{ $article->published_at->toDateString() }}"
-                                              class="text-site-micro text-ink-faint">
-                                            {{ $article->published_at->translatedFormat('d M Y') }}
-                                        </time>
-                                    @endif
+                                <span class="flex flex-1 flex-col pt-5">
+                                    <span class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1.5">
+                                        @if($article->category)
+                                            <span class="eyebrow">{{ $article->category->name }}</span>
+                                        @else
+                                            <span></span>
+                                        @endif
 
-                                    <span class="mt-2.5 font-display font-semibold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand text-site-lede">
+                                        @if($article->published_at)
+                                            <time datetime="{{ $article->published_at->toDateString() }}"
+                                                  class="shrink-0 text-ink-muted text-site-micro">
+                                                {{ $article->published_at->translatedFormat('d M Y') }}
+                                            </time>
+                                        @endif
+                                    </span>
+
+                                    {{-- min-h dua baris dalam satuan em: em di sini
+                                         ukuran huruf judulnya sendiri, dan ukuran itu
+                                         sebuah clamp yang menyusut di layar sempit.
+                                         Judul satu baris tetap memesan ruang dua baris,
+                                         jadi baris di bawahnya sejajar di seluruh
+                                         kisi. --}}
+                                    <span class="mt-3 line-clamp-2 min-h-[2.75em] font-site-display
+                                                 text-site-title font-bold leading-snug tracking-[-0.01em]
+                                                 text-site-forest transition-colors group-hover:text-site-gilt-deep">
                                         {{ $article->translated_title }}
                                     </span>
 
-                                    <span class="link-arrow mt-auto pt-6">
-                                        {{ __('site.read_article') }}
-                                        <span>
-                                            <svg class="h-3 w-3" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
+                                    {{-- Ringkasan disertakan, dan itu bukan hiasan:
+                                         tanpa ringkasan, blok tulisan cuma setinggi
+                                         144px di bawah gambar setinggi 224px, dan
+                                         kartunya terbaca berat sebelah persis seperti
+                                         kartu di halaman daftar sebelum diperbaiki.
+                                         Tiga baris terpotong menyamakan keduanya —
+                                         sekaligus memberi pembaca alasan menekan. --}}
+                                    @if($article->translated_excerpt)
+                                        <span class="mt-2.5 line-clamp-3 block min-h-[4.875em] leading-relaxed
+                                                     text-ink-muted text-site-small">
+                                            {{ \Illuminate\Support\Str::limit(strip_tags($article->translated_excerpt), 130) }}
                                         </span>
+                                    @endif
+
+                                    <span class="mt-auto inline-flex items-center gap-2 pt-5 font-site-body
+                                                 text-site-small font-semibold text-site-forest
+                                                 transition-colors group-hover:text-site-gilt-deep">
+                                        {{ __('site.read_article') }}
+                                        <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+                                             viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2"
+                                                  stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                     </span>
                                 </span>
                             </a>

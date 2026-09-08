@@ -103,8 +103,15 @@
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $judulHalaman }} · {{ $namaPerusahaan }}</title>
 
+    {{-- Selalu dinyatakan, termasuk saat kosong — kalau tidak, peramban jatuh
+         ke /favicon.ico dan mempertahankan ikon yang terakhir dikenalnya, jadi
+         favicon yang sudah dihapus tetap tampak di tab. Keterangan lengkapnya
+         di App\Support\Monogram. --}}
     @if($favicon)
         <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+    @else
+        <link rel="icon" type="image/svg+xml"
+              href="{{ \App\Support\Monogram::favicon($namaPerusahaan) }}">
     @endif
 
     {{-- Keadaan sidebar dipasang SEBELUM halaman digambar.
@@ -203,12 +210,14 @@
                     <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
                          class="h-6 w-6 object-contain">
                 @else
-                    <svg class="h-5 w-5 text-brand" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                        <path d="M16 3.5c6 0 10.5 5.6 10.5 12.5S22 28.5 16 28.5 5.5 22.9 5.5 16 10 3.5 16 3.5Z"
-                              stroke="currentColor" stroke-width="2"/>
-                        <path d="M16 5.2c-3 3-3 6.9 0 10.8s3 7.8 0 10.8"
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
+                    {{-- Monogram, bukan lambang bergambar — sama seperti di kepala
+                         situs publik. Bingkainya di sini TETAP dipertahankan:
+                         saat sidebar dipersempit, kotak inilah satu-satunya yang
+                         tersisa di kepalanya. --}}
+                    <span class="text-admin-strong font-semibold leading-none text-brand-deep"
+                          aria-hidden="true">
+                        {{ \App\Support\Monogram::inisial($namaPerusahaan) ?: '·' }}
+                    </span>
                 @endif
             </span>
 

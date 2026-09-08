@@ -17,15 +17,10 @@ class NewsIndex extends Component
 
     public $search = '';
     public $category = '';
-    public $sort = 'newest';
-
-    /** Nilai `sort` yang diterima. Nilai di luar daftar ini diabaikan. */
-    public const SORT_OPTIONS = ['newest', 'oldest', 'title_asc', 'title_desc'];
 
     protected $queryString = [
         'search'   => ['except' => ''],
         'category' => ['except' => ''],
-        'sort'     => ['except' => 'newest'],
     ];
 
     public function mount(): void
@@ -76,16 +71,30 @@ class NewsIndex extends Component
 
         $hasFilters = filled($this->search) || filled($this->category);
 
-        // ── Artikel sorotan ──────────────────────────────────────────────
+        /*
+         * ── ARTIKEL SOROTAN: YANG PALING BARU ────────────────────────────
+         *
+         * Kartu terbesar di halaman ini selalu artikel dengan tanggal terbit
+         * paling belakang — itu satu-satunya aturannya, dan tidak ada kolom
+         * "unggulan" yang bisa menimpanya dari panel.
+         *
+         * Ia digambar HANYA saat tidak ada saringan yang berlaku. Begitu
+         * pengunjung memilih kategori atau mengetik pencarian, yang ditanyakan
+         * bukan lagi "apa yang terbaru" melainkan "apa yang cocok" — dan kartu
+         * besar berisi artikel yang kebetulan paling baru akan berdiri di
+         * puncak hasil yang tidak dimintanya. Jadi kartunya mundur dan seluruh
+         * artikel kembali ke kisi yang setara.
+         *
+         * Menu urutan sudah dilepas dari halaman ini, jadi tidak ada lagi cara
+         * membuat daftarnya berlawanan dengan kartu besarnya.
+         */
         $featured = $hasFilters
             ? null
             : News::where('status', 'published')
                 ->where('published_at', '<=', now())
-                ->with(['translations', 'media', 'category'])
+                ->with(['translations', 'media', 'category', 'author'])
                 ->orderByDesc('published_at')
                 ->first();
-
-        $sort = in_array($this->sort, self::SORT_OPTIONS, true) ? $this->sort : 'newest';
 
         $query = News::where('news.status', 'published')
             ->where('news.published_at', '<=', now())
@@ -96,16 +105,7 @@ class NewsIndex extends Component
             })
             ->with(['translations', 'media', 'author', 'category']);
 
-        if (in_array($sort, ['title_asc', 'title_desc'], true)) {
-            $query->select('news.*')
-                ->leftJoin('news_translations as nt', function ($join) {
-                    $join->on('nt.news_id', '=', 'news.id')
-                         ->where('nt.locale', '=', app()->getLocale());
-                })
-                ->orderBy('nt.title', $sort === 'title_asc' ? 'asc' : 'desc');
-        } else {
-            $query->orderBy('published_at', $sort === 'oldest' ? 'asc' : 'desc');
-        }
+        $query->orderByDesc('published_at');
 
         return view('livewire.public.news-index', [
             /* Isi kepala halaman ini bisa disunting dari menu Halaman;

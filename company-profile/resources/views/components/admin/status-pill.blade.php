@@ -59,7 +59,12 @@
         'produk' => ['published' => 'Aktif'],
     ];
 
-    $sebutan = array_merge($sebutan, $khusus[$konteks] ?? []);
+    /* $konteks ?? '' — bukan $konteks langsung. Komponen ini biasa dipanggil
+       tanpa konteks, dan PHP menganggap null sebagai kunci larik itu usang:
+       tiap halaman admin yang menggambar pil status ikut menulis peringatan
+       ke log. Untai kosong bukan kunci yang ada di $khusus, jadi hasilnya
+       sama persis — tanpa peringatannya. */
+    $sebutan = array_merge($sebutan, $khusus[$konteks ?? ''] ?? []);
 
     /*
      * LIMA status inquiry, lima rona — satu-satu, tanpa ada yang menumpang

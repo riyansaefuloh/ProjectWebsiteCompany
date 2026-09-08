@@ -452,8 +452,9 @@
 
             $opsi = match ($jenisDibuka) {
                 'bagian' => \App\Livewire\Admin\PageIndex::OPSI_BAGIAN[$bagianDibuka] ?? [],
-                'profil' => \App\Livewire\Admin\PageIndex::opsiProfil()[$bagianDibuka] ?? [],
-                default  => [],
+                'profil'  => \App\Livewire\Admin\PageIndex::opsiProfil()[$bagianDibuka] ?? [],
+                'halaman' => \App\Livewire\Admin\PageIndex::opsiHalaman()[$bagianDibuka] ?? [],
+                default   => [],
             };
 
             $skemaOpsi = collect($opsi)->keyBy('nama');
@@ -490,6 +491,12 @@
                     $medan = $skemaOpsi->get($b['nama']);
                     $medan['bentuk'] = 'opsi';
                     $opsiTerpakai[] = $b['nama'];
+                } elseif (($b['jenis'] ?? null) === 'gambar') {
+                    /* Slot gambar: satu unggahan tanpa versi per bahasa. Gambar
+                       tonggak sejarah sama di kedua bahasa — yang berbeda cuma
+                       kalimat di sebelahnya. */
+                    $medan = $b;
+                    $medan['bentuk'] = 'gambar';
                 } else {
                     $medan = $b;
                     $medan['bentuk'] = 'teks';
@@ -583,11 +590,11 @@
                              isian kini terbagi ke beberapa kartu, dan sakelar
                              di kepala salah satunya akan tampak hanya
                              mengurus kartu itu. --}}
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <p class="font-ui text-admin-caption font-semibold uppercase
-                                      tracking-[0.08em] text-ink-faint">
-                                Teks per bahasa
-                            </p>
+                        {{-- justify-end, bukan justify-between: judul "Teks per
+                             bahasa" di kiri sudah dilepas, dan tanpa penggantinya
+                             justify-between akan melemparkan kendalinya ke tepi
+                             kiri. --}}
+                        <div class="flex flex-wrap items-center justify-end gap-3">
 
                             {{-- Tab bahasa dan tombol Terjemahkan berdiri
                                  TERPISAH: kendali bersegmen menjanjikan
@@ -716,16 +723,89 @@
                                     <div class="space-y-4">
                                         @foreach($kartu['medan'] as $b)
                                             <div>
-                                                @if($b['bentuk'] === 'opsi')
+                                                @if($b['bentuk'] === 'gambar')
+                                                    @php
+                                                        $adaLama = filled($gambarTonggakLama[$b['nama']] ?? null)
+                                                            && \Illuminate\Support\Facades\Storage::disk('public')
+                                                                ->exists($gambarTonggakLama[$b['nama']]);
+                                                        $baru = $gambarTonggak[$b['nama']] ?? null;
+                                                    @endphp
+
+                                                    <span class="block text-admin-label text-ink-faint">{{ $b['label'] }}</span>
+
+                                                    <div class="mt-2 flex items-center gap-3">
+                                                        {{-- Petak pratinjau 64px, bukan bidang unggah
+                                                             selebar kartu: enam tonggak berarti enam
+                                                             kotak di satu modal, dan yang selebar kartu
+                                                             membuat daftar tonggaknya jadi enam layar. --}}
+                                                        <span class="flex h-16 w-16 shrink-0 items-center justify-center
+                                                                     overflow-hidden rounded-control border border-line bg-mist">
+                                                            @if($baru)
+                                                                <img src="{{ $baru->temporaryUrl() }}" alt=""
+                                                                     class="h-full w-full object-cover">
+                                                            @elseif($adaLama)
+                                                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($gambarTonggakLama[$b['nama']]) }}"
+                                                                     alt="" class="h-full w-full object-cover">
+                                                            @else
+                                                                <svg class="h-5 w-5 text-ink-faint" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                                                    <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+                                                                    <circle cx="8.6" cy="10" r="1.7" stroke="currentColor" stroke-width="1.7"/>
+                                                                    <path d="m4 17 5-4.6 3.6 3.2L16 12l4 4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                                                                </svg>
+                                                            @endif
+                                                        </span>
+
+                                                        <div class="min-w-0">
+                                                            <label class="admin-btn admin-btn-quiet cursor-pointer !py-1.5">
+                                                                <input type="file" wire:model="gambarTonggak.{{ $b['nama'] }}"
+                                                                       accept="image/*" class="sr-only">
+                                                                <span wire:loading.remove wire:target="gambarTonggak.{{ $b['nama'] }}">
+                                                                    {{ $adaLama || $baru ? 'Ganti gambar' : 'Pilih gambar' }}
+                                                                </span>
+                                                                <span wire:loading wire:target="gambarTonggak.{{ $b['nama'] }}">Mengunggah…</span>
+                                                            </label>
+
+                                                            @if($adaLama)
+                                                                <button type="button"
+                                                                        wire:click="hapusGambarTonggak('{{ $b['nama'] }}')"
+                                                                        class="ml-1 text-admin-label text-danger hover:underline">
+                                                                    Hapus
+                                                                </button>
+                                                            @endif
+
+                                                            <p class="mt-1.5 text-admin-label text-ink-faint">
+                                                                JPG/PNG/WebP, maksimal 4 MB. Dikosongkan berarti
+                                                                tonggak ini tampil tanpa gambar.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    @error('gambarTonggak.' . $b['nama'])
+                                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                                    @enderror
+                                                @elseif($b['bentuk'] === 'opsi')
                                                     <label for="opsi-{{ $b['nama'] }}"
                                                            class="block text-admin-label text-ink-faint">
                                                         {{ $b['label'] }}
                                                     </label>
 
-                                                    <input type="number" id="opsi-{{ $b['nama'] }}"
-                                                           wire:model="opsiBagian.{{ $b['nama'] }}"
-                                                           min="{{ $b['min'] }}" max="{{ $b['max'] }}"
-                                                           class="admin-control mt-2 max-w-[140px] tabular-nums">
+                                                    {{-- Kotaknya mengikuti JENIS opsinya. Angka
+                                                         memakai kotak angka berbatas; teks memakai
+                                                         kotak biasa selebar penuh — alamat YouTube
+                                                         tidak muat di kotak 140px, dan kotak angka
+                                                         menolak huruf. --}}
+                                                    @if(($b['jenis'] ?? 'angka') === 'teks')
+                                                        <input type="text" id="opsi-{{ $b['nama'] }}"
+                                                               wire:model="opsiBagian.{{ $b['nama'] }}"
+                                                               maxlength="255" autocomplete="off"
+                                                               placeholder="https://www.youtube.com/watch?v=…"
+                                                               class="admin-control mt-2">
+                                                    @else
+                                                        <input type="number" id="opsi-{{ $b['nama'] }}"
+                                                               wire:model="opsiBagian.{{ $b['nama'] }}"
+                                                               min="{{ $b['min'] }}" max="{{ $b['max'] }}"
+                                                               class="admin-control mt-2 max-w-[140px] tabular-nums">
+                                                    @endif
 
                                                     @if(! empty($b['catatan']))
                                                         <p class="mt-2 text-admin-label text-ink-faint">
@@ -802,10 +882,17 @@
                                                 {{ $o['label'] }}
                                             </label>
 
-                                            <input type="number" id="opsi-{{ $o['nama'] }}"
-                                                   wire:model="opsiBagian.{{ $o['nama'] }}"
-                                                   min="{{ $o['min'] }}" max="{{ $o['max'] }}"
-                                                   class="admin-control mt-2 max-w-[140px] tabular-nums">
+                                            @if(($o['jenis'] ?? 'angka') === 'teks')
+                                                <input type="text" id="opsi-{{ $o['nama'] }}"
+                                                       wire:model="opsiBagian.{{ $o['nama'] }}"
+                                                       maxlength="255" autocomplete="off"
+                                                       class="admin-control mt-2">
+                                            @else
+                                                <input type="number" id="opsi-{{ $o['nama'] }}"
+                                                       wire:model="opsiBagian.{{ $o['nama'] }}"
+                                                       min="{{ $o['min'] }}" max="{{ $o['max'] }}"
+                                                       class="admin-control mt-2 max-w-[140px] tabular-nums">
+                                            @endif
 
                                             @if(! empty($o['catatan']))
                                                 <p class="mt-2 text-admin-label text-ink-faint">
@@ -919,7 +1006,7 @@
                         <button type="button" wire:click="tutupIsiBagian" class="admin-btn">Batal</button>
 
                         <button type="submit" wire:loading.attr="disabled"
-                                wire:target="simpanIsiBagian, gambarBagian"
+                                wire:target="simpanIsiBagian, gambarBagian, gambarTonggak"
                                 class="admin-btn admin-btn-brand disabled:opacity-60">
                             <svg wire:loading wire:target="simpanIsiBagian"
                                  class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -942,8 +1029,8 @@
             /* Titik merah di sakelar bahasa: menandai tab mana yang isian
                wajibnya belum beres, supaya galat di tab tersembunyi tidak
                berujung tombol Simpan yang seakan tidak bereaksi. */
-            $galatEn = $errors->hasAny(['title_en', 'content_en']);
-            $galatId = $errors->hasAny(['title_id', 'content_id']);
+            $galatEn = $errors->hasAny(['label_en', 'title_en', 'content_en']);
+            $galatId = $errors->hasAny(['label_id', 'title_id', 'content_id']);
 
             /*
              * Alamat halamannya dirangkai ulang dari judul Inggris TIAP KALI
@@ -1109,6 +1196,44 @@
                                 @endif
 
                                 <div class="space-y-4">
+
+                                    {{-- Label: kata kecil di ATAS judul di
+                                         halaman publik. Boleh kosong — yang
+                                         kosong tidak menggambar apa pun di
+                                         sana, bukan menggambar petak hampa.
+
+                                         Ditaruh sebelum Judul karena di
+                                         halaman jadinya pun ia lebih dulu
+                                         dibaca. --}}
+                                    <div>
+                                        <label class="block text-admin-label text-ink-faint">
+                                            Label halaman
+                                        </label>
+
+                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
+                                            <input type="text" wire:model="label_en" maxlength="60"
+                                                   aria-label="Label halaman dalam bahasa Inggris"
+                                                   placeholder="mis. Legal"
+                                                   class="admin-control">
+                                            @error('label_en')
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div @class(['mt-2', 'hidden' => $activeTab !== 'id'])>
+                                            <input type="text" wire:model="label_id" maxlength="60"
+                                                   aria-label="Label halaman dalam bahasa Indonesia"
+                                                   placeholder="mis. Legal"
+                                                   class="admin-control">
+                                            @error('label_id')
+                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <p class="mt-2 text-admin-label text-ink-faint">
+                                            Tergambar sebagai tulisan kecil beraksen emas di atas judul halaman.
+                                        </p>
+                                    </div>
 
                                     {{-- Judul mengikuti tab. Keduanya TETAP
                                          di DOM dan yang tidak aktif hanya

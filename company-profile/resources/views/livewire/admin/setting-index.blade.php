@@ -18,15 +18,6 @@
             $zona = $zona->prepend($timezone, $timezone);
         }
 
-        /*
-         * Perbandingannya memakai ANGKANYA saja, sama seperti yang dilakukan
-         * kaki situs: "+62 812-3456-7890" dan "6281234567890" itu nomor yang
-         * sama, cuma beda cara menulisnya.
-         */
-        $angka = fn ($n) => preg_replace('/\D+/', '', (string) $n);
-
-        $nomorKembar = filled($company_phone)
-            && $angka($company_phone) === $angka($whatsapp_number);
     @endphp
 
     {{-- ══════════════════════════════════════════════════════════════════
@@ -191,103 +182,46 @@
 
                             </div>
 
-                            {{-- Dua nomor berdampingan: keduanya tampil di kaki situs
-                                 publik, dan yang membedakannya cuma cara menghubungi. --}}
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label for="set-wa" class="block text-admin-label text-ink-faint">
-                                        Nomor WhatsApp <span class="text-brand">*</span>
-                                    </label>
+                            <div>
+                                <label for="set-wa" class="block text-admin-label text-ink-faint">
+                                    Nomor WhatsApp <span class="text-brand">*</span>
+                                </label>
 
-                                    <input type="text" wire:model.live.debounce.500ms="whatsapp_number" id="set-wa"
-                                           placeholder="6281234567890"
-                                           class="admin-control mt-2">
-
-                                    <p class="mt-2 text-admin-label text-ink-faint">
-                                        Format internasional tanpa spasi — inilah yang dirangkai
-                                        jadi tautan wa.me.
-                                    </p>
-
-                                    @error('whatsapp_number')
-                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <label for="set-telepon" class="block text-admin-label text-ink-faint">
-                                        Nomor telepon
-                                    </label>
-
-                                    <input type="text" wire:model.live.debounce.500ms="company_phone" id="set-telepon"
-                                           placeholder="+62 21 1234 5678"
-                                           class="admin-control mt-2">
-
-                                    <p class="mt-2 text-admin-label text-ink-faint">
-                                        Nomor yang ditelepon biasa. Dikosongkan berarti kaki situs
-                                        hanya menampilkan WhatsApp.
-                                    </p>
-
-                                    @error('company_phone')
-                                        <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            {{-- Kaki situs menyembunyikan telepon yang
-                                 angkanya sama persis dengan WhatsApp: nomor
-                                 yang sama dua kali terbaca seperti salah
-                                 ketik. --}}
-                            @if($nomorKembar)
-                                <div class="flex items-start gap-2.5 rounded-control border border-status-new/30
-                                            bg-status-new/5 px-3.5 py-2.5">
-                                    <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center
-                                                 rounded-full bg-status-new text-white">
-                                        <svg class="h-2.5 w-2.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                            <path d="M8 4.4v4.4M8 11.4v.2" stroke="currentColor"
-                                                  stroke-width="2" stroke-linecap="round"/>
-                                        </svg>
-                                    </span>
-
-                                    <p class="min-w-0 text-admin-label text-ink-muted">
-                                        Kedua nomornya sama. Kaki situs publik akan menampilkan
-                                        <span class="font-semibold text-ink">satu nomor saja</span> —
-                                        beda keduanya supaya WhatsApp dan telepon tampil berdampingan.
-                                    </p>
-                                </div>
-                            @endif
-
-                            {{-- ── Jam operasional — sudah lama digambar kaki
-                                 situs dan halaman kontak, tapi belum pernah
-                                 punya isiannya di panel. ── --}}
-                            <div class="border-t border-line pt-4">
-                                <span class="block text-admin-label text-ink-faint">Jam operasional</span>
-
-                                <div class="mt-2 grid gap-4 sm:grid-cols-3">
-                                    @foreach([
-                                        ['prop' => 'hours_weekday',  'id' => 'set-jam-1', 'label' => 'Senin–Jumat', 'contoh' => '08.00 – 17.00 WIB'],
-                                        ['prop' => 'hours_saturday', 'id' => 'set-jam-2', 'label' => 'Sabtu',       'contoh' => '08.00 – 13.00 WIB'],
-                                        ['prop' => 'hours_sunday',   'id' => 'set-jam-3', 'label' => 'Minggu',      'contoh' => 'Tutup'],
-                                    ] as $jam)
-                                        <div>
-                                            <label for="{{ $jam['id'] }}" class="block text-admin-label text-ink-muted">
-                                                {{ $jam['label'] }}
-                                            </label>
-
-                                            <input type="text" wire:model="{{ $jam['prop'] }}" id="{{ $jam['id'] }}"
-                                                   placeholder="{{ $jam['contoh'] }}"
-                                                   class="admin-control mt-1.5">
-
-                                            @error($jam['prop'])
-                                                <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                    @endforeach
-                                </div>
+                                <input type="text" wire:model="whatsapp_number" id="set-wa"
+                                       placeholder="6281234567890"
+                                       class="admin-control mt-2 sm:max-w-xs">
 
                                 <p class="mt-2 text-admin-label text-ink-faint">
-                                    Baris yang dikosongkan tidak digambar. Kalau ketiganya kosong,
-                                    blok jam operasional tidak muncul sama sekali di situs publik.
+                                    Format internasional tanpa spasi — inilah yang dirangkai
+                                    jadi tautan wa.me. Satu-satunya nomor yang dipakai situs
+                                    publik.
                                 </p>
+
+                                @error('whatsapp_number')
+                                    <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            {{-- ── Jam operasional. SATU isian, berlaku
+                                 Senin–Sabtu. Yang lama tiga isian terpisah dan
+                                 pada praktiknya selalu diisi jam yang sama. ── --}}
+                            <div class="border-t border-line pt-4">
+                                <label for="set-jam" class="block text-admin-label text-ink-faint">
+                                    Jam operasional
+                                </label>
+
+                                <input type="text" wire:model="hours_weekly" id="set-jam"
+                                       placeholder="08.00 – 17.00 WIB"
+                                       class="admin-control mt-2 sm:max-w-xs">
+
+                                <p class="mt-1.5 text-admin-label text-ink-faint">
+                                    Berlaku Senin sampai Sabtu. Dikosongkan berarti blok jam
+                                    tidak digambar sama sekali di kaki situs dan halaman kontak.
+                                </p>
+
+                                @error('hours_weekly')
+                                    <p class="mt-1.5 text-admin-label text-danger">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
                     </div>

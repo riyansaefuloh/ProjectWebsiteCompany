@@ -44,19 +44,17 @@ return [
     'uncategorized'       => 'Uncategorized',
 
     // ── Bilah alat katalog produk ────────────────────────────────────────
-    'sort_by'          => 'Sort by',
-    'sort_featured'    => 'Featured first',
-    'sort_newest'      => 'Newest',
-    'sort_oldest'      => 'Oldest',
-    'sort_title_asc'   => 'Title (A–Z)',
-    'sort_title_desc'  => 'Title (Z–A)',
     'search_news_placeholder' => 'Search articles…',
     'news_count'       => '{0} No articles|{1} :count article|[2,*] :count articles',
+    'latest_news'      => 'Latest *News*',
     'featured_article' => 'Latest article',
+    'tags'             => 'Tags',
     'related_articles' => 'More articles to read',
-    'sort_name_asc'    => 'Name (A–Z)',
-    'sort_name_desc'   => 'Name (Z–A)',
     'reset_filters'    => 'Reset filters',
+    'filtered_label'   => 'Filtered',
+    'filter_search'    => 'Search',
+    'filter_category'  => 'Category',
+    'clear_all_filters' => 'Clear all',
     // :count diisi jumlah hasil; bentuk tunggal dan jamak dipisah "|".
     'products_count'   => '{0} No products|{1} :count product|[2,*] :count products',
     'featured'            => 'Featured',
@@ -64,14 +62,16 @@ return [
     'offline_catalog_sub' => 'Get our complete product catalog in PDF format.',
 
     // ── Halaman formulir katalog PDF ─────────────────────────────────────
-    'catalog_headline'  => 'Take our full catalogue with you',
-    'catalog_body'      => 'Generated fresh from our current listings — :count products across :categories categories, each with full specifications, origin, and certifications. Enter your email and the PDF downloads straight away.',
+    'catalog_headline'  => 'Take our *full catalogue* with you',
+    'catalog_body'      => 'Generated fresh from our current listings, with full specifications, origin, and certifications for every item. Enter your email and the PDF downloads straight away.',
+    'catalog_form_title'      => 'Get your copy',
     'catalog_privacy'   => 'We use your email only to follow up on this download. No newsletters, no third parties.',
     'catalog_generated' => 'Generated on request, so it never goes out of date.',
     'download_pdf'        => 'Download PDF Catalog',
     'request_quotation'   => 'Request Quotation',
     'description'         => 'Description',
     'specifications'      => 'Specifications',
+    'all_certifications'  => 'All *Certifications*',
     'certifications'      => 'Certifications',
     'back_to_products'    => '← Back to Products',
     'hs_code'             => 'HS Code',
@@ -88,11 +88,27 @@ return [
     'downloaded_times'    => 'Downloaded :count times',
     'enter_email'         => 'Enter your email',
     'download_pdf_btn'    => 'Download PDF',
+    'all_files'           => 'All *Files*',
+    'files_count'         => '{1} :count file|[2,*] :count files',
     'no_downloads'        => 'No files available for download at the moment.',
+    'album_count'         => '{1} :count item|[2,*] :count items',
+    'albums_count'        => '{1} :count album|[2,*] :count albums',
+    'all_albums'          => 'All *Albums*',
     'no_gallery_items'    => 'No photos or videos have been added yet.',
     'close'               => 'Close',
     'last_updated'        => 'Last updated',
     'other_pages'         => 'Other pages',
+
+    // ── Halaman galat ──────────────────────────────────────────────────────
+    'error_404_eyebrow'   => 'Error 404',
+    'error_404_title'     => 'This page *is not here*',
+    'error_404_body'      => 'It may have been moved, renamed, or removed. Everything below is still where you left it.',
+    'error_404_links'     => 'Try one of these',
+    'error_500_eyebrow'   => 'Error 500',
+    'error_500_title'     => 'Something went wrong on our side',
+    'error_500_body'      => 'This one is not your fault. Our team has been notified. Please try again in a few minutes.',
+    'error_back_home'     => 'Back to Home',
+    'on_this_page'        => 'On this page',
     'download_gated_note'  => 'Enter your business email to receive this file.',
     'download_email_required' => 'Please enter your email to download this file.',
     'download_file_missing'   => 'This file is not available on the server right now.',
@@ -136,28 +152,22 @@ return [
     // Dua nomor terpisah di halaman kontak, sebutannya sama dengan kaki situs.
     'label_whatsapp'      => 'WhatsApp',
     'label_phone'         => 'Call Us',
+    'open_in_maps'        => 'Open in Google Maps',
     'find_us'             => 'Find us',
 
     'footer_contact'      => 'Contact Us',
-    'footer_email'        => 'Email',
-    'footer_whatsapp'     => 'WhatsApp',
     'footer_address'      => 'Address',
     'footer_other_info'   => 'Other Information',
     'footer_rights'       => 'All rights reserved.',
 
     // ── Footer (susunan baru, mengikuti rujukan desain) ──────────────────
     'footer_headline'     => 'Start your *coffee journey* with us.',
-    'footer_locations'    => 'Locations',
-    'footer_call_us'      => 'Call Us',
+    'footer_body'         => 'Tell us the volume, the grade, and where it needs to land. We will come back with a quote and a shipping plan.',
     'footer_contact_us'   => 'Contact Us',
-    'footer_open_time'    => 'Open Time',
     'footer_navigation'   => 'Navigation',
     'footer_resources'    => 'Resources',
-    'footer_social'       => 'Social media',
 
-    'hours_weekday_label'  => 'Mon – Fri',
-    'hours_saturday_label' => 'Saturday',
-    'hours_sunday_label'   => 'Sunday',
+    'hours_week_label'     => 'Mon – Sat',
 
     'no_home_sections' => 'No Home Sections are active. Please configure them in Global Settings.',
     'welcome_company' => 'Welcome to Our Company',
@@ -180,14 +190,11 @@ return [
     'certificate_number'   => 'Certificate no.',
     'valid_until'          => 'Valid until',
     'expired_on'           => 'Expired',
-    'download_certificate' => 'Download certificate',
     'market_list' => 'Market List (Data Source for Map)',
     'region' => 'Region',
 
     // ── Statistik halaman Export Markets ─────────────────────────────────
-    'stat_countries' => 'Destination countries',
-    'stat_regions'   => 'Regions served',
-    'stat_volume'    => 'Monthly capacity',
+    'countries_count' => '{1} :count country|[2,*] :count countries',
     'no_export_markets' => 'No export markets recorded yet.',
     'home_section_products' => 'Featured Products',
 
@@ -204,7 +211,7 @@ return [
     // ── Seksi Latest News di beranda ─────────────────────────────────────
     'news_eyebrow'     => 'Our Blog',
     'news_title'       => 'Follow the *latest news* and articles',
-    'news_promo_title' => 'See more news and articles from us',
+    'news_body'        => 'Notes on harvests, certifications, and the shipping lanes our coffee travels — written for the people who buy it.',
     'cta_see_more_news' => 'See More News',
     'home_section_about' => 'About Us',
 
@@ -232,6 +239,7 @@ return [
     // ── Halaman About Us — seksi Core Values ─────────────────────────────
     'values_eyebrow' => 'Core Values',
     'values_title'   => 'What we hold to when no one is checking',
+    'values_body'    => 'Four commitments that decide what we say yes to, what we turn down, and how we behave when a shipment goes sideways.',
 
     'value_1_title' => 'Integrity',
     'value_1_body'  => 'We quote what we can actually ship. If a harvest falls short, buyers hear it from us before they hear it from the vessel schedule.',
@@ -251,8 +259,7 @@ return [
     'cta_view_certifications' => 'View Certifications',
 
     'history_eyebrow'      => 'History',
-    'history_title'        => 'Two decades of',
-    'history_title_accent' => 'building trust',
+    'history_title'        => 'Two decades of *building trust*',
 
     'milestone_1_title' => 'Where it started',
     'milestone_1_body'  => 'A regional processing unit in Central Sumatra, buying cherry from neighbouring smallholders and drying it on raised beds.',

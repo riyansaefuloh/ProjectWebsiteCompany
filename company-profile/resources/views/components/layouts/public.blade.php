@@ -26,8 +26,21 @@
         $organizationSchema = \App\Services\JsonLdService::organizationSchema();
     @endphp
     
+    {{-- Ikon tab SELALU dinyatakan, termasuk ketika tidak ada yang diunggah.
+
+         Halaman yang tidak menyebut ikon sama sekali membuat peramban jatuh ke
+         /favicon.ico, lalu mempertahankan ikon yang terakhir dikenalnya untuk
+         asal ini. Akibatnya favicon yang sudah dihapus tetap tampak di tab —
+         bukan karena aplikasinya masih menyimpannya, melainkan karena tidak ada
+         yang menggantikannya, dan itu membaca seperti penghapusan yang gagal.
+
+         Pernyataan yang eksplisit memutus itu: peramban memakai apa yang
+         disebutkan, bukan apa yang diingatnya. --}}
     @if($favicon)
-        <link rel="icon" type="image/x-icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+        <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
+    @else
+        <link rel="icon" type="image/svg+xml"
+              href="{{ \App\Support\Monogram::favicon($companyName) }}">
     @endif
     
     <script type="application/ld+json">

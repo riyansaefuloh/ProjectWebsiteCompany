@@ -96,8 +96,23 @@ class GalleryIndex extends Component
                yang kosong jatuh ke teks bawaan di berkas bahasa. */
             'isi' => \App\Support\IsiHalaman::untuk('gallery'),
 
-            'featured' => $albums->first(),
-            'albums'   => $albums->skip(1)->values(),
+            /*
+             * SELURUH album masuk ke satu kisi, tidak ada lagi yang disorot.
+             *
+             * Album pertama dulu digambar selebar halaman bernisbah 16:9 —
+             * tiga kali luas album lain — padahal yang menjadikannya pertama
+             * cuma urutan di panel, bukan isinya. Yang menempati tempat sorotan
+             * itu sekarang video, dan video memang dipilih untuk disorot.
+             */
+            'albums' => $albums,
+
+            /*
+             * Alamat video diambil dari opsi halaman, bukan dari isi per
+             * bahasa: satu alamat berlaku untuk kedua bahasa.
+             */
+            'videoSematan' => \App\Support\Youtube::sematan(
+                \App\Support\IsiHalaman::opsi('gallery')['video_url'] ?? null
+            ),
         ]);
     }
 }

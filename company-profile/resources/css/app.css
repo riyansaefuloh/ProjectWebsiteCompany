@@ -145,55 +145,85 @@
     --color-forest: #10352a;
     --color-forest-line: #2b4c3f;
 
-    /* ── Warna: situs publik ────────────────────────────────────────────────
-       DITAMBAHKAN, bukan menggantikan token di atas: warna status di bawah
+    /* ── Warna: situs publik — KARAMEL SANGRAI ──────────────────────────────
+       DITAMBAHKAN, bukan menggantikan token di atas: warna status panel admin
        jarak buta-warnanya diukur terhadap --color-brand yang lama.
 
-       Hijau sage di rona 152°, L* 46, C* 22. Sebelumnya L* 30 dan berona 162°.
-       Tiga alasan naiknya, berurutan: L* 50 adalah batas atas hijau yang masih
-       bisa membawa teks putih pada 4,5:1, jadi 46 mengambil hampir seluruh
-       ruang yang tersedia; kroma 22 membuatnya teredam, dan warna teredam tidak
-       berebut perhatian dengan foto; dan rona 152° condong hangat sedikit,
-       sejalan dengan netral situs ini yang semuanya hangat (kanvas 100°,
-       kertas 95°) dan dengan emasnya di 78°. Hijau lama di 162° adalah
-       satu-satunya warna dingin di antara warna hangat. */
-    --color-site-brand: #4f755b;
-    --color-site-brand-deep: #33583f;
-    --color-site-brand-soft: #a5c3ad;
-    --color-site-wash: #ecf6ef;
+       Satu warna, dua nada — dan itu bukan kemalasan melainkan aritmetika.
+       Lulus 4,5:1 di atas krem menuntut terang DI BAWAH L* 47; lulus 4,5:1 di
+       atas bidang gelap menuntut DI ATAS L* 59. Kedua syarat tidak beririsan,
+       jadi tidak ada satu nilai pun yang bisa membawa teks kecil di kedua
+       bidang. Palet mana pun yang mengaku bisa, sebenarnya tidak diukur.
 
-    /* Naik dari L* 8 ke 16. Bidang gelap berhenti jadi nyaris hitam — dan
-       karena footer serta bilah sertifikasi memakainya, di situlah "lebih
-       terang" paling terasa. Putih di atasnya masih 14,8:1. */
-    --color-site-forest: #172c1e;
-    --color-site-forest-line: #2a4332;
+       Cokelat muda — dan ini justru rupa yang pernah GAGAL di sini, dengan satu
+       perbedaan yang menentukan: RONANYA.
 
-    /* Tiga terang untuk tiga permukaan, dan ketiganya berona sama (77–79°).
-       gilt hanya hidup di atas GELAP — di atas kanvas gading ia cuma 1,59:1
-       dan lenyap. Teks di atasnya wajib gelap; putih hanya 1,64:1. */
-    --color-site-gilt: #f9c06a;
-    --color-site-gilt-deep: #866637;
-    --color-site-gilt-soft: #dcc8a0;
+       Emas lama berona 78°, yaitu kuning. Kuning yang digelapkan kehilangan
+       ronanya lebih dulu daripada terangnya, jadi #f9c06a jatuh menjadi #866637
+       — terbaca cokelat lumpur, benda yang sama sekali lain. Karamel berona
+       33°, sudah di sisi jingga. Nada gelapnya jatuh menjadi cokelat kopi, dan
+       untuk merek kopi itu bukan cacat melainkan warnanya sendiri. Terukur:
+       kedua nadanya berjarak 1° rona.
 
-    /* Satu-satunya warna yang boleh berdiri di ATAS FOTO.
+       Nada terangnya L* 73, praktis seterang emas lama, jadi kesan hangat yang
+       dicari tetap ada — yang hilang cuma lumpurnya.
+
+       Sisanya netral hangat — krem, cokelat nyaris hitam — supaya aksen tidak
+       punya saingan. Setiap kali ia muncul, artinya sama: di sinilah yang
+       penting.
+
+       Komentar di lapisan komponen menyebutnya "aksen", bukan nama warnanya.
+       Yang berpindah adalah rona, sementara PERANNYA tetap — dan komentar yang
+       menyebut nama warna akan basi tiap kali paletnya diganti. Sudah terjadi
+       dua kali sebelum kebiasaan ini diubah. */
+
+    /* "Merek": cokelat nyaris hitam, praktis netral. Tombol pejal, tautan,
+       cincin fokus — hal-hal yang harus tegas tanpa menjadi aksen. */
+    --color-site-brand: #34281b;
+    --color-site-brand-deep: #241a11;
+    --color-site-brand-soft: #bfb1a0;
+    --color-site-wash: #f6efe3;
+
+    /* Permukaan gelap pejal: bilah kepala, seksi berita, footer. Namanya masih
+       "forest" karena dipakai 25 kali di seluruh lapisan publik; menggantinya
+       berarti menyentuh berkas yang isinya tidak berubah sama sekali.
+       L* 16: pekat, tapi bukan lubang hitam. */
+    --color-site-forest: #332619;
+    --color-site-forest-line: #4f3f2a;
+
+    /* AKSEN. Nama tokennya masih gilt karena dipakai puluhan kali; yang berubah
+       nilainya, bukan perannya.
+       gilt      di atas GELAP  (di atas krem cuma 2,01:1 dan lenyap)
+       gilt-deep di atas TERANG (5,40:1 di kanvas, 4,92:1 di kertas)
+
+       Nada dalam sengaja dilebihkan dari ambang 4,5. Pada 11px kapital,
+       penghalusan huruf membuat inti goresan tidak pernah mencapai warna
+       penuhnya: nilai 4,61:1 terukur cuma 4,35:1 pada label penerbit
+       sertifikasi. Margin ini yang menutup selisih itu.
+       gilt-soft keadaan sorot pada pil aksen */
+    --color-site-gilt: #e2a862;
+    --color-site-gilt-deep: #905c1b;
+    --color-site-gilt-soft: #eec48c;
+
+    /* Satu-satunya warna yang boleh berdiri di ATAS FOTO, dan satu-satunya yang
+       TIDAK ikut berona bersama palet ini.
        Netral dengan sengaja: peredam berwarna tidak menggelapkan foto, ia
-       mengecatnya. Diukur pada delapan warna foto, peredam hijau menggeser
-       ronanya 44° rata-rata — senja jadi hijau, langit jadi hijau, kemasan
-       putih jadi bidang hijau. Yang netral menggesernya 6°. Hijau merek tetap
-       dipakai untuk bidang PEJAL, tempat tidak ada foto yang bisa dirusaknya. */
+       mengecatnya. Diukur pada delapan warna foto, peredam berona menggeser
+       ronanya 44° rata-rata; yang netral 6°. */
     --color-site-shade: #0b0d0c;
 
-    --color-site-canvas: #fcfbf7;
-    --color-site-paper: #f5f2ea;
-    --color-site-line: #e5e1d6;
-    --color-site-line-strong: #cfc9b9;
+    --color-site-canvas: #fdfaf5;
+    --color-site-paper: #f6efe3;
+    --color-site-line: #eae0d0;
+    --color-site-line-strong: #d8c9b2;
 
-    --color-site-ink: #14201a;
-    --color-site-ink-muted: #4e5a53;
-    /* Digelapkan dari #7a857e: yang lama 3,70:1 terhadap kanvas — di bawah
-       ambang AA — sementara ia dipakai 13 kali di halaman publik, semuanya
-       pada 11–13px. Rona dan kromanya tidak berubah. */
-    --color-site-ink-faint: #6d7670;
+    --color-site-ink: #1f1810;
+    --color-site-ink-muted: #5b4d3e;
+    /* Disetel terhadap KERTAS, bukan kanvas. Kertas adalah permukaan terang
+       yang paling gelap, jadi yang lulus di sana pasti lulus di kanvas —
+       sementara yang disetel terhadap kanvas jatuh di bawah ambang begitu
+       dipakai di dalam kartu. 5,00:1 di kanvas, 4,55:1 di kertas. */
+    --color-site-ink-faint: #7a6a5a;
 
     --color-danger: #b3261e;
     --color-danger-soft: #f0a9a4;
@@ -366,32 +396,55 @@
        punya bobot 400; keduanya akan dipalsukan peramban kalau diminta.
        line-height 0 supaya ekornya tidak ikut menambah tinggi baris — tanpa
        ini jarak antarbaris melompat, tapi HANYA pada judul yang beraksen. */
+    /* Berwarna AKSEN, sama seperti label di atasnya — bukan mewarisi tinta
+       judul. Kata aksen dan label adalah dua tekanan dalam blok yang sama, dan
+       satu-satunya warna di palet ini memang untuk itu: setiap kali ia muncul,
+       artinya sama.
+
+       Yang dipakai di sini nada DALAM. Nada terang cuma 2,01:1 di atas kanvas
+       — sebagai teks ia lenyap; nada dalam memberi 5,40:1 di kanvas dan 4,92:1
+       di kertas. Ini pola yang sama dengan .eyebrow lawan .eyebrow-invert, dan
+       .display-invert em di bawah yang mengembalikannya ke nada terang begitu
+       bidangnya gelap. */
     .display em {
-        @apply font-site-script text-[1.48em] font-normal not-italic tracking-normal;
+        @apply font-site-script text-[1.48em] font-normal not-italic tracking-normal
+               text-site-gilt-deep;
 
         line-height: 0;
     }
 
-    /* Judul di atas bidang gelap.
-       Bukan sekadar text-white: kata aksennya memakai --color-brand yang hijau
-       tua, dan hijau tua di atas hijau nyaris hitam lenyap sama sekali. Di sini
-       ia berpindah ke kuningan muda — satu-satunya warna di palet ini yang
-       terang DAN bukan putih, jadi tekanannya tetap terbaca sebagai tekanan,
-       bukan sebagai bagian badan judulnya. */
+    /* Judul di atas bidang gelap. WAJIB dipakai, bukan text-white lepas.
+
+       Kata aksen tidak punya warnanya sendiri: di atas kanvas terang ia
+       mewarisi tinta judulnya, dan itu memang cukup — rupa tulis tangan sudah
+       memisahkannya dari badan judul. Di atas bidang gelap warisan itu jadi
+       putih, sama persis dengan judulnya, dan satu-satunya pembeda yang
+       tersisa tinggal bentuk hurufnya.
+
+       Nada terang aksen mengembalikan tekanan itu. Ia satu-satunya warna di
+       palet ini yang terang DAN bukan putih — 6,99:1 di atas bidang gelap —
+       jadi kata aksen terbaca sebagai tekanan alih-alih sebagai bagian badan
+       judul yang kebetulan berbeda rupa.
+
+       Nada yang SAMA dengan .eyebrow-invert di atasnya, bukan yang lebih muda.
+       Label dan kata aksen adalah dua tekanan dalam satu blok teks yang sama;
+       dua nada berbeda di jarak sedekat itu terbaca seperti salah satunya gagal
+       memuat warnanya. */
     .display-invert {
         @apply text-white;
     }
 
     .display-invert em {
-        @apply text-site-gilt-soft;
+        @apply text-site-gilt;
     }
 
     .lede {
         @apply text-site-lede leading-[1.7] text-ink-muted;
     }
 
-    /* Kuningan, bukan hijau merek: hijau membuat label dan judulnya terbaca
-       sebagai satu benda yang sama. */
+    /* Aksen nada dalam, bukan tinta: label berwarna sama dengan judulnya akan
+       terbaca sebagai satu benda, dan label justru bertugas mengumumkan bahwa
+       satu bagian baru dimulai. 5,40:1 di kanvas, 4,92:1 di kertas. */
     .eyebrow {
         @apply font-site-accent text-site-micro font-medium uppercase leading-none
                tracking-[0.2em] text-site-gilt-deep;
@@ -537,6 +590,24 @@
                tracking-[0.14em] text-ink-muted;
     }
 
+    /* Tepi deretan berjalan yang MEMUDAR, bukan terpotong.
+     *
+     * Trek marquee selalu lebih lebar daripada wadahnya, jadi di kedua tepinya
+     * selalu ada lambang yang tergunting separuh. Potongan tegak lurus terbaca
+     * sebagai kesalahan — seolah ada yang tidak muat — sementara pudaran
+     * terbaca sebagai "masih ada lagi di luar sana".
+     *
+     * Masker, bukan gradasi yang ditumpuk di atasnya: gradasi berwarna harus
+     * tahu warna latarnya, dan akan salah begitu latarnya diganti. Masker
+     * bekerja pada alfa, jadi ia benar di latar apa pun.
+     *
+     * Dua properti karena Safari masih menuntut awalan -webkit-; tanpa itu
+     * maskernya diabaikan diam-diam dan tepinya kembali terpotong. */
+    .marquee-fade {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+    }
+
     /* Peta titik dunia sebagai masker, supaya warnanya datang dari latar dan
        bisa mengikuti palet.
        Alamatnya relatif ke resources/, BUKAN /images/: url() dihitung dari asal
@@ -586,6 +657,36 @@
         background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5' stroke='%23545b58' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         background-position: right 1rem center;
         background-size: 12px 12px;
+    }
+
+    /* ── Menu pilih di bidang gelap ─────────────────────────────────────
+       Yang bisa digaya dari sebuah <select> cuma kotak tertutupnya. Daftar
+       yang terbuka saat ditekan digambar sistem operasi, bukan halaman —
+       jadi di borang cokelat tua, daftarnya tetap terbuka putih terang, dan
+       yang terjadi bukan sekadar tidak serasi: bidang putih sebesar itu
+       muncul mendadak di layar yang seluruhnya gelap.
+
+       color-scheme yang menjawabnya. Ia bukan warna, melainkan pemberitahuan
+       ke peramban tentang nada bidang di sekitarnya — dan peramban memakai
+       itu untuk memilih rupa kendali bawaannya sendiri, termasuk daftar yang
+       terbuka. Satu sifat, dan seluruh daftarnya ikut gelap.
+
+       Warna tiap butirnya tetap ditulis sendiri sebagai cadangan: sebagian
+       peramban menggambar daftarnya sepenuhnya dari sistem operasi dan
+       mengabaikan color-scheme.
+
+       :has(option[value=""]:checked) menangkap keadaan "belum dipilih" —
+       saat itu tulisan di kotak tertutupnya adalah penampung, bukan jawaban,
+       jadi nadanya diredupkan seperti penampung di isian lain. Tanpa ini,
+       "Select a product" tergambar seterang nama produk yang sungguhan
+       dipilih. */
+    .select-gelap {
+        color-scheme: dark;
+    }
+
+    .select-gelap option {
+        background-color: var(--color-site-brand-deep);
+        color: #fff;
     }
 
     .field-error {
@@ -1063,4 +1164,24 @@
     .animate-marquee {
         animation: none;
     }
+}
+
+
+/* ==========================================================================
+   NADA PENAMPUNG PADA MENU PILIH
+   ==========================================================================
+   Ditulis DI LUAR @layer, dan itu satu-satunya cara aturan ini menang.
+
+   Kelas utilitas Tailwind — text-white pada pil isian — berada di lapisan
+   utilities, yang mengalahkan lapisan components apa pun kekhususannya. Aturan
+   ini pernah ditulis di dalam components dan kalah tanpa jejak: warnanya tetap
+   putih pekat meski belum ada yang dipilih. CSS tanpa lapisan berada di atas
+   seluruh lapisan, jadi di sinilah tempatnya.
+
+   :has(option[value=""]:checked) menangkap keadaan "belum dipilih". Saat itu
+   yang tergambar di kotak tertutupnya adalah penampung — "Select a product" —
+   bukan jawaban, jadi nadanya diredupkan seperti penampung di isian lain.
+   Putih 55% terukur 5,96:1 terhadap bidang pilnya, masih di atas ambang. */
+.select-gelap:has(option[value=""]:checked) {
+    color: rgb(255 255 255 / 0.55);
 }
