@@ -25,7 +25,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Galeri
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -81,7 +81,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar album</h2>
+                    <h2 class="text-admin-title text-heading">Daftar album</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut dari yang paling baru diperbarui.
                     </p>
@@ -325,7 +325,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada album yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -338,7 +338,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada album
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -399,7 +399,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-album"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $gallery_id ? 'Kelola album' : 'Tambah album' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -433,7 +433,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Informasi album</h3>
+                                        <h3 class="text-admin-title text-heading">Informasi album</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Nama yang jadi judul albumnya di situs publik.</p>
                                     </div>
                                 </div>
@@ -474,7 +474,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Isi album</h3>
+                                            <h3 class="text-admin-title text-heading">Isi album</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Foto dan video di dalamnya.</p>
                                         </div>
                                     </div>
@@ -595,10 +595,8 @@
                                                              label="Tambah foto" />
                                     </div>
 
-                                    <p class="mt-3 text-admin-label text-ink-faint">
-                                        JPG, PNG, WebP, atau GIF; maksimal 5&nbsp;MB per foto. Bisa
-                                        pilih beberapa sekaligus, dan semuanya diubah otomatis jadi WebP.
-                                        Foto baru masuk begitu tombol simpan ditekan.
+                                    <p class="admin-hint">
+                                        JPG, PNG, WebP, atau GIF, maksimal 5&nbsp;MB, diubah otomatis jadi WebP.
                                     </p>
 
                                     @error('photos.*')
@@ -624,7 +622,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Tambah video</h3>
+                                        <h3 class="text-admin-title text-heading">Tambah video</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Tautan YouTube atau Vimeo, satu per simpan.</p>
                                     </div>
                                 </div>
@@ -643,10 +641,8 @@
                                         {{-- Satu tautan per simpan, bukan
                                              daftar: store() membuat satu isi
                                              video lalu mengosongkan kotaknya. --}}
-                                        <p class="mt-2 text-admin-label text-ink-faint">
-                                            Tautan YouTube atau Vimeo. Satu tautan per simpan —
-                                            kotaknya dikosongkan lagi sesudahnya, jadi video
-                                            berikutnya bisa langsung ditambahkan.
+                                        <p class="admin-hint">
+                                            Tautan YouTube atau Vimeo.
                                         </p>
 
                                         @error('videoUrl')

@@ -37,7 +37,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Unduhan
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -93,7 +93,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar berkas</h2>
+                    <h2 class="text-admin-title text-heading">Daftar berkas</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
@@ -344,7 +344,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada berkas yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -358,7 +358,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada berkas unduhan
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -432,7 +432,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-unduhan"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $editingId ? 'Ubah berkas' : 'Tambah berkas' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -465,7 +465,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Informasi berkas</h3>
+                                        <h3 class="text-admin-title text-heading">Informasi berkas</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Judul dan siapa yang boleh mengunduhnya.</p>
                                     </div>
                                 </div>
@@ -481,11 +481,7 @@
                                             <input type="text" wire:model="title" id="judul-unduhan"
                                                    placeholder="mis. Katalog Biji Kopi 2026"
                                                    class="admin-control mt-2">
-
-                                            <p class="mt-2 text-admin-label text-ink-faint">
-                                                Judul ini yang dibaca pembeli di halaman unduhan situs publik.
-                                            </p>
-
+                                            
                                             @error('title')
                                                 <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                             @enderror
@@ -529,7 +525,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Berkas PDF</h3>
+                                        <h3 class="text-admin-title text-heading">Berkas PDF</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Berkas yang diunduh pembeli.</p>
                                     </div>
                                 </div>
@@ -608,11 +604,9 @@
                                         </p>
                                     @endif
 
-                                    <p class="mt-3 text-admin-label text-ink-faint">
+                                    <p class="admin-hint">
                                         @if($editingId)
-                                            Hanya PDF, maksimal 10&nbsp;MB. Dikosongkan berarti berkas
-                                            yang sekarang tetap dipakai; mengunggah yang baru
-                                            menghapus yang lama.
+                                            Hanya PDF, maksimal 10&nbsp;MB.
                                         @else
                                             Hanya PDF, maksimal 10&nbsp;MB. Wajib diisi — tanpa berkas,
                                             tidak ada yang bisa diunduh.
@@ -634,8 +628,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Penerbitan</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Urutan tampilnya di situs publik.</p>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Urutan tampil berkas di situs publik.</p>
                                     </div>
                                 </div>
 
@@ -649,6 +643,10 @@
                                         <input type="number" wire:model="sort_order" id="urutan-unduhan"
                                                min="0" step="1" class="admin-control mt-2">
                                         
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
+                                        </p>
+
                                         @error('sort_order')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror

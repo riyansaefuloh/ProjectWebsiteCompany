@@ -26,17 +26,35 @@ class NewsShow extends Component
         $title     = $this->news->getTranslation('title', $locale) ?? $this->news->getTranslation('title', 'en');
 
         $body      = strip_tags($this->news->getTranslation('content', $locale) ?? $this->news->getTranslation('content', 'en') ?? '');
-        $shortDesc = mb_substr($body, 0, 160);
+
+        /*
+         * Judul dan deskripsi SEO dari panel dipakai kalau diisi.
+         *
+         * Sebelum ini kedua isian itu TERSIMPAN TAPI TIDAK PERNAH DIBACA:
+         * kartu "SEO" di modal berita meminta dua judul dan dua deskripsi,
+         * lalu halaman artikelnya tetap menyusun judulnya dari judul artikel
+         * dan deskripsinya dari 160 huruf pertama isi. Borang yang tidak
+         * mengubah apa pun lebih buruk daripada borang yang tidak ada.
+         *
+         * Cadangannya SAMA PERSIS dengan perilaku lama, jadi artikel yang
+         * isian SEO-nya kosong — yaitu seluruhnya, sampai sekarang — tidak
+         * berubah sedikit pun.
+         */
+        $metaJudul = trim((string) ($this->news->getTranslation('meta_title', $locale) ?: ''));
+        $metaDesk  = trim((string) ($this->news->getTranslation('meta_description', $locale) ?: ''));
+
+        $judulSeo  = $metaJudul !== '' ? $metaJudul : $title;
+        $shortDesc = $metaDesk !== '' ? $metaDesk : mb_substr($body, 0, 160);
         $imageUrl  = $this->news->getFirstMediaUrl('covers', 'webp')
                   ?: ($this->news->getFirstMediaUrl('covers') ?: null);
 
         // Meta
-        SEOMeta::setTitle($title . ' - ' . $appName);
+        SEOMeta::setTitle($judulSeo . ' - ' . $appName);
         SEOMeta::setDescription($shortDesc ?: 'Read the latest news from ' . $appName);
         SEOMeta::setCanonical(route('news.show', $this->news->slug));
 
         // Open Graph
-        OpenGraph::setTitle($title);
+        OpenGraph::setTitle($judulSeo);
         OpenGraph::setDescription($shortDesc ?: 'Read the latest news from ' . $appName);
         OpenGraph::setUrl(route('news.show', $this->news->slug));
         OpenGraph::setType('article');
@@ -45,7 +63,7 @@ class NewsShow extends Component
         }
 
         // Twitter
-        TwitterCard::setTitle($title);
+        TwitterCard::setTitle($judulSeo);
         TwitterCard::setDescription($shortDesc ?: 'Read the latest news from ' . $appName);
         if ($imageUrl) {
             TwitterCard::setImage($imageUrl);

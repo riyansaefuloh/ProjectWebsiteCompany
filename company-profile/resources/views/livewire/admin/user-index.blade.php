@@ -33,7 +33,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Pengguna &amp; Peran
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -114,7 +114,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar pengguna</h2>
+                    <h2 class="text-admin-title text-heading">Daftar pengguna</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut dari yang paling baru ditambahkan.
                     </p>
@@ -347,7 +347,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada pengguna yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -361,7 +361,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada pengguna
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -444,7 +444,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-pengguna"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $editingId ? 'Ubah pengguna' : 'Tambah pengguna' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -494,7 +494,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Informasi akun</h3>
+                                        <h3 class="text-admin-title text-heading">Informasi akun</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Nama, email, dan kata sandi masuknya.</p>
                                     </div>
                                 </div>
@@ -526,11 +526,7 @@
                                                    autocomplete="off"
                                                    placeholder="nama@perusahaan.com"
                                                    class="admin-control mt-2">
-
-                                            <p class="mt-2 text-admin-label text-ink-faint">
-                                                Email ini yang dipakai untuk masuk ke panel admin.
-                                            </p>
-
+                                            
                                             @error('email')
                                                 <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                             @enderror
@@ -578,13 +574,11 @@
                                                 </button>
                                             </div>
 
-                                            <p class="mt-2 text-admin-label text-ink-faint">
+                                            <p class="admin-hint">
                                                 @if($editingId)
-                                                    Dikosongkan berarti kata sandinya tidak diubah. Diisi
-                                                    berarti sandi lamanya langsung diganti.
+                                                    Dikosongkan berarti kata sandinya tidak diubah.
                                                 @else
-                                                    Minimal 6 karakter. Sampaikan sandi ini ke pemiliknya
-                                                    lewat jalur yang aman.
+                                                    Minimal 6 karakter.
                                                 @endif
                                             </p>
 
@@ -609,7 +603,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Peran</h3>
+                                        <h3 class="text-admin-title text-heading">Peran</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Menentukan apa saja yang bisa dibukanya.</p>
                                     </div>
                                 </div>

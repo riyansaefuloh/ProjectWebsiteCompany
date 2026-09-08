@@ -53,7 +53,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Inquiry
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -114,7 +114,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar inquiry</h2>
+                    <h2 class="text-admin-title text-heading">Daftar inquiry</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Menampilkan seluruh inquiry yang masuk beserta rincian pembeli dan status penanganannya.
                     </p>
@@ -365,7 +365,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada inquiry yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -380,7 +380,7 @@
                                                 Hapus semua penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada inquiry yang masuk
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">

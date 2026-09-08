@@ -51,7 +51,7 @@
                         <x-admin.avatar :name="$selectedInquiry->name" size="xl" />
 
                         <div class="min-w-0">
-                            <h2 id="judul-modal" class="truncate text-admin-display text-ink">
+                            <h2 id="judul-modal" class="truncate text-admin-display text-heading">
                                 {{ $selectedInquiry->name }}
                             </h2>
                             
@@ -95,7 +95,7 @@
                                 </span>
 
                                 <div class="min-w-0">
-                                    <h3 class="text-admin-title text-ink">Informasi Pembeli</h3>
+                                    <h3 class="text-admin-title text-heading">Informasi pembeli</h3>
                                     <p class="mt-0.5 text-admin-label text-ink-muted">
                                         Informasi kontak dan perusahaan pembeli.
                                     </p>
@@ -140,7 +140,7 @@
                                 </span>
 
                                 <div class="min-w-0">
-                                    <h3 class="text-admin-title text-ink">Spesifikasi Permintaan</h3>
+                                    <h3 class="text-admin-title text-heading">Spesifikasi permintaan</h3>
                                     <p class="mt-0.5 text-admin-label text-ink-muted">
                                         Detail produk, volume, dan kebutuhan pembeli.
                                     </p>
@@ -175,7 +175,7 @@
                                 </span>
 
                                 <div class="min-w-0">
-                                    <h3 class="text-admin-title text-ink">Penanganan Inquiry</h3>
+                                    <h3 class="text-admin-title text-heading">Penanganan inquiry</h3>
                                     <p class="mt-0.5 text-admin-label text-ink-muted">
                                         Kelola status dan tindak lanjut inquiry.
                                     </p>
@@ -213,13 +213,13 @@
                                               placeholder="Hasil percakapan, harga yang ditawarkan, langkah berikutnya…"
                                               class="admin-control mt-2 resize-none leading-relaxed"></textarea>
 
-                                    <p class="mt-2 flex items-start gap-1.5 text-admin-caption text-ink-faint">
+                                    <p class="admin-hint flex items-start gap-1.5">
                                         <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                             <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/>
                                             <path d="M8 7.4v3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                                             <circle cx="8" cy="5.2" r="0.75" fill="currentColor"/>
                                         </svg>
-                                        Hanya terlihat oleh tim, tidak pernah dikirim ke pembeli.
+                                        Hanya terlihat oleh tim.
                                     </p>
                                 </div>
                             </div>
@@ -234,7 +234,7 @@
                                 </span>
 
                                 <div class="min-w-0">
-                                    <h3 class="text-admin-title text-ink">Hubungi Pembeli</h3>
+                                    <h3 class="text-admin-title text-heading">Hubungi pembeli</h3>
                                     <p class="mt-0.5 text-admin-label text-ink-muted">
                                         Pilih cara cepat untuk menghubungi pembeli.
                                     </p>

@@ -41,7 +41,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Berita
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -97,7 +97,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar artikel</h2>
+                    <h2 class="text-admin-title text-heading">Daftar artikel</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut dari yang paling baru ditambahkan.
                     </p>
@@ -291,9 +291,7 @@
                                                           title="Slug: {{ $news->slug }}">{{ $news->slug }}</span>
 
                                                     @if($news->tags->isNotEmpty())
-                                                        <span class="inline-flex shrink-0 items-center rounded-full
-                                                                     bg-mist-deep px-1.5 text-admin-caption font-semibold
-                                                                     text-ink-muted"
+                                                        <span class="admin-pill bg-mist-deep font-semibold text-ink-muted"
                                                               title="{{ $news->tags->pluck('name')->implode(', ') }}">
                                                             {{ $news->tags->count() }} tag
                                                         </span>
@@ -381,7 +379,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada artikel yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -395,7 +393,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada artikel
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -467,7 +465,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-berita"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $editingId ? 'Ubah artikel' : 'Tulis artikel' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -507,7 +505,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Isi artikel</h3>
+                                            <h3 class="text-admin-title text-heading">Isi artikel</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Judul, ringkasan, dan isi artikel dalam dua bahasa.</p>
                                         </div>
                                     </div>
@@ -698,7 +696,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">SEO</h3>
+                                            <h3 class="text-admin-title text-heading">SEO</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Judul dan deskripsi untuk mesin pencari.</p>
                                         </div>
                                     </div>
@@ -719,6 +717,10 @@
                                                        aria-label="Judul meta dalam bahasa Inggris"
                                                        placeholder="Kosongkan untuk memakai judul artikelnya"
                                                        class="admin-control">
+                                                <p class="admin-hint">
+                                                    Dikosongkan berarti judul artikelnya yang dipakai.
+                                                </p>
+
                                                 @error('meta_title_en')
                                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                                 @enderror
@@ -729,6 +731,10 @@
                                                        aria-label="Judul meta dalam bahasa Indonesia"
                                                        placeholder="Kosongkan untuk memakai judul artikelnya"
                                                        class="admin-control">
+                                                <p class="admin-hint">
+                                                    Dikosongkan berarti judul artikelnya yang dipakai.
+                                                </p>
+
                                                 @error('meta_title_id')
                                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                                 @enderror
@@ -746,6 +752,10 @@
                                                           aria-label="Deskripsi meta dalam bahasa Inggris"
                                                           placeholder="Kalimat yang muncul di bawah judul pada hasil pencarian…"
                                                           class="admin-control resize-none leading-relaxed"></textarea>
+                                                <p class="admin-hint">
+                                                    Dikosongkan berarti 160 huruf pertama isi artikelnya yang dipakai.
+                                                </p>
+
                                                 @error('meta_description_en')
                                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                                 @enderror
@@ -756,6 +766,10 @@
                                                           aria-label="Deskripsi meta dalam bahasa Indonesia"
                                                           placeholder="Kalimat yang muncul di bawah judul pada hasil pencarian…"
                                                           class="admin-control resize-none leading-relaxed"></textarea>
+                                                <p class="admin-hint">
+                                                    Dikosongkan berarti 160 huruf pertama isi artikelnya yang dipakai.
+                                                </p>
+
                                                 @error('meta_description_id')
                                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                                 @enderror
@@ -779,7 +793,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Kategori &amp; tag</h3>
+                                        <h3 class="text-admin-title text-heading">Kategori &amp; tag</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Penanda yang mengelompokkan artikel ini.</p>
                                     </div>
                                 </div>
@@ -991,7 +1005,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Sampul</h3>
+                                        <h3 class="text-admin-title text-heading">Sampul</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Gambar yang tampil di kartu daftar berita.</p>
                                     </div>
                                 </div>
@@ -1064,9 +1078,9 @@
                                                              label="{{ filled($existingCoverUrl) ? 'Ganti sampul' : 'Tambah sampul' }}" />
                                     </div>
 
-                                    <p class="mt-3 text-admin-label text-ink-faint">
-                                        JPG, PNG, atau WebP; maksimal 3&nbsp;MB. Diubah otomatis jadi
-                                        WebP, dan mengunggah yang baru menggantikan yang lama.
+                                    <p class="admin-hint">
+                                        JPG, PNG, atau WebP, maksimal 3&nbsp;MB, diubah otomatis jadi
+                                        WebP.
                                     </p>
 
                                     @error('coverFile')
@@ -1084,8 +1098,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Penerbitan</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tampil-tidaknya artikel ini, dan waktunya.</p>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan waktu terbit artikel.</p>
                                     </div>
                                 </div>
 

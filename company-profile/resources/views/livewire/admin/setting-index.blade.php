@@ -27,7 +27,7 @@
 
         <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0">
-                <h1 class="text-admin-display text-ink">
+                <h1 class="text-admin-display text-heading">
                     Pengaturan
                 </h1>
                 {{-- Yang diatur di sini identitas dan sambungan situs, bukan
@@ -90,7 +90,7 @@
                         </span>
 
                         <div class="min-w-0">
-                            <h2 class="text-admin-title text-ink">Identitas perusahaan</h2>
+                            <h2 class="text-admin-title text-heading">Identitas perusahaan</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Nama, alamat, dan letak di peta.</p>
                         </div>
                     </div>
@@ -132,17 +132,7 @@
                                 <input type="url" wire:model="google_map_url" id="set-peta"
                                        placeholder="https://www.google.com/maps/embed?…"
                                        class="admin-control mt-2">
-
-                                {{-- Yang dibutuhkan alamat SEMATAN, bukan
-                                     tautan dari bilah alamat — yang salah
-                                     membuat peta di halaman kontak kosong
-                                     tanpa pesan apa pun. --}}
-                                <p class="mt-2 text-admin-label text-ink-faint">
-                                    Ambil dari Google Maps → Bagikan → Sematkan peta → salin
-                                    bagian <span class="font-semibold text-ink-muted">src</span>-nya.
-                                    Diawali <span class="font-semibold text-ink-muted">https://www.google.com/maps/embed</span>.
-                                </p>
-
+                                
                                 @error('google_map_url')
                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
@@ -160,7 +150,7 @@
                         </span>
 
                         <div class="min-w-0">
-                            <h2 class="text-admin-title text-ink">Kontak</h2>
+                            <h2 class="text-admin-title text-heading">Kontak</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Email dan nomor yang tampil di situs publik.</p>
                         </div>
                     </div>
@@ -190,13 +180,7 @@
                                 <input type="text" wire:model="whatsapp_number" id="set-wa"
                                        placeholder="6281234567890"
                                        class="admin-control mt-2 sm:max-w-xs">
-
-                                <p class="mt-2 text-admin-label text-ink-faint">
-                                    Format internasional tanpa spasi — inilah yang dirangkai
-                                    jadi tautan wa.me. Satu-satunya nomor yang dipakai situs
-                                    publik.
-                                </p>
-
+                                
                                 @error('whatsapp_number')
                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
@@ -214,9 +198,8 @@
                                        placeholder="08.00 – 17.00 WIB"
                                        class="admin-control mt-2 sm:max-w-xs">
 
-                                <p class="mt-1.5 text-admin-label text-ink-faint">
-                                    Berlaku Senin sampai Sabtu. Dikosongkan berarti blok jam
-                                    tidak digambar sama sekali di kaki situs dan halaman kontak.
+                                <p class="admin-hint">
+                                    Berlaku Senin sampai Sabtu.
                                 </p>
 
                                 @error('hours_weekly')
@@ -236,7 +219,7 @@
                         </span>
 
                         <div class="min-w-0">
-                            <h2 class="text-admin-title text-ink">Tautan sosial</h2>
+                            <h2 class="text-admin-title text-heading">Tautan sosial</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Ikon yang digambar di kaki situs.</p>
                         </div>
                     </div>
@@ -264,10 +247,7 @@
                                 </div>
                             @endforeach
                         </div>
-
-                        <p class="mt-3 text-admin-label text-ink-faint">
-                            Dikosongkan berarti ikonnya tidak digambar di kaki situs publik.
-                        </p>
+                        
                     </div>
                 </section>
             </div>
@@ -284,7 +264,7 @@
                         </span>
 
                         <div class="min-w-0">
-                            <h2 class="text-admin-title text-ink">Logo &amp; ikon</h2>
+                            <h2 class="text-admin-title text-heading">Logo &amp; ikon</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Lambang situs dan ikon tab peramban.</p>
                         </div>
                     </div>
@@ -388,7 +368,7 @@
                                                              label="{{ $adaLama ? 'Ganti' : 'Pilih' }} {{ mb_strtolower($berkas['label']) }}" />
                                     </div>
 
-                                    <p class="mt-2 text-admin-label text-ink-faint">{{ $berkas['catatan'] }}</p>
+                                    <p class="admin-hint">{{ $berkas['catatan'] }}</p>
 
                                     @error($berkas['prop'])
                                         <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
@@ -408,7 +388,7 @@
                         </span>
 
                         <div class="min-w-0">
-                            <h2 class="text-admin-title text-ink">Integrasi</h2>
+                            <h2 class="text-admin-title text-heading">Integrasi</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Pelacakan dan zona waktu.</p>
                         </div>
                     </div>
@@ -424,11 +404,7 @@
                                 <input type="text" wire:model="google_analytics_id" id="set-ga"
                                        placeholder="G-XXXXXXXXXX"
                                        class="admin-control mt-2 font-mono">
-
-                                <p class="mt-2 text-admin-label text-ink-faint">
-                                    Dikosongkan berarti pelacakannya tidak dipasang sama sekali.
-                                </p>
-
+                                
                                 @error('google_analytics_id')
                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror
@@ -446,11 +422,7 @@
                                                 :options="$zona->map(fn ($label, $nilai) => [
                                                     'nilai' => $nilai, 'label' => $label,
                                                 ])->values()->all()" />
-
-                                <p class="mt-2 text-admin-label text-ink-faint">
-                                    Menentukan cap waktu inquiry dan tanggal terbit berita.
-                                </p>
-
+                                
                                 @error('timezone')
                                     <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                 @enderror

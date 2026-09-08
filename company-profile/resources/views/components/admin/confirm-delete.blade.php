@@ -110,7 +110,7 @@
                     </span>
 
                     <div class="min-w-0 flex-1">
-                        <h2 class="text-admin-title text-ink">{{ $judul }}</h2>
+                        <h2 class="text-admin-title text-heading">{{ $judul }}</h2>
 
                         <p class="mt-1 text-admin-body text-ink-muted">{{ $slot }}</p>
 

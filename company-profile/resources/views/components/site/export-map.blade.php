@@ -107,15 +107,12 @@
         tekan(kode) { this.kunci = this.kunci === kode ? null : kode },
      }">
     {{-- ── PETA BERDARAT POLOS ────────────────────────────────────────────
-         Berkasnya world-map.svg, BUKAN world-dotted.svg — dan keduanya memang
-         ada dengan sengaja.
+         Berkasnya world-map.svg, dan sekarang ia satu-satunya peta di proyek
+         ini: halaman masuk panel dulu memakai world-dotted.svg sebagai masker,
+         tapi sudah ikut memakai berkas ini. world-dotted.svg tertinggal di
+         resources/images tanpa satu pun yang merujuknya.
 
-         Yang dotted dipakai halaman masuk sebagai MASKER, dan masker cuma
-         membaca alfa: pola titiknya justru yang menghasilkan siluet bertitik di
-         sana. Mengubah isinya akan mengubah hiasan halaman itu tanpa ada yang
-         memintanya, jadi ia dibiarkan utuh.
-
-         Yang ini berisi 176 lintasan negara. Daratnya PUTIH pejal di atas
+         Berisi 176 lintasan negara. Daratnya PUTIH pejal di atas
          kanvas halaman yang sedikit lebih hangat, jadi benua terbaca sebagai
          bidang tanpa perlu warna atau tekstur — dan negara yang disorot punya
          nada yang paling jauh untuk dituju.

@@ -11,7 +11,7 @@
     @endphp
 
     <div class="mb-8">
-        <h1 class="text-admin-display text-ink">
+        <h1 class="text-admin-display text-heading">
             Selamat datang, {{ auth()->user()->name }}!
             <span aria-hidden="true">👋</span>
         </h1>
@@ -139,7 +139,7 @@
                                 </span>
 
                                 <span @class([
-                                    'inline-flex w-[104px] justify-center rounded-full px-2.5 py-1 text-admin-caption font-semibold',
+                                    'admin-pill w-[104px] justify-center text-admin-caption font-semibold',
                                     'bg-danger/15 text-danger'                 => $lewat,
                                     'border border-line bg-canvas text-ink-muted' => ! $lewat,
                                 ])>
@@ -176,7 +176,7 @@
                class="card flex flex-col p-5 transition-colors hover:border-line-strong">
 
                 <span class="flex items-start justify-between gap-3">
-                    <span class="min-w-0 truncate text-admin-title text-ink">Inquiry bulan ini</span>
+                    <span class="min-w-0 truncate text-admin-title text-heading">Inquiry bulan ini</span>
 
                     <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
                                  bg-brand-wash text-brand">
@@ -184,7 +184,7 @@
                     </span>
                 </span>
 
-                <span class="mt-1 block text-admin-metric tabular-nums text-ink">
+                <span class="mt-1 block text-admin-metric tabular-nums text-heading">
                     {{ number_format($inquiryBulanIni) }}
                 </span>
                 
@@ -192,7 +192,7 @@
                     <span class="flex min-w-0 items-center gap-2">
                         @if($trenInquiry !== null)
                             <span @class([
-                                'inline-flex shrink-0 items-center gap-0.5 rounded-full px-2.5 py-1
+                                'admin-pill gap-0.5
                                  text-admin-caption font-semibold tabular-nums',
                                 'bg-brand/10 text-brand'      => $trenInquiry > 0,
                                 'bg-danger/10 text-danger'    => $trenInquiry < 0,
@@ -235,7 +235,7 @@
                class="card flex flex-col p-5 transition-colors hover:border-line-strong">
 
                 <span class="flex items-start justify-between gap-3">
-                    <span class="min-w-0 truncate text-admin-title text-ink">Total produk</span>
+                    <span class="min-w-0 truncate text-admin-title text-heading">Total produk</span>
 
                     <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
                                  bg-brand-wash text-brand">
@@ -243,24 +243,24 @@
                     </span>
                 </span>
 
-                <span class="mt-1 block text-admin-metric tabular-nums text-ink">
+                <span class="mt-1 block text-admin-metric tabular-nums text-heading">
                     {{ number_format($totalProductsAll) }}
                 </span>
                 
                 <span class="mt-5 flex flex-wrap items-center justify-between gap-2">
-                    <span class="inline-flex items-center gap-1 rounded-full bg-mist-deep px-2.5 py-1
+                    <span class="admin-pill bg-mist-deep
                                  text-admin-caption font-semibold text-ink-muted">
                         <span class="tabular-nums text-ink">{{ number_format($totalProducts) }}</span>
                         Aktif
                     </span>
 
-                    <span class="inline-flex items-center gap-1 rounded-full bg-mist-deep px-2.5 py-1
+                    <span class="admin-pill bg-mist-deep
                                  text-admin-caption font-semibold text-ink-muted">
                         <span class="tabular-nums text-ink">{{ number_format($draftProducts) }}</span>
                         Draf
                     </span>
 
-                    <span class="inline-flex items-center gap-1 rounded-full bg-mist-deep px-2.5 py-1
+                    <span class="admin-pill bg-mist-deep
                                  text-admin-caption font-semibold text-ink-muted">
                         <span class="tabular-nums text-ink">{{ number_format($featuredProducts) }}</span>
                         Unggulan
@@ -274,7 +274,7 @@
         <div class="card flex flex-col p-5">
 
             <span class="flex items-start justify-between gap-3">
-                <span class="min-w-0 truncate text-admin-title text-ink">Kunjungan bulan ini</span>
+                <span class="min-w-0 truncate text-admin-title text-heading">Kunjungan bulan ini</span>
 
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control
                              bg-brand-wash text-brand">
@@ -282,7 +282,7 @@
                 </span>
             </span>
 
-            <span class="mt-1 block text-admin-metric tabular-nums text-ink">
+            <span class="mt-1 block text-admin-metric tabular-nums text-heading">
                 {{ number_format($visitsThisMonth) }}
             </span>
 
@@ -290,7 +290,7 @@
                 <span class="flex min-w-0 items-center gap-2">
                     @if($trenKunjungan !== null)
                         <span @class([
-                            'inline-flex shrink-0 items-center gap-0.5 rounded-full px-2.5 py-1
+                            'admin-pill gap-0.5
                              text-admin-caption font-semibold tabular-nums',
                             'bg-brand/10 text-brand'      => $trenKunjungan > 0,
                             'bg-danger/10 text-danger'    => $trenKunjungan < 0,
@@ -412,7 +412,7 @@
                         </span>
 
                         <div>
-                            <h2 class="text-admin-title text-ink">Tren Inquiry</h2>
+                            <h2 class="text-admin-title text-heading">Tren Inquiry</h2>
                             
                             <p class="mt-0.5 text-admin-label text-ink-muted">
                                 Volume inquiry masuk periode
@@ -496,7 +496,7 @@
                 </span>
 
                 <div class="min-w-0">
-                    <h2 class="text-admin-title text-ink">Distribusi Negara</h2>
+                    <h2 class="text-admin-title text-heading">Distribusi Negara</h2>
                     <p class="mt-0.5 truncate text-admin-label text-ink-muted">
                         Peringkat negara berdasarkan volume inquiry.
                     </p>
@@ -529,13 +529,14 @@
 
                                     <td class="px-2 py-2.5">
 
-                                        <span class="flex items-center gap-2">
-                                            
-                                            <span class="admin-code inline-flex shrink-0 items-center rounded-full border border-line
-                                                         bg-mist px-2 py-0.5 text-admin-caption font-medium text-brand">{{ $n['kode'] }}</span>
-                                            <span class="min-w-0 truncate text-admin-strong text-ink"
-                                                  title="{{ $n['nama'] }}">{{ $n['nama'] }}</span>
-                                        </span>
+                                        {{-- Komponennya, bukan salinan kepingnya.
+
+                                             Sebelum ini baris ini menyalin isi
+                                             <x-admin.country> apa adanya lalu menulis
+                                             bantalannya sendiri — dan bantalan itu yang
+                                             lepas: 22px di sini, 18px di daftar inquiry
+                                             tepat di sebelahnya. --}}
+                                        <x-admin.country :code="$n['kode']" size="md" class="min-w-0" />
                                     </td>
 
                                     <td class="px-2 py-2.5" aria-hidden="true">
@@ -579,7 +580,7 @@
                         </span>
 
                         <div>
-                            <h2 class="text-admin-title text-ink">Inquiry terbaru</h2>
+                            <h2 class="text-admin-title text-heading">Inquiry terbaru</h2>
                             <p class="mt-0.5 text-admin-label text-ink-muted">Daftar inquiry terbaru.</p>
                         </div>
                     </div>

@@ -49,7 +49,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Produk
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -107,7 +107,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar produk</h2>
+                    <h2 class="text-admin-title text-heading">Daftar produk</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">Kelola dan pantau produk yang tersedia.</p>
                 </div>
             </div>
@@ -279,8 +279,32 @@
                                             @endif
 
                                             <div class="min-w-0">
-                                                <span class="block truncate text-admin-strong text-ink"
-                                                      title="{{ $nama }}">{{ $nama }}</span>
+                                                {{-- Bintang unggulan berdiri di samping NAMA, bukan di kolom
+                                                     status.
+
+                                                     Unggulan bukan status. Status menjawab "terbit atau draf" —
+                                                     satu nilai, satu pil, satu kolom. Unggulan menjawab "produk
+                                                     ini disorot di beranda", sifat yang melekat pada produknya
+                                                     sendiri. Menaruhnya di kolom status membuat satu kolom
+                                                     menjawab dua pertanyaan, dan barisnya jadi punya dua benda
+                                                     berwarna yang tidak berhubungan.
+
+                                                     Bintang telanjang, bukan keping bulat pejal seperti dulu:
+                                                     di sebelah nama 13px, cakram 24px berwarna merek adalah
+                                                     benda yang paling dulu terlihat di seluruh baris —
+                                                     mengalahkan nama produknya sendiri. --}}
+                                                <span class="flex min-w-0 items-center gap-1.5">
+                                                    <span class="truncate text-admin-strong text-ink"
+                                                          title="{{ $nama }}">{{ $nama }}</span>
+
+                                                    @if($product->is_featured)
+                                                        <span class="shrink-0 leading-none text-brand"
+                                                              title="Ditampilkan sebagai produk unggulan di situs publik">
+                                                            <x-icon.admin name="star" size="h-3.5 w-3.5" />
+                                                            <span class="sr-only">Produk unggulan</span>
+                                                        </span>
+                                                    @endif
+                                                </span>
                                                 
                                                 <span class="mt-0.5 block truncate text-admin-caption tabular-nums text-ink-faint"
                                                       title="Kode HS: {{ $product->hs_code }}">
@@ -312,18 +336,7 @@
                                     </td>
                                     
                                     <td class="px-3 py-4 align-middle">
-                                        <div class="flex flex-wrap items-center gap-1.5">
-                                            <x-admin.status-pill :status="$product->status" konteks="produk" />
-                                            
-                                            @if($product->is_featured)
-                                                <span class="flex h-6 w-6 shrink-0 items-center justify-center
-                                                             rounded-full bg-brand text-white"
-                                                      title="Ditampilkan sebagai produk unggulan di situs publik">
-                                                    <x-icon.admin name="star" size="h-3.5 w-3.5" />
-                                                    <span class="sr-only">Produk unggulan</span>
-                                                </span>
-                                            @endif
-                                        </div>
+                                        <x-admin.status-pill :status="$product->status" konteks="produk" />
                                     </td>
 
                                     <td class="py-4 pl-3 pr-5 text-right align-middle">
@@ -358,7 +371,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada produk yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -373,7 +386,7 @@
                                                 Hapus semua penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada produk
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -459,7 +472,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-produk"
-                                    class="truncate text-admin-display text-ink">
+                                    class="truncate text-admin-display text-heading">
                                     {{ $editingId ? 'Ubah produk' : 'Tambah produk' }}
                                 </h2>
                                 <p class="mt-1.5 text-admin-label text-ink-muted">
@@ -495,7 +508,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Informasi Produk</h3>
+                                            <h3 class="text-admin-title text-heading">Informasi produk</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Nama dan deskripsi produk dalam dua bahasa.</p>
                                         </div>
                                     </div>
@@ -620,7 +633,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Ketentuan Ekspor</h3>
+                                        <h3 class="text-admin-title text-heading">Ketentuan ekspor</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Detail produk untuk kebutuhan ekspor.</p>
                                     </div>
                                 </div>
@@ -676,6 +689,10 @@
                                                    class="admin-control tabular-nums">
                                         </div>
                                         
+                                        <p class="admin-hint">
+                                            Hanya tercetak di katalog PDF; halaman produk di situs publik tidak menampilkannya.
+                                        </p>
+
                                         @error('indicative_price')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
@@ -765,7 +782,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Spesifikasi Teknis</h3>
+                                            <h3 class="text-admin-title text-heading">Spesifikasi teknis</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Informasi teknis dan karakteristik produk.</p>
                                         </div>
                                     </div>
@@ -838,7 +855,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Kategori &amp; Sertifikasi</h3>
+                                        <h3 class="text-admin-title text-heading">Kategori &amp; sertifikasi</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Pengelompokan dan sertifikasi produk.</p>
                                     </div>
                                 </div>
@@ -909,8 +926,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Gambar</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tambahkan gambar untuk menampilkan produk.</p>
+                                        <h3 class="text-admin-title text-heading">Gambar</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Gambar yang tampil di kartu dan halaman produk.</p>
                                     </div>
                                 </div>
 
@@ -1000,7 +1017,7 @@
                                                          label="Tambah gambar" />
                                 </div>
 
-                                <p class="mt-3 text-admin-caption text-ink-faint">
+                                <p class="admin-hint">
                                     Maksimal 3 MB.
                                     Semuanya diubah otomatis ke WebP.
                                 </p>
@@ -1020,8 +1037,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Publikasi Produk</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tentukan status dan penayangan produk.</p>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan penandaan produk unggulan.</p>
                                     </div>
                                 </div>
 

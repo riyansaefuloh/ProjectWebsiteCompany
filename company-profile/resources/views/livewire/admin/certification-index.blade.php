@@ -28,7 +28,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Sertifikasi
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -215,7 +215,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar sertifikasi</h2>
+                    <h2 class="text-admin-title text-heading">Daftar sertifikasi</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
@@ -527,7 +527,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada sertifikasi yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -541,7 +541,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada sertifikasi
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -603,7 +603,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-sertifikasi"
-                                    class="truncate text-admin-display text-ink">
+                                    class="truncate text-admin-display text-heading">
                                     {{ $editingId ? 'Ubah sertifikasi' : 'Tambah sertifikasi' }}
                                 </h2>
                                 <p class="mt-1.5 text-admin-label text-ink-muted">
@@ -630,16 +630,80 @@
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
                             <section class="overflow-hidden rounded-corner border border-line bg-canvas">
-                                <div class="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
-                                    <span class="flex h-9 w-9 shrink-0 items-center justify-center
-                                                 rounded-control bg-brand-wash text-brand">
-                                        <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
-                                    </span>
+                                {{-- Sakelar bahasa dan tombol Terjemahkan duduk di KEPALA KARTU,
+                                     sebaris dengan judulnya — susunan yang sama dengan modal
+                                     Produk, Kategori, Pasar Ekspor, Berita, dan Halaman.
+                                
+                                     Sebelumnya keduanya berdiri di dalam badan kartu, dan karena
+                                     barisnya selebar kartu, tombolnya terlempar 201px dari
+                                     sakelarnya. Di modal lain jaraknya 8px. --}}
+                                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
+                                    <div class="flex min-w-0 items-center gap-2.5">
+                                        <span class="flex h-9 w-9 shrink-0 items-center justify-center
+                                                     rounded-control bg-brand-wash text-brand">
+                                            <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
+                                        </span>
 
-                                    <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Informasi Sertifikasi</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Nama, lembaga penerbit, dan nomor.</p>
+                                        <div class="min-w-0">
+                                            <h3 class="text-admin-title text-heading">Informasi sertifikasi</h3>
+                                            <p class="mt-0.5 text-admin-label text-ink-muted">Nama, lembaga penerbit, dan nomor.</p>
+                                        </div>
                                     </div>
+
+                                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                                    <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
+                                                border border-line bg-mist p-0.5"
+                                         role="group" aria-label="Bahasa yang sedang disunting">
+                                        @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
+                                            @php
+                                                /* Titik penanda: bahasa ini masih kosong
+                                                   sementara bahasa satunya sudah diisi.
+                                                   Akibatnya tidak kentara dari panel —
+                                                   kartunya akan menampilkan teks bahasa
+                                                   satunya. */
+                                                $lain    = $kode === 'en' ? 'id' : 'en';
+                                                $isiIni  = filled(trim($kode === 'en' ? $name_en : $name_id));
+                                                $isiLain = filled(trim($lain === 'en' ? $name_en : $name_id));
+                                                $timpang = ! $isiIni && $isiLain;
+                                            @endphp
+
+                                            <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
+                                                    aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
+                                                    @class([
+                                                        'inline-flex items-center gap-1.5 rounded-full px-3 py-1
+                                                         text-admin-label font-semibold transition-colors
+                                                         focus-visible:outline-none focus-visible:ring-2
+                                                         focus-visible:ring-brand/30',
+                                                        'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
+                                                            => $activeTab === $kode,
+                                                        'text-ink-muted hover:text-ink' => $activeTab !== $kode,
+                                                    ])>
+                                                {{ $sebutan }}
+                                                @if($timpang)
+                                                    <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-status-new"
+                                                          title="Belum diisi — kartu berbahasa ini akan memakai teks bahasa satunya"
+                                                          aria-label="Belum diisi"></span>
+                                                @endif
+                                            </button>
+                                        @endforeach
+                                    </div>
+
+                                    <button type="button" wire:click="autoTranslate"
+                                            wire:loading.attr="disabled" wire:target="autoTranslate"
+                                            title="Salin isian Indonesia ke English, lalu terjemahkan"
+                                            class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
+                                        <svg wire:loading wire:target="autoTranslate"
+                                             class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
+                                            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                        </svg>
+
+                                        <x-icon.admin name="send" size="h-3.5 w-3.5" class="shrink-0 text-brand"
+                                                      wire:loading.remove wire:target="autoTranslate" />
+
+                                        Terjemahkan
+                                    </button>
+                                </div>
                                 </div>
 
                                 <div class="p-5">
@@ -667,60 +731,6 @@
                                          berjanji "pilih salah satu", dan tombol tindakan
                                          di dalamnya mengingkari janji itu. --}}
                                     <div>
-                                        <div class="flex flex-wrap items-center justify-between gap-2">
-                                            <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
-                                                        border border-line bg-mist p-0.5"
-                                                 role="group" aria-label="Bahasa yang sedang disunting">
-                                                @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
-                                                    @php
-                                                        /* Titik penanda: bahasa ini masih kosong
-                                                           sementara bahasa satunya sudah diisi.
-                                                           Akibatnya tidak kentara dari panel —
-                                                           kartunya akan menampilkan teks bahasa
-                                                           satunya. */
-                                                        $lain    = $kode === 'en' ? 'id' : 'en';
-                                                        $isiIni  = filled(trim($kode === 'en' ? $name_en : $name_id));
-                                                        $isiLain = filled(trim($lain === 'en' ? $name_en : $name_id));
-                                                        $timpang = ! $isiIni && $isiLain;
-                                                    @endphp
-
-                                                    <button type="button" wire:click="$set('activeTab', '{{ $kode }}')"
-                                                            aria-pressed="{{ $activeTab === $kode ? 'true' : 'false' }}"
-                                                            @class([
-                                                                'inline-flex items-center gap-1.5 rounded-full px-3 py-1
-                                                                 text-admin-label font-semibold transition-colors
-                                                                 focus-visible:outline-none focus-visible:ring-2
-                                                                 focus-visible:ring-brand/30',
-                                                                'bg-canvas text-brand shadow-[0_1px_2px_rgba(26,29,27,0.10)]'
-                                                                    => $activeTab === $kode,
-                                                                'text-ink-muted hover:text-ink' => $activeTab !== $kode,
-                                                            ])>
-                                                        {{ $sebutan }}
-                                                        @if($timpang)
-                                                            <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-status-new"
-                                                                  title="Belum diisi — kartu berbahasa ini akan memakai teks bahasa satunya"
-                                                                  aria-label="Belum diisi"></span>
-                                                        @endif
-                                                    </button>
-                                                @endforeach
-                                            </div>
-
-                                            <button type="button" wire:click="autoTranslate"
-                                                    wire:loading.attr="disabled" wire:target="autoTranslate"
-                                                    title="Salin isian Indonesia ke English, lalu terjemahkan"
-                                                    class="admin-btn admin-btn-quiet shrink-0 !py-1.5 disabled:opacity-60">
-                                                <svg wire:loading wire:target="autoTranslate"
-                                                     class="h-3.5 w-3.5 shrink-0 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                                                    <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.6" opacity="0.3"/>
-                                                    <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                                                </svg>
-
-                                                <x-icon.admin name="send" size="h-3.5 w-3.5" class="shrink-0 text-brand"
-                                                              wire:loading.remove wire:target="autoTranslate" />
-
-                                                Terjemahkan
-                                            </button>
-                                        </div>
 
                                         {{-- Pesan gagal-terjemah, tepat di bawah sakelar yang
                                              dilayaninya — bukan di puncak jendela dan bukan
@@ -807,7 +817,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Masa Berlaku</h3>
+                                        <h3 class="text-admin-title text-heading">Masa berlaku</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Tanggal terbit dan kedaluwarsa sertifikat.</p>
                                     </div>
                                 </div>
@@ -847,13 +857,14 @@
                                         @enderror
                                     </div>
 
-                                    <p class="flex items-start gap-1.5 text-admin-caption text-ink-faint">
+                                    <p class="admin-hint flex items-start gap-1.5">
                                         <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                                             <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/>
                                             <path d="M8 7.4v3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                                             <circle cx="8" cy="5.2" r="0.75" fill="currentColor"/>
                                         </svg>
-                                        Dikosongkan berarti tanpa masa berlaku.
+                                        Dikosongkan berarti tanpa masa berlaku. Tanggal yang sudah lewat
+                                        membuat sertifikasinya berhenti tampil di situs publik.
                                     </p>
                                 </div>
                             </div>
@@ -868,7 +879,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Berkas</h3>
+                                        <h3 class="text-admin-title text-heading">Berkas</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Logo lembaga dan dokumen sertifikat.</p>
                                     </div>
                                 </div>
@@ -937,7 +948,7 @@
                                                          label="{{ filled($existingLogoUrl) ? 'Ganti logo' : 'Tambah logo' }}" />
                                 </div>
 
-                                <p class="mt-2 text-admin-caption text-ink-faint">
+                                <p class="admin-hint">
                                     Satu gambar saja, maksimal 2 MB.
                                 </p>
 
@@ -1001,7 +1012,7 @@
                                                          label="{{ filled($existingPdfUrl) ? 'Ganti dokumen' : 'Tambah dokumen' }}" />
                                 </div>
 
-                                <p class="mt-2 text-admin-caption text-ink-faint">
+                                <p class="admin-hint">
                                     Hanya berkas PDF, maksimal 5 MB.
                                 </p>
 
@@ -1020,8 +1031,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Publikasi Sertifikasi</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tentukan status dan urutan sertifikasi.</p>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan urutan sertifikasi di situs publik.</p>
                                     </div>
                                 </div>
 
@@ -1054,6 +1065,10 @@
                                         <input type="number" wire:model="sort_order" id="sertif-urutan"
                                                min="0" step="1" class="admin-control mt-2">
                                         
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
+                                        </p>
+
                                         @error('sort_order')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror

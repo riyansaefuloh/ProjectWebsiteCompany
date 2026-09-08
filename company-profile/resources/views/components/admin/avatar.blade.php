@@ -66,7 +66,11 @@
     $nada = [
         'frame' => 'border border-line bg-mist text-brand',
         'quiet' => 'bg-mist-deep text-ink-muted',
-        'brand' => 'bg-brand text-white',
+        /* brand-DEEP, sama dengan .admin-btn-brand. Nada ini dipakai avatar
+           di bilah atas, dan ia berdiri beberapa piksel dari tombol utama
+           halaman — dua bidang pejal berwarna merek yang berselisih setengah
+           nada terbaca seperti salah satunya lupa diperbarui. */
+        'brand' => 'bg-brand-deep text-white',
     ];
 @endphp
 

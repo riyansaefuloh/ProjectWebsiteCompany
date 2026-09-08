@@ -36,13 +36,15 @@
             {{-- Merek: lambang berbingkai + nama perusahaan. --}}
             <div class="flex min-w-0 items-center gap-3">
                 
-                <span class="flex h-10 w-10 shrink-0 items-center justify-center
-                             rounded-control border border-line bg-mist">
+                {{-- Petak 40px tanpa bingkai, sama dengan kepala bilah sisi
+                     panel. Lambang yang sudah punya bentuknya sendiri tidak
+                     butuh kotak kedua di sekelilingnya. --}}
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center">
                     @if($logo)
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
-                             class="h-6 w-6 object-contain">
+                             class="h-8 w-8 object-contain">
                     @else
-                        <svg class="h-5 w-5 text-brand" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                        <svg class="h-7 w-7 text-brand-deep" viewBox="0 0 32 32" fill="none" aria-hidden="true">
                             <path d="M16 3.5c6 0 10.5 5.6 10.5 12.5S22 28.5 16 28.5 5.5 22.9 5.5 16 10 3.5 16 3.5Z"
                                   stroke="currentColor" stroke-width="2"/>
                             <path d="M16 5.2c-3 3-3 6.9 0 10.8s3 7.8 0 10.8"
@@ -52,7 +54,7 @@
                 </span>
                 
                 <span class="min-w-0">
-                    <span class="block truncate text-admin-title text-ink">
+                    <span class="block truncate text-admin-title text-heading">
                         {{ $namaPerusahaan }}
                     </span>
                     <span class="mt-0.5 block text-admin-overline uppercase text-ink-faint">Panel Admin</span>
@@ -63,7 +65,7 @@
                 <div class="w-full max-w-[400px]">
                     
                     <div class="text-center">
-                        <h1 class="text-admin-display text-ink">
+                        <h1 class="text-admin-display text-heading">
                             Selamat datang kembali
                         </h1>
                         <p class="mt-3 text-admin-body text-ink-muted">
@@ -199,28 +201,46 @@
 
         {{-- ══════════════════════════════════════════════════════════════════
              KANAN — kartu peta
+
+             Petanya yang jadi POKOK, bukan tekstur di belakang tulisan.
+
+             Versi sebelumnya menaruh label, judul, kalimat, dan sembilan keping
+             menu di atasnya, lalu petanya harus diredupkan sampai 25% supaya
+             tidak bersaing dengan keempatnya. Hasilnya: satu-satunya benda yang
+             menarik di panel itu justru yang paling disembunyikan.
+
+             Sekarang isinya tinggal satu kalimat. Petanya bisa naik ke 45% dan
+             berdiri di tengah sebagai gambar utuh, dan yang tersisa di bawahnya
+             cuma satu garis emas pendek, satu judul, satu baris keterangan.
+
+             Gradasi di dasar tetap ada — di sini ia bekerja, bukan menambal:
+             petanya sekarang benar-benar sampai ke bidang tulisan, dan tanpa
+             peredam titik-titik Amerika Selatan jatuh persis di belakang judul.
              ══════════════════════════════════════════════════════════════════ --}}
         <div class="hidden p-6 lg:block">
-            <div class="relative h-full overflow-hidden rounded-panel bg-brand-wash">
-                
-                <div aria-hidden="true"
-                     class="mask-worldmap pointer-events-none absolute -right-12 -top-8
-                            h-[74%] w-[130%] max-w-none bg-brand/40"></div>
-                
-                <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-white/50"></div>
-                
-                <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[62%]
-                            bg-gradient-to-t from-brand-wash via-brand-wash to-transparent"></div>
-                
+            <div class="relative h-full overflow-hidden rounded-panel bg-forest">
+
+                {{-- Peta yang SAMA dengan halaman Pasar Ekspor dan beranda —
+                     berkas yang sama, warna yang sama, bukan tiruan yang mirip. --}}
+                <img src="{{ asset('images/world-map.svg') }}" alt="" aria-hidden="true"
+                     class="pointer-events-none absolute left-1/2 top-[38%] w-[128%] max-w-none
+                            -translate-x-1/2 -translate-y-1/2 select-none opacity-45">
+
+                <div class="pointer-events-none absolute inset-x-0 bottom-0 h-2/5
+                            bg-gradient-to-t from-forest via-forest/90 to-transparent"></div>
+
                 <div class="relative flex h-full flex-col justify-end p-10 xl:p-12">
-                    <h2 class="text-login-hero text-ink">
+                    {{-- Garis emas, bukan label bertulisan: satu-satunya aksen
+                         yang dibutuhkan panel ini, dan ia tidak menambah kata
+                         yang harus dibaca. --}}
+                    <span aria-hidden="true" class="block h-0.5 w-12 rounded-full bg-brand-soft"></span>
+
+                    <h2 class="mt-6 text-login-hero text-white">
                         Semua dalam satu panel
                     </h2>
 
-                    <p class="mt-4 max-w-[58ch] text-admin-body text-ink-muted">
-                        Kelola kebutuhan website dan inquiry pelanggan dalam satu tempat.
-                        Mulai dari informasi produk, sertifikasi, pasar ekspor, berita,
-                        hingga permintaan penawaran dari pelanggan.
+                    <p class="mt-4 max-w-[42ch] text-admin-body text-white/70">
+                        Kelola seluruh isi situs dan permintaan penawaran dari satu tempat.
                     </p>
                 </div>
             </div>

@@ -32,7 +32,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Kategori
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -91,7 +91,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar kategori</h2>
+                    <h2 class="text-admin-title text-heading">Daftar kategori</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di katalog.
                     </p>
@@ -324,7 +324,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada kategori yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -338,7 +338,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada kategori
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -410,7 +410,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-kategori"
-                                    class="truncate text-admin-display text-ink">
+                                    class="truncate text-admin-display text-heading">
                                     {{ $editingId ? 'Ubah kategori' : 'Tambah kategori' }}
                                 </h2>
                                 <p class="mt-1.5 text-admin-label text-ink-muted">
@@ -445,7 +445,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Informasi Kategori</h3>
+                                            <h3 class="text-admin-title text-heading">Informasi kategori</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Nama dan deskripsi kategori dalam dua bahasa.</p>
                                         </div>
                                     </div>
@@ -606,7 +606,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Gambar &amp; Ikon</h3>
+                                        <h3 class="text-admin-title text-heading">Gambar &amp; ikon</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Gambar sampul dan lambang kategori.</p>
                                     </div>
                                 </div>
@@ -679,9 +679,8 @@
                                                          label="{{ filled($existingImage) ? 'Ganti gambar' : 'Tambah gambar' }}" />
                                 </div>
 
-                                <p class="mt-3 text-admin-caption text-ink-faint">
-                                    Maksimal 3 MB. Mengunggah yang baru
-                                    menggantikan yang lama.
+                                <p class="admin-hint">
+                                    Maksimal 3 MB.
                                 </p>
 
                                 @error('imageFile')
@@ -695,11 +694,7 @@
 
                                     <input type="text" wire:model="icon" id="kategori-icon"
                                            placeholder="mis. coffee-icon" class="admin-control mt-2">
-
-                                    <p class="mt-2 text-admin-caption text-ink-faint">
-                                        Cadangan kalau kategori ini tidak punya gambar.
-                                    </p>
-
+                                    
                                     @error('icon')
                                         <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                     @enderror
@@ -716,8 +711,8 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Publikasi Kategori</h3>
-                                        <p class="mt-0.5 text-admin-label text-ink-muted">Tentukan status dan urutan kategori produk.</p>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang dan urutan kategori di situs publik.</p>
                                     </div>
                                 </div>
 
@@ -746,6 +741,10 @@
                                         <input type="number" wire:model="sort_order" id="kategori-urutan"
                                                min="0" step="1" class="admin-control mt-2">
                                         
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
+                                        </p>
+
                                         @error('sort_order')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror

@@ -125,25 +125,105 @@
     --text-login-hero--font-weight: 600;
     --text-login-hero--letter-spacing: -0.025em;
 
-    /* ── Warna: netral ──────────────────────────────────────────────────── */
-    --color-ink: #1a1d1b;
-    --color-ink-muted: #545b58;
-    --color-ink-faint: #717874;
+    /* ── Warna: netral ──────────────────────────────────────────────────────
+       Netral HANGAT, dan itu yang membuat panel terbaca cokelat alih-alih
+       hijau. Sebelumnya ketujuhnya bercondong dingin — #1a1d1b, #f4f7f5,
+       #e3e7e5 semuanya berona hijau-biru — jadi mengganti warna merek saja
+       akan menyisakan tombol cokelat di atas kertas kelabu kehijauan, dua
+       sistem yang kebetulan bertemu.
+
+       Ketiga tinta di bawah berona 70 — rona yang SAMA dengan --color-heading
+       dan dengan cokelat palet situs.
+
+       --color-ink sekalian DINAIKKAN terangnya, L* 10,6 → 21,9, dan itu yang
+       membuatnya berhenti terbaca hitam. Kroma 4,3 pada L* 10,6 tidak punya
+       ruang untuk terlihat: hampir hitam apa pun ronanya. Yang dinaikkan
+       keduanya — terang DAN kroma (4,3 → 10,5) — dan hasilnya cokelat yang
+       jelas cokelat pada 12,39:1, masih jauh di atas ambang mana pun.
+
+       Susunannya juga jadi benar arahnya. Sebelumnya badan tulisan LEBIH
+       GELAP daripada judulnya (L* 10,6 lawan 16,3) — hierarki yang terbalik,
+       dan itulah sebabnya judul cokelat tampak berdampingan dengan kalimat
+       hitam. Sekarang judul yang paling gelap, lalu badan, lalu dua nada
+       redupnya.
+
+       --color-ink-faint digelapkan sedikit dari L* 49,8 ke 45,5. Bukan soal
+       rupa: pada terang lamanya ia 3,87:1 di atas baris kepala tabel, di bawah
+       ambang 4,5. Diperbaiki di tokennya, bukan dengan mengganti kelas di tiap
+       <th>, supaya ke-261 pemakaiannya ikut lolos sekaligus.
+
+       --color-canvas TETAP putih — itu warna KARTU. Yang berwarna adalah
+       --color-mist, bidang halaman di belakang kartu-kartu itu, dan justru
+       selisih keduanya yang membuat kartu terangkat tanpa perlu bayangan lebih
+       tebal.
+
+       --color-mist #f7f3ee adalah bidang BERTINTA di atas kartu putih, bukan
+       bidang halaman — yang itu --color-shell di atas. Warm off-white berona
+       80,6 dan berkroma 2,9: cukup untuk terbaca hangat, terlalu kecil untuk
+       terbaca berwarna, dan 1,105:1 dari kartu putih di sekelilingnya. */
+    --color-ink: #3f3226;
+    --color-ink-muted: #65574a;
+    --color-ink-faint: #78695c;
 
     --color-canvas: #ffffff;
-    --color-mist: #f4f7f5;
-    --color-mist-deep: #e9eeeb;
-    --color-line: #e3e7e5;
-    --color-line-strong: #cbd2cf;
+    /* Bidang HALAMAN panel — L* 99,4, satu langkah dari putih murni.
 
-    /* ── Warna: merek ───────────────────────────────────────────────────── */
-    --color-brand: #1e7a4b;
-    --color-brand-deep: #17603b;
-    --color-brand-soft: #7fbf9c;
-    --color-brand-wash: #eaf4ef;
+       Jaraknya dari putih tinggal dE 1,8; kartu putih di atasnya 1,015:1. Jadi
+       yang memisahkan kartu dari halaman sepenuhnya GARIS TEPINYA, bukan
+       selisih bidang. Itu disengaja: panel ini alat yang dipakai berjam-jam,
+       dan bidang berwarna yang terus-menerus di latar lebih melelahkan
+       daripada garis setipis rambut.
 
-    --color-forest: #10352a;
-    --color-forest-line: #2b4c3f;
+       Di bawah ini tidak ada lagi langkah selain putih murni — sisa hangatnya
+       tinggal satu setengah satuan dE. Kalau suatu saat nilainya diputihkan
+       lagi, yang sebenarnya diminta adalah #ffffff.
+
+       Terpisah dari --color-mist, dan itu yang membuatnya bisa sedekat ini
+       dengan putih. --color-mist bukan bidang halaman melainkan bidang
+       BERTINTA di atas kartu putih — baris kepala tabel, keping, petak
+       gambar, keadaan tersorot; 145 tempat. Kalau keduanya satu nilai, memilih
+       kanvas situs untuk halaman berarti ke-145 bidang bertinta itu ikut jatuh
+       ke 1,041:1 dari kartunya dan lenyap. */
+    --color-shell: #fffdfa;
+
+    --color-mist: #f7f3ee;
+    --color-mist-deep: #f1ede7;   /* kroma 3,4, turun dari 8,2 — alasan sama dengan brand-wash */
+    --color-line: #eae5e0;
+    --color-line-strong: #d7cfc6;
+
+    /* Warna JUDUL, terpisah dari warna badan.
+
+       Situs publik memisahkan keduanya: badan tulisannya #1f1810, tapi tiap
+       judul #332619 — cokelat yang jelas terbaca cokelat. Panel memakai satu
+       warna untuk dua peran, jadi judulnya jatuh ke hitam-kehangatan yang
+       nyaris tidak bisa dibedakan dari kalimat biasa.
+
+       Nilainya sama persis dengan judul situs, bukan sekadar mirip. */
+    --color-heading: #332619;
+
+    /* ── Warna: merek ───────────────────────────────────────────────────────
+       Karamel sangrai, nada gelap yang sama dengan aksen situs publik di atas
+       bidang terang (--color-site-gilt-deep). Bukan cokelat lain yang mirip:
+       ini benar-benar warna yang sama, jadi tombol di panel dan aksen di situs
+       tidak pernah berselisih setengah nada.
+
+       5,63:1 terhadap putih — sedikit di ATAS hijau yang digantikan (5,33:1),
+       jadi tidak ada teks yang jatuh karenanya. */
+    --color-brand: #905c1b;
+    --color-brand-deep: #6f4715;
+    --color-brand-soft: #d9ae7c;
+
+    /* Kroma 2,9, turun dari 6,6 — terangnya tidak disentuh.
+
+       brand-wash bidang di balik 92 keping dan bingkai ikon di panel. Selama
+       latar halaman masih berwarna, kroma 6,6 terbaca sebagai bagian dari
+       keluarga yang sama. Begitu latarnya diputihkan, kepingnya jadi satu-
+       satunya benda berwarna di layar dan terbaca oranye muda — bukan karena
+       ia berubah, tapi karena tidak ada lagi yang menemaninya. */
+    --color-brand-wash: #f3efea;
+
+    --color-forest: #332619;
+    --color-forest-line: #4f3f2a;
 
     /* ── Warna: situs publik — KARAMEL SANGRAI ──────────────────────────────
        DITAMBAHKAN, bukan menggantikan token di atas: warna status panel admin
@@ -228,7 +308,7 @@
     --color-danger: #b3261e;
     --color-danger-soft: #f0a9a4;
 
-    /* Hijau WhatsApp, bukan hijau merek — tombolnya dikenali dari warna itu. */
+    /* Hijau WhatsApp, bukan warna merek — tombolnya dikenali dari warna itu. */
     --color-whatsapp: #25d366;
 
     /* ── Warna: status inquiry ──────────────────────────────────────────────
@@ -241,7 +321,22 @@
                                             itulah yang memisahkannya dari merah */
     --color-status-quoted: #a02d8f;      /* ungu                                */
     --color-status-rejected: #c4362b;    /* merah — lebih terang dari --color-danger
-                                            supaya jaraknya ke hijau merek naik  */
+                                            supaya jaraknya ke rona kelima naik  */
+
+    /* Rona kelima: selesai, aktif, terbit. Punya token SENDIRI, dan itu yang
+       memungkinkan panel jadi cokelat sama sekali.
+
+       Sebelumnya pil ini meminjam --color-brand, jadi warna tombol dan warna
+       pil terikat satu sama lain. Begitu merek jadi karamel, pil "Selesai"
+       akan berdiri SEKOLOM dengan pil merah "Ditolak" pada jarak ΔE 4,0 di
+       deuteranopia — dua pil yang praktis kembar bagi yang tidak membedakan
+       merah-hijau, di tempat warnanya justru sedang membandingkan.
+
+       Dilepas dari merek, nilainya tetap hijau yang lama: pil status tidak
+       berubah sama sekali, dan jaminan yang ditulis di atas tetap berlaku
+       apa adanya. Hijau di panel ini sekarang berarti satu hal saja —
+       sudah beres — bukan sekaligus "ini warna kami". */
+    --color-status-done: #1e7a4b;
 
     /* ── Sudut ──────────────────────────────────────────────────────────── */
     --radius-control: 8px;
@@ -614,17 +709,6 @@
        berkas CSS, dan saat `npm run dev` itu server Vite di porta 5173 — jadi
        /images/ berakhir 404 dan maskernya menutup elemen tanpa pesan galat.
        Berkas kembarannya di public/images/ dipakai lewat asset(); ganti keduanya. */
-    .mask-worldmap {
-        -webkit-mask-image: url('../images/world-dotted.svg');
-        mask-image: url('../images/world-dotted.svg');
-        -webkit-mask-size: contain;
-        mask-size: contain;
-        -webkit-mask-repeat: no-repeat;
-        mask-repeat: no-repeat;
-        -webkit-mask-position: center;
-        mask-position: center;
-    }
-
     /* ── Formulir ───────────────────────────────────────────────────────── */
     .field-label {
         @apply block min-h-[16px] font-site-accent text-site-micro font-medium uppercase
@@ -826,6 +910,43 @@
     /* ── Kode dan pengenal ──────────────────────────────────────────────────
        Hanya deret yang dibaca karakter per karakter: kode HS, kode negara ISO.
        Bukan tanggal, jumlah, atau harga — itu tetap IBM Plex Sans tabular. */
+    /* ── Keping keterangan ──────────────────────────────────────────────────
+       SATU ukuran untuk seluruh panel: 24px, bantalan 10/4, huruf 11px.
+
+       Sensus sebelum ini menemukan LIMA ukuran hidup berdampingan — 16px pada
+       keping "2 tag", 18px dan 22px pada dua rupa keping kode negara, 24px pada
+       pil status, dan 26px pada pil status yang BERGARIS. Tidak satu pun
+       disengaja; tiap keping menulis bantalannya sendiri saat dibuat.
+
+       border-transparent-nya yang menyelesaikan angka 26 itu. Pil terisi dan
+       pil bergaris berdiri di kolom yang sama — "Terbit" di samping "Draf",
+       "Perlu email" di samping "Terbuka" — dan garis 1px menambah dua piksel
+       tinggi hanya pada yang bergaris. Dengan garis tembus pandang yang selalu
+       ada, yang bergaris cuma mewarnainya, dan keduanya persis sama tinggi.
+
+       Bobot huruf TIDAK dikunci di sini: kode negara memakai 500, pil status
+       600. Yang harus seragam ukurannya, bukan tekanannya. */
+    /* ── Keterangan di bawah isian ──────────────────────────────────────────
+       SATU rupa: jarak mt-2, huruf admin-label, tinta ink-faint.
+
+       Sensus menemukan TUJUH rupa hidup berdampingan untuk peran yang sama —
+       admin-label dan admin-caption bercampur (12px lawan 11px), dengan jarak
+       mt-1.5, mt-2, dan mt-3, dan dua di antaranya bahkan tanpa warna sama
+       sekali sehingga mewarisi tinta badan dan terbaca sekeras isian di
+       atasnya.
+
+       Yang bergaris bawah: keterangan ini pelengkap, bukan isi. Ia harus lebih
+       kecil dan lebih pudar daripada apa pun yang dilayaninya, dan sama di
+       seluruh panel supaya mata belajar sekali lalu berhenti memeriksanya. */
+    .admin-hint {
+        @apply mt-2 text-admin-label text-ink-faint;
+    }
+
+    .admin-pill {
+        @apply inline-flex shrink-0 items-center gap-1 rounded-full
+               border border-transparent px-2.5 py-1 text-admin-caption;
+    }
+
     .admin-code {
         @apply font-ui-mono tabular-nums;
         font-feature-settings: 'zero' 1;   /* nol bergaris — 0 dan O tidak tertukar */
@@ -844,11 +965,17 @@
                lg:rail:mx-auto lg:rail:w-10 lg:rail:justify-center lg:rail:px-0;
     }
 
-    /* brand-deep, bukan brand: di atas pil mist-deep, brand jatuh di ~4,0 —
-       di bawah ambang 4,5. Ikon memakai currentColor, jadi tidak perlu
+    /* Bidangnya SAMA dengan keadaan tersorot, bukan satu nada lebih tua.
+
+       Yang membedakan menu aktif dari menu yang kebetulan sedang disentuh
+       kursor tinggal bobot dan warna hurufnya — 600 dan brand-deep lawan 500
+       dan ink-muted. Itu sudah cukup, dan pembedanya jadi tulisan, bukan rona
+       kedua yang harus diingat artinya.
+
+       brand-deep, bukan brand: ikon memakai currentColor, jadi tidak perlu
        penimpa warna tersendiri. */
     .admin-link-on {
-        @apply bg-mist-deep font-semibold text-brand-deep hover:bg-mist-deep;
+        @apply bg-mist font-semibold text-brand-deep hover:bg-mist;
     }
 
     /* pt-8 jauh lebih besar dari pb-1.5, dan selisih itulah yang bekerja:
@@ -865,7 +992,7 @@
     .admin-tip {
         @apply pointer-events-none absolute left-full z-50 ml-3
                -translate-y-1/2 whitespace-nowrap rounded-control
-               border border-line bg-mist-deep px-2.5 py-1.5
+               border border-line bg-mist px-2.5 py-1.5
                text-admin-label font-semibold text-brand-deep
                shadow-[0_6px_18px_-8px_rgba(26,29,27,0.35)];
     }
@@ -885,8 +1012,17 @@
                text-admin-strong font-semibold leading-none whitespace-nowrap transition-colors;
     }
 
+    /* brand-DEEP, bukan brand.
+
+       Warna yang sama terbaca berbeda menurut luasnya: sebagai pil kecil
+       'Ekspor CSV' ia karamel yang tenang, tapi sebagai tombol Masuk selebar
+       kolom dan setinggi 52px ia bidang oranye yang menyilaukan. Yang dipakai
+       nada yang lebih dalam, dan pil kecilnya ikut — satu tombol utama, satu
+       warna, bukan dua nilai yang harus diingat mana untuk mana.
+
+       Putih di atasnya 8,11:1, naik dari 5,63:1. */
     .admin-btn-brand {
-        @apply bg-brand text-white hover:bg-brand-deep;
+        @apply bg-brand-deep text-white hover:bg-site-brand;
     }
 
     /* Tindakan pendamping: ekspor, batal, tutup. Bergaris, bukan terisi —

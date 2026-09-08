@@ -135,7 +135,7 @@
     @livewireStyles
 </head>
 
-<body class="admin-shell min-h-screen bg-mist font-ui text-admin-body text-ink"
+<body class="admin-shell min-h-screen bg-shell font-ui text-admin-body text-ink"
       x-data="{
           laciTerbuka: false,
           sempit: document.documentElement.classList.contains('sidebar-rail'),
@@ -202,19 +202,26 @@
         <div class="relative flex h-[64px] shrink-0 items-center gap-2.5 border-b border-line px-4
                     lg:rail:justify-center lg:rail:px-0">
 
-            {{-- Bingkai lambang 40px, seukuran petak menu di bawahnya dan
-                 bingkai di halaman masuk — satu kolom, satu lebar. --}}
-            <span class="flex h-10 w-10 shrink-0 items-center justify-center
-                         rounded-control border border-line bg-mist">
+            {{-- Petak 40px TANPA bingkai — seukuran petak menu di bawahnya,
+                 jadi lambang dan menu tetap berbagi satu kolom yang sama.
+
+                 Ukurannya dipertahankan, bingkainya tidak: yang menyejajarkan
+                 kolom itu lebarnya, bukan garisnya. Logo yang sudah punya
+                 bentuknya sendiri tidak butuh kotak kedua di sekelilingnya.
+
+                 Logonya diperbesar 24px → 32px sekalian: tanpa bingkai, 24px
+                 di dalam petak 40px menyisakan ruang kosong yang dulu diisi
+                 garis itu. --}}
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center">
                 @if($logo)
                     <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
-                         class="h-6 w-6 object-contain">
+                         class="h-8 w-8 object-contain">
                 @else
                     {{-- Monogram, bukan lambang bergambar — sama seperti di kepala
-                         situs publik. Bingkainya di sini TETAP dipertahankan:
-                         saat sidebar dipersempit, kotak inilah satu-satunya yang
-                         tersisa di kepalanya. --}}
-                    <span class="text-admin-strong font-semibold leading-none text-brand-deep"
+                         situs publik. Tanpa bingkai ia perlu berdiri sendiri,
+                         jadi ukurannya naik ke admin-title dan warnanya ke
+                         warna judul. --}}
+                    <span class="text-admin-title font-bold leading-none text-heading"
                           aria-hidden="true">
                         {{ \App\Support\Monogram::inisial($namaPerusahaan) ?: '·' }}
                     </span>
@@ -224,7 +231,7 @@
             {{-- Nama perusahaan memakai huruf antarmuka panel, bukan huruf
                  situs publik. --}}
             <span class="min-w-0 lg:rail:hidden">
-                <span class="block truncate text-admin-title text-ink">
+                <span class="block truncate text-admin-title text-heading">
                     {{ $namaPerusahaan }}
                 </span>
                 <span class="mt-0.5 block text-admin-overline uppercase text-ink-faint">Panel Admin</span>
@@ -279,7 +286,7 @@
 
                                 @if($m['rute'] === 'admin.inquiries.index' && $jumlahInquiryBaru > 0)
                                     <span class="ml-auto inline-flex h-[18px] min-w-[18px] shrink-0 items-center
-                                                 justify-center rounded-full bg-brand px-1 text-admin-caption
+                                                 justify-center rounded-full bg-brand-deep px-1 text-admin-caption
                                                  font-semibold tabular-nums text-white lg:rail:hidden">
                                         {{ $jumlahInquiryBaru > 99 ? '99+' : $jumlahInquiryBaru }}
                                     </span>
@@ -288,7 +295,7 @@
                                          tiga puluh menuntut tindakan berbeda.
                                          Dibatasi 9+. --}}
                                     <span class="absolute right-0 top-0 hidden h-4 min-w-4 items-center
-                                                 justify-center rounded-full bg-brand px-1 text-admin-caption
+                                                 justify-center rounded-full bg-brand-deep px-1 text-admin-caption
                                                  font-semibold leading-none tabular-nums text-white ring-2
                                                  ring-canvas lg:rail:inline-flex"
                                           role="img" aria-label="{{ $jumlahInquiryBaru }} inquiry baru">
@@ -433,7 +440,7 @@
                                        tombol; lebih ke dalam dan keping ini
                                        menutupi loncengnya. --}}
                                   class="absolute right-0 top-0 inline-flex h-[18px] min-w-[18px] items-center
-                                         justify-center rounded-full bg-brand px-1 text-admin-caption font-semibold
+                                         justify-center rounded-full bg-brand-deep px-1 text-admin-caption font-semibold
                                          tabular-nums text-white ring-2 ring-canvas">
                                 {{ $jumlahInquiryBaru > 99 ? '99+' : $jumlahInquiryBaru }}
                             </span>
@@ -531,7 +538,16 @@
                     {{-- BULAT, satu-satunya di panel: seluruh petak 40px lain
                          bersudut rounded-control. Avatar mewakili seorang
                          ORANG, bukan menu atau berkas. --}}
-                    <x-admin.avatar :name="$pengguna?->name" size="lg" />
+                    {{-- tone="brand": pejal, bukan bertinta bergaris seperti
+                         avatar lain di panel.
+
+                         Avatar di tabel dan di daftar lonceng adalah DATUM —
+                         wajah seorang pembeli, satu di antara banyak. Yang ini
+                         KENDALI: ia tombol yang membuka menu akunmu, dan ia
+                         satu-satunya avatar yang menunjuk dirimu sendiri.
+                         Bertinta bergaris membuatnya menghilang di antara
+                         lonceng dan garis pemisah di sebelahnya. --}}
+                    <x-admin.avatar :name="$pengguna?->name" size="lg" tone="brand" />
 
                 </button>
 
@@ -547,7 +563,7 @@
                          ke yang paling jarang. Topbar tidak lagi menampilkan
                          apa pun selain avatarnya. --}}
                     <div class="border-b border-line px-4 pb-3.5 pt-3.5">
-                        <p class="truncate text-admin-title text-ink">{{ $pengguna?->name }}</p>
+                        <p class="truncate text-admin-title text-heading">{{ $pengguna?->name }}</p>
 
                         <p class="mt-0.5 break-all text-admin-body text-ink-muted">
                             {{ $pengguna?->email }}

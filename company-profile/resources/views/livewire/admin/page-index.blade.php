@@ -5,7 +5,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Halaman
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -57,7 +57,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Halaman publik</h2>
+                    <h2 class="text-admin-title text-heading">Halaman publik</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Isi tiap halaman yang tampil di situs publik, urut seperti pengunjung menemuinya.
                     </p>
@@ -324,7 +324,7 @@
                                     @endforeach
                                 </ul>
 
-                                <p class="mt-3 text-admin-label text-ink-faint">
+                                <p class="admin-hint">
                                     Bagian yang dimatikan tetap tersimpan isinya — ia cuma tidak digambar
                                     di {{ $hal['nama'] }}.
                                 </p>
@@ -334,7 +334,7 @@
                 @endforeach
             </ul>
 
-            <p class="mt-3 text-admin-label text-ink-faint">
+            <p class="admin-hint">
                 Isian yang dikosongkan memakai teks bawaan yang sudah diterjemahkan.
                 Isi kedua bahasa, atau kosongkan keduanya.
             </p>
@@ -352,7 +352,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Halaman buatan sendiri</h2>
+                    <h2 class="text-admin-title text-heading">Halaman buatan sendiri</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Halaman tambahan yang alamatnya berawal <span class="admin-code">/page/</span>.
                     </p>
@@ -373,7 +373,7 @@
                         <x-icon.admin name="page" size="h-5 w-5" />
                     </span>
 
-                    <p class="mt-4 text-admin-title text-ink">Belum ada halaman buatan sendiri</p>
+                    <p class="mt-4 text-admin-title text-heading">Belum ada halaman buatan sendiri</p>
 
                     <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
                         Dipakai untuk halaman yang tidak ada di daftar atas — kebijakan privasi,
@@ -566,7 +566,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-bagian"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $sebutanJenis }} · {{ $namaBagian }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -716,7 +716,7 @@
                         <div class="space-y-5">
                             @foreach($kartuBidang as $kartu)
                                 <section class="rounded-corner border border-line bg-canvas p-5">
-                                    <h3 class="mb-4 text-admin-title text-ink">
+                                    <h3 class="mb-4 text-admin-title text-heading">
                                         {{ $kartu['nama'] }}
                                     </h3>
 
@@ -773,7 +773,7 @@
                                                                 </button>
                                                             @endif
 
-                                                            <p class="mt-1.5 text-admin-label text-ink-faint">
+                                                            <p class="admin-hint">
                                                                 JPG/PNG/WebP, maksimal 4 MB. Dikosongkan berarti
                                                                 tonggak ini tampil tanpa gambar.
                                                             </p>
@@ -808,7 +808,7 @@
                                                     @endif
 
                                                     @if(! empty($b['catatan']))
-                                                        <p class="mt-2 text-admin-label text-ink-faint">
+                                                        <p class="admin-hint">
                                                             {{ $b['catatan'] }}
                                                         </p>
                                                     @endif
@@ -848,7 +848,7 @@
                                                             @endif
 
                                                             @if(! empty($b['catatan']))
-                                                                <p class="mt-2 text-admin-label text-ink-faint">
+                                                                <p class="admin-hint">
                                                                     {{ $b['catatan'] }}
                                                                 </p>
                                                             @endif
@@ -870,9 +870,10 @@
                              sakelar bahasa: nilainya sama di bahasa mana pun. --}}
                         @if($opsiSisa)
                             <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 text-admin-title text-ink">
-                                    Pengaturan
-                                </h3>
+                                <div class="mb-4">
+                                    <h3 class="text-admin-title text-heading">Pengaturan</h3>
+                                    <p class="mt-0.5 text-admin-label text-ink-muted">Pilihan tampilan bagian ini, di luar teksnya.</p>
+                                </div>
 
                                 <div class="space-y-4">
                                     @foreach($opsiSisa as $o)
@@ -895,7 +896,7 @@
                                             @endif
 
                                             @if(! empty($o['catatan']))
-                                                <p class="mt-2 text-admin-label text-ink-faint">
+                                                <p class="admin-hint">
                                                     {{ $o['catatan'] }}
                                                 </p>
                                             @endif
@@ -911,9 +912,10 @@
 
                         @if($berfoto)
                             <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 text-admin-title text-ink">
-                                    Foto
-                                </h3>
+                                <div class="mb-4">
+                                    <h3 class="text-admin-title text-heading">Foto</h3>
+                                    <p class="mt-0.5 text-admin-label text-ink-muted">Gambar yang tampil di bagian ini.</p>
+                                </div>
 
                                 <div class="grid grid-cols-2 gap-3 sm:max-w-[420px]">
                                     @if($fotoAda)
@@ -989,7 +991,7 @@
                                     </label>
                                 </div>
 
-                                <p class="mt-3 text-admin-label text-ink-faint">
+                                <p class="admin-hint">
                                     {{ \App\Livewire\Admin\PageIndex::CATATAN_FOTO[$bagianDibuka] ?? '' }}
                                 </p>
 
@@ -1069,7 +1071,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-halaman"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $page_id ? 'Ubah halaman' : 'Tambah halaman' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -1121,9 +1123,10 @@
                                      isian sekaligus — judul dan isi — bukan menempel
                                      di salah satunya. --}}
                                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-                                    <h3 class="text-admin-title text-ink">
-                                        Isi halaman
-                                    </h3>
+                                    <div>
+                                        <h3 class="text-admin-title text-heading">Isi halaman</h3>
+                                        <p class="mt-0.5 text-admin-label text-ink-muted">Label, judul, dan isi halaman dalam dua bahasa.</p>
+                                    </div>
 
                                     {{-- Tab bahasa dan tombol Terjemahkan
                                          berdiri TERPISAH: kendali bersegmen
@@ -1230,7 +1233,7 @@
                                             @enderror
                                         </div>
 
-                                        <p class="mt-2 text-admin-label text-ink-faint">
+                                        <p class="admin-hint">
                                             Tergambar sebagai tulisan kecil beraksen emas di atas judul halaman.
                                         </p>
                                     </div>
@@ -1305,7 +1308,7 @@
                                              tergambar hampa di situs publik —
                                              disebut di sini supaya bukan
                                              kejutan. --}}
-                                        <p class="mt-2 text-admin-label text-ink-faint">
+                                        <p class="admin-hint">
                                             Boleh dikosongkan, tapi halaman terbit yang isinya kosong
                                             tergambar hampa di situs publik.
                                         </p>
@@ -1320,9 +1323,10 @@
 
                             {{-- ── Kartu: alamat ────────────────────────── --}}
                             <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 text-admin-title text-ink">
-                                    Alamat
-                                </h3>
+                                <div class="mb-4">
+                                    <h3 class="text-admin-title text-heading">Alamat</h3>
+                                    <p class="mt-0.5 text-admin-label text-ink-muted">Alamat halaman ini di situs publik.</p>
+                                </div>
 
                                 <span class="block text-admin-label text-ink-faint">
                                     Alamat di situs publik
@@ -1340,7 +1344,7 @@
                                     @endif
                                 </div>
 
-                                <p class="mt-2 text-admin-label text-ink-faint">
+                                <p class="admin-hint">
                                     Dirangkai otomatis dari judul bahasa Inggris, dan disusun
                                     ulang tiap kali halamannya disimpan.
                                 </p>
@@ -1355,9 +1359,10 @@
 
                             {{-- ── Kartu: penerbitan ────────────────────── --}}
                             <section class="rounded-corner border border-line bg-canvas p-5">
-                                <h3 class="mb-4 text-admin-title text-ink">
-                                    Penerbitan
-                                </h3>
+                                <div class="mb-4">
+                                    <h3 class="text-admin-title text-heading">Penerbitan</h3>
+                                    <p class="mt-0.5 text-admin-label text-ink-muted">Status tayang halaman di situs publik.</p>
+                                </div>
 
                                 <div>
                                     <label class="block text-admin-label text-ink-faint">Status</label>
@@ -1371,7 +1376,7 @@
                                                         ['nilai' => 'draft',     'label' => 'Draf'],
                                                     ]" />
 
-                                    <p class="mt-2 text-admin-label text-ink-faint">
+                                    <p class="admin-hint">
                                         Hanya halaman terbit yang bisa dibuka di situs publik.
                                     </p>
 

@@ -19,7 +19,7 @@
         </span>
 
         <div class="min-w-0">
-            <h2 class="text-admin-title text-ink">{{ $title }}</h2>
+            <h2 class="text-admin-title text-heading">{{ $title }}</h2>
 
             @if($subtitle)
                 <p class="mt-1 text-admin-label text-ink-muted">{{ $subtitle }}</p>

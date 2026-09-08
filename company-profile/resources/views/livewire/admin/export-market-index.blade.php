@@ -39,7 +39,7 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
-            <h1 class="text-admin-display text-ink">
+            <h1 class="text-admin-display text-heading">
                 Pasar Ekspor
             </h1>
             <p class="mt-1.5 text-admin-body text-ink-muted">
@@ -95,7 +95,7 @@
                 </span>
 
                 <div>
-                    <h2 class="text-admin-title text-ink">Daftar negara tujuan</h2>
+                    <h2 class="text-admin-title text-heading">Daftar negara tujuan</h2>
                     <p class="mt-0.5 text-admin-label text-ink-muted">
                         Urut menurut nomor urutan tampilnya di situs publik.
                     </p>
@@ -310,7 +310,7 @@
                                         </span>
 
                                         @if($penyaringAktif->isNotEmpty())
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Tidak ada negara yang cocok
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -325,7 +325,7 @@
                                                 Hapus penyaring
                                             </button>
                                         @else
-                                            <p class="mt-4 text-admin-title text-ink">
+                                            <p class="mt-4 text-admin-title text-heading">
                                                 Belum ada negara tujuan
                                             </p>
                                             <p class="mx-auto mt-1.5 max-w-[380px] text-admin-body text-ink-muted">
@@ -403,7 +403,7 @@
 
                             <div class="min-w-0">
                                 <h2 id="judul-modal-pasar"
-                                    class="truncate text-admin-title text-ink">
+                                    class="truncate text-admin-title text-heading">
                                     {{ $editingId ? 'Ubah negara tujuan' : 'Tambah negara tujuan' }}
                                 </h2>
                                 <p class="mt-0.5 text-admin-label text-ink-muted">
@@ -438,7 +438,7 @@
                                         </span>
 
                                         <div class="min-w-0">
-                                            <h3 class="text-admin-title text-ink">Informasi Negara</h3>
+                                            <h3 class="text-admin-title text-heading">Informasi negara</h3>
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Nama negara dan catatan pasar dalam dua bahasa.</p>
                                         </div>
                                     </div>
@@ -603,7 +603,7 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Identitas Negara</h3>
+                                        <h3 class="text-admin-title text-heading">Identitas negara</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">
                                             Kode ISO dan kawasan.
                                         </p>
@@ -626,7 +626,7 @@
                                                placeholder="DE"
                                                class="admin-control mt-2 w-28 font-semibold uppercase
                                                       tracking-[0.12em] placeholder:tracking-normal">
-
+                                        
                                         @error('country_code')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
@@ -681,9 +681,9 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        <h3 class="text-admin-title text-ink">Publikasi</h3>
+                                        <h3 class="text-admin-title text-heading">Penerbitan</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">
-                                            Tentukan status dan urutan negara.
+                                            Status tayang dan urutan negara di situs publik.
                                         </p>
                                     </div>
                                 </div>
@@ -721,6 +721,10 @@
                                         <input type="number" wire:model="sort_order" id="pasar-urutan"
                                                min="0" step="1" class="admin-control mt-2">
                                                
+                                        <p class="admin-hint">
+                                            Angka kecil tampil lebih dulu di situs publik.
+                                        </p>
+
                                         @error('sort_order')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
