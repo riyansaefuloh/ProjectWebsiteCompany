@@ -391,7 +391,7 @@
             @else
                 <ul class="overflow-hidden rounded-corner border border-line">
                     @foreach($pages as $halaman)
-                        <li class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 last:border-0">
+                        <li wire:key="page-{{ $halaman->id }}" class="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 last:border-0">
                             <div class="min-w-0 flex-1">
                                 <span class="block truncate text-admin-strong text-ink">
                                     {{ $halaman->translated_title ?: $halaman->slug }}
