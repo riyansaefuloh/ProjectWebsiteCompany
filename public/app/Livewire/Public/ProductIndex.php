@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Livewire\Public;
+
+use Livewire\Component;
+use Livewire\Attributes\Layout;
+use App\Models\Product;
+use App\Models\Category;
+use Livewire\WithPagination;
+use Artesaos\SEOTools\Facades\SEOMeta;
+use Artesaos\SEOTools\Facades\OpenGraph;
+use Artesaos\SEOTools\Facades\TwitterCard;
+
+class ProductIndex extends Component
+{
+    use WithPagination;
+
+    public $search = '';
+    public $category = '';
+
+
+    protected $queryString = [
+        'search'   => ['except' => ''],
+        'category' => ['except' => ''],
+    ];
+
+    public function mount(): void
+    {
+        $appName = config('app.name');
+
+        SEOMeta::setTitle('Our Export Products - ' . $appName);
+        SEOMeta::setDescription('Browse our full catalog of premium Indonesian coffee export products including Arabica, Robusta, and specialty grades. Available for wholesale FOB/CIF.');
+        SEOMeta::setCanonical(route('products.index'));
+
+        OpenGraph::setTitle('Our Export Products - ' . $appName);
+        OpenGraph::setDescription('Premium Indonesian coffee export products. Find the right grade, MOQ, and packaging for your import needs.');
+        OpenGraph::setUrl(route('products.index'));
+        OpenGraph::setType('website');
+
+        TwitterCard::setTitle('Our Export Products - ' . $appName);
+        TwitterCard::setDescription('Browse our premium Indonesian coffee export products.');
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingCategory()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSort()
+    {
+        $this->resetPage();
+    }
+
+    public function selectCategory(string $slug = ''): void
+    {
+        $this->category = $slug;
+        $this->resetPage();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->reset(['search', 'category']);
+        $this->resetPage();
+    }
+
+    #[Layout('components.layouts.public')]
+    public function render()
+    {
+        $categories = Category::where('status', 'active')
+            ->withCount(['products' => fn ($q) => $q->where('status', 'published')])
+            ->with('translations')
+            ->orderBy('sort_order')
+            ->get();
+
+
+        $query = Product::where('status', 'published')
+            ->when($this->search, fn ($q) => $q->search($this->search))
+            ->when($this->category, function ($q) {
+                $q->whereHas('category', fn ($c) => $c->where('slug', $this->category));
+            })
+            ->with(['translations', 'media', 'category.translations']);
+
+        /*
+         * URUTAN TETAP: unggulan lebih dulu, lalu urutan yang ditetapkan panel.
+         *
+         * Menu urutan di halaman ini sudah dilepas — empat pilihan yang
+         * menawarkan cara memandang katalog yang sama untuk sembilan produk.
+         * Yang tersisa satu urutan, dan urutan itu yang memang dimaksudkan
+         * pemiliknya: apa yang ditandai unggulan naik ke atas, sisanya
+         * mengikuti nomor urut yang disusun dari panel.
+         */
+        $query->orderByDesc('is_featured')->orderBy('sort_order');
+
+        return view('livewire.public.product-index', [
+            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
+               yang kosong jatuh ke teks bawaan di berkas bahasa. */
+            'isi' => \App\Support\IsiHalaman::untuk('products'),
+
+            'categories' => $categories,
+            'products'   => $query->paginate(12),
+        ]);
+    }
+}
