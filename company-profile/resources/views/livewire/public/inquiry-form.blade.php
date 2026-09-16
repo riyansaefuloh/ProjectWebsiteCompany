@@ -516,6 +516,11 @@
 
                                     </button>
                                 </div>
+                                <div class="mt-4 text-center font-site-body text-[10px] leading-relaxed text-site-gilt">
+                                    This site is protected by reCAPTCHA and the Google
+                                    <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" class="underline hover:text-white">Privacy Policy</a> and
+                                    <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" class="underline hover:text-white">Terms of Service</a> apply.
+                                </div>
                             </form>
                         @endif
                     </div>
@@ -547,6 +552,9 @@
     {{-- ══════════════════════════════════════════════════════════════════ --}}
     @if($recaptchaSiteKey)
         <script src="https://www.google.com/recaptcha/api.js?render={{ $recaptchaSiteKey }}"></script>
+        <style>
+            .grecaptcha-badge { visibility: hidden !important; }
+        </style>
     @endif
 
     <div x-data="{ siteKey: @js($recaptchaSiteKey) }"

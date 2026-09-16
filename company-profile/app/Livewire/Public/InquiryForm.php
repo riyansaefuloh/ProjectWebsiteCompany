@@ -16,7 +16,6 @@ use Artesaos\SEOTools\Facades\TwitterCard;
 
 class InquiryForm extends Component
 {
-    // Property Form (sesuai spesifikasi PRD Bab 7.10)
     public string $name = '';
     public string $company = '';
     public string $email = '';
@@ -97,7 +96,16 @@ class InquiryForm extends Component
         }
 
         if (!empty(env('RECAPTCHA_SECRET_KEY'))) {
-            $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            $http = \Illuminate\Support\Facades\Http::asForm();
+
+            // Di environment local (Windows), PHP sering tidak punya SSL certificate
+            // sehingga koneksi HTTPS ke Google gagal dengan cURL error 60.
+            // SSL verify dinonaktifkan HANYA saat local; di production tetap aktif.
+            if (app()->environment('local')) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->post('https://www.google.com/recaptcha/api/siteverify', [
                 'secret' => env('RECAPTCHA_SECRET_KEY'),
                 'response' => $recaptchaToken,
                 'remoteip' => request()->ip(),

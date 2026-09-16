@@ -34,7 +34,6 @@ class ProductIndex extends Component
     public bool $showModal = false;
     public ?string $editingId = null;
 
-    // Form Fields (PRD Bab 9.1)
     public string $category_id = '';
     public string $name_en = '';
     public string $name_id = '';
@@ -316,7 +315,6 @@ class ProductIndex extends Component
         $this->activeTab = 'en';
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

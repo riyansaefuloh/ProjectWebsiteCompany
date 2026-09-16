@@ -42,7 +42,6 @@ class InquiryIndex extends Component
         }
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

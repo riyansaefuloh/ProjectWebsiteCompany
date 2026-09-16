@@ -44,7 +44,6 @@ class ExportMarketIndex extends Component
         }
     }
 
-    // Form Fields (PRD Bab 9.1)
     public string $country_code = '';
     public string $region = 'Asia';
     public string $name_en = '';
@@ -206,7 +205,6 @@ class ExportMarketIndex extends Component
         $this->activeTab = 'en';
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

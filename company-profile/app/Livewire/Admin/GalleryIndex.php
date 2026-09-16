@@ -36,7 +36,6 @@ class GalleryIndex extends Component
     public $videoUrl = '';
     public $editingGallery = null;
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

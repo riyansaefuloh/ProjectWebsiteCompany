@@ -213,7 +213,6 @@ class CategoryIndex extends Component
         $this->activeTab = 'en';
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

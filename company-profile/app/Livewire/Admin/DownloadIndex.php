@@ -42,7 +42,6 @@ class DownloadIndex extends Component
         }
     }
 
-    // Form Fields (PRD Bab 9.1)
     public string $title = '';
     /*
      * Akses unduhan, dipegang sebagai UNTAI di borang meski lajur di basis
@@ -169,7 +168,6 @@ class DownloadIndex extends Component
         $this->existingFilePath = null;
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {

@@ -51,7 +51,6 @@ class NewsIndex extends Component
         }
     }
 
-    // Form Fields (PRD Bab 9.1)
     public string $title_en = '';
     public string $title_id = '';
     public string $excerpt_en = '';
@@ -431,7 +430,6 @@ class NewsIndex extends Component
         $this->activeTab = 'en';
     }
 
-    // [KOMEN] Menggunakan folder components/layouts/app.blade.php
     #[Layout('components.layouts.app')]
     public function render()
     {
