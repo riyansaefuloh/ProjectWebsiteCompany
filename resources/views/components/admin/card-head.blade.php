@@ -8,9 +8,6 @@
     'tone'     => 'border-line bg-mist text-ink-muted',
 ])
 
-{{-- Kepala kartu panel admin. Dijadikan komponen karena bentuk yang sama
-     dipakai peringatan sertifikasi, dua kartu grafik, dan tabel inquiry —
-     disalin ke empat tempat, tinggi kepalanya cepat berselisih. --}}
 <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 border-b border-line px-5 py-4 sm:px-6">
 
     <div class="flex min-w-0 items-start gap-3">

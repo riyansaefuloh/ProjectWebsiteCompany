@@ -10,18 +10,14 @@
         close() {
             this.images = [];
         },
-        // [PERUBAHAN: YouTube Support] — Fungsi deteksi apakah item adalah video YouTube
         isYoutube(src) {
             return typeof src === 'string' && src.startsWith('youtube:');
         },
-        // [PERUBAHAN: YouTube Support] — Konversi URL YouTube biasa ke format embed
-        // Mendukung: youtube.com/watch?v=xxx, youtu.be/xxx, youtube.com/shorts/xxx
         youtubeEmbed(src) {
             const url = src.replace('youtube:', '');
             const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
             return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0` : url;
         },
-        /* Perpindahan MEMUTAR: dari foto terakhir kembali ke pertama. */
         next() { this.index = (this.index + 1) % this.images.length; },
         prev() { this.index = (this.index - 1 + this.images.length) % this.images.length; }
      }"
@@ -29,9 +25,6 @@
      x-on:keydown.arrow-right.window="images.length && next()"
      x-on:keydown.arrow-left.window="images.length && prev()">
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         HEADER HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
         <div class="shell">
             @php $galeriBody = $isi('body', 'site.page_gallery_sub'); @endphp
@@ -40,23 +33,12 @@
                 <div class="lg:col-span-6">
                     <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_gallery') }}</p>
 
-                    {{-- 42px cokelat, ukuran dan warna yang sama dengan kepala
-                         halaman produk, sertifikat, pasar ekspor, dan berita. Yang
-                         lama 48px hitam — ukuran hero, di halaman yang bukan
-                         beranda, dan warna tinta yang tidak dipakai judul mana pun
-                         lagi di situs ini. --}}
                     <h1 class="display mt-5 max-w-[18ch] text-site-h2 text-site-forest">
                         {!! \App\Support\Judul::sorot($isi('title', 'site.page_gallery')) !!}
                     </h1>
                 </div>
 
                 <div class="lg:col-span-5 lg:col-start-8 lg:self-end">
-                    {{-- Isian ini ditulis lewat penyunting teks kaya, jadi isinya
-                         mengandung tag. Yang lama menggambarnya dengan {{ }} —
-                         tag-nya ikut TERCETAK di layar sebagai "<p>…</p>", dan itu
-                         memang yang terjadi di halaman ini. Yang mengandung tag
-                         digambar sebagai .rich; yang polos tetap .lede, karena <p>
-                         di dalam <p> bukan HTML yang sah. --}}
                     @if($galeriBody !== strip_tags($galeriBody))
                         <div class="rich max-w-[46ch]">{!! $galeriBody !!}</div>
                     @else
@@ -67,28 +49,9 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         VIDEO SOROTAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($videoSematan)
         <section class="pb-6">
             <div class="shell">
-                {{-- Menempati tempat yang dulu diduduki album pertama.
-
-                     Album itu digambar selebar halaman bernisbah 16:9 — tiga
-                     kali luas album lain — padahal yang menjadikannya pertama
-                     cuma urutan di panel, bukan isinya. Video memang dipilih
-                     untuk disorot, dan hanya ada satu.
-
-                     Disemat langsung, bukan sebagai gambar kecil yang membuka
-                     lightbox. Lightbox itu memang ada dan sudah bisa memutar
-                     YouTube, tapi ia untuk album berisi banyak benda: satu
-                     video yang menuntut dua ketukan sebelum berputar cuma
-                     menambah pintu yang tidak menuju ke mana-mana.
-
-                     loading="lazy" menahannya sampai bidangnya benar-benar
-                     mendekati layar — sematan YouTube memuat beberapa ratus
-                     kilobita sebelum satu detik pun diputar. --}}
                 <div class="aspect-video w-full overflow-hidden rounded-panel bg-site-paper">
                     <iframe src="{{ $videoSematan }}"
                             title="{{ $isi('title', 'site.page_gallery') }}"
@@ -104,20 +67,6 @@
     <section class="pb-20 pt-6 lg:pb-24">
         <div class="shell">
             @if($albums->isNotEmpty())
-                {{-- Judul seksi 26px, bukan 42px: ia bawahan judul halaman, dan
-                     dua judul seukuran di satu layar membuat keduanya sama-sama
-                     tidak terbaca sebagai puncak.
-
-                     Ia juga yang memisahkan video sorotan dari kisi di bawahnya.
-                     Tanpa itu, keduanya cuma dua blok bergambar yang berurutan
-                     dengan jarak di antaranya, dan tidak ada yang menyatakan
-                     bahwa yang di bawah ini daftar albumnya — sementara yang di
-                     atas satu video yang berdiri sendiri.
-
-                     Jumlah albumnya ikut disebut di bawahnya, sebagai label
-                     kecil: ia keterangan tentang daftar yang persis ada di
-                     bawahnya, dan pembaca tahu sejak awal apakah yang tergambar
-                     ini seluruhnya atau baru sebagian. --}}
                 <h2 class="display text-site-h3 text-site-forest">
                     {!! \App\Support\Judul::sorot(__('site.all_albums')) !!}
                 </h2>
@@ -127,9 +76,6 @@
                     {{ trans_choice('site.albums_count', $albums->count(), ['count' => $albums->count()]) }}
                 </p>
 
-                {{-- SEMUA album bernisbah 4:3 dan selebar satu lajur — tidak ada
-                     lagi yang pertama digambar tiga kali lebih besar. Urutan di
-                     panel menentukan letak, bukan ukuran. --}}
                 <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($albums as $album)
                         <li>
@@ -139,9 +85,6 @@
                     @endforeach
                 </ul>
             @else
-                {{-- Syarat !$featured dilepas: sejak album pertama tidak lagi
-                     dipisah jadi sorotan, $albums memuat SELURUHNYA — kalau ia
-                     kosong, memang tidak ada album sama sekali. --}}
                 <p class="lede rounded-corner border border-dashed border-line px-6 py-20 text-center">
                     {{ $isi('empty', 'site.no_gallery_items') }}
                 </p>
@@ -149,9 +92,6 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         LIGHTBOX
-         ══════════════════════════════════════════════════════════════════ --}}
     <div x-show="images.length" x-cloak
          x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
@@ -185,8 +125,7 @@
                 </svg>
             </button>
 
-            {{-- Item berawalan 'youtube:' digambar sebagai iframe; sisanya
-                 sebagai <img>. --}}
+            {{-- Sematan Iframe YouTube atau Gambar --}}
             <template x-if="isYoutube(images[index])">
                 <div class="mx-auto w-full max-w-[900px] aspect-video">
                     <iframe

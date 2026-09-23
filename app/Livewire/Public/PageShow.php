@@ -21,7 +21,6 @@ class PageShow extends Component
             ->firstOrFail();
 
         $appName  = config('app.name');
-        $locale   = app()->getLocale();
         $title    = $this->page->translated_title ?? $this->page->slug;
         $content  = strip_tags($this->page->translated_content ?? '');
         $shortDesc = mb_substr($content, 0, 160) ?: 'Read more about us on ' . $appName;
@@ -55,20 +54,6 @@ class PageShow extends Component
         ]);
     }
 
-    /**
-     * Menyuntikkan id ke tiap <h2> dan mengumpulkannya jadi daftar isi.
-     *
-     * Halaman ini menampung dokumen yang panjangnya tidak diketahui — kebijakan
-     * privasi, syarat layanan, apa pun yang ditulis dari panel. Sepuluh pasal
-     * tanpa daftar isi berarti menggulir sampai ketemu, dan yang dicari orang di
-     * halaman begini biasanya SATU pasal, bukan seluruhnya.
-     *
-     * Dipisah di sini, bukan di Blade: yang dikerjakan membedah HTML, dan Blade
-     * cuma boleh menggambar. Daftarnya juga dipakai untuk memutuskan susunan
-     * halamannya — satu judul tidak perlu daftar isi.
-     *
-     * @return array{0: string, 1: list<array{id: string, teks: string}>}
-     */
     private function bedahIsi(?string $html): array
     {
         $html = trim((string) $html);
@@ -77,9 +62,6 @@ class PageShow extends Component
             return ['', []];
         }
 
-        /* Dom\HTMLDocument, bukan DOMDocument: yang lama mengurai HTML sebagai
-           Latin-1 kecuali disuapi penanda encoding, dan "Café" di judul pasal
-           akan keluar rusak. Yang ini UTF-8 sejak awal. */
         $dom = \Dom\HTMLDocument::createFromString($html, LIBXML_NOERROR);
 
         $daftar = [];
@@ -92,8 +74,6 @@ class PageShow extends Component
                 continue;
             }
 
-            /* Slug bisa bentrok — dua pasal boleh berjudul sama, dan dua id
-               yang sama membuat tautan kedua mengantar ke pasal pertama. */
             $id = Str::slug($teks) ?: 'bagian';
             $pakai[$id] = ($pakai[$id] ?? 0) + 1;
 

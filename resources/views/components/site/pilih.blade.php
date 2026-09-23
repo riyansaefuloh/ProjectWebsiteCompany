@@ -1,20 +1,10 @@
 @props([
-    /* Nama sifat Livewire yang diikat, mis. 'country_code'. */
     'name',
-
-    /* Nilai yang sedang terpilih. */
     'value' => '',
-
-    /* [ ['nilai' => 'DE', 'label' => '(DE) Germany'], … ] */
     'options' => [],
-
     'placeholder' => '',
     'required'    => false,
     'invalid'     => false,
-
-    /* Kotak cari muncul sendiri kalau daftarnya panjang. Ambangnya 12: di
-       bawah itu seluruh daftar muat sekali pandang dan kotak cari cuma
-       menambah satu langkah. */
     'ambangCari' => 12,
 ])
 
@@ -24,25 +14,7 @@
     $pakaiCari = count($options) > $ambangCari;
 @endphp
 
-{{-- ── MENU PILIH BUATAN SENDIRI ───────────────────────────────────────────
-     Bukan <select> asli, dan itu bukan pilihan gaya melainkan satu-satunya
-     jalan: daftar yang terbuka dari <select> digambar sistem operasi, bukan
-     halaman. Tidak ada satu pun sifat CSS yang bisa membulatkan sudutnya,
-     mengubah bantalannya, atau memberinya bidang sendiri — yang bisa cuma
-     nadanya, lewat color-scheme.
-
-     Yang ditukar dengan itu ada dua, dan keduanya dibayar kembali di sini:
-
-     1. Papan ketik. <select> asli membawa navigasi panah, Enter, Escape, dan
-        lompat-ke-huruf secara cuma-cuma. Ketiga yang pertama ditulis ulang di
-        bawah; yang keempat digantikan kotak cari.
-
-     2. Pemilih bawaan ponsel — roda gulir di iOS, daftar layar penuh di
-        Android. Panel ini menggantikannya dengan daftar bergulir biasa, yang
-        di layar sentuh sama bisa dipakainya, dan tiap butirnya setinggi 40px.
-
-     Sifat ARIA ditulis lengkap: tanpa role dan aria-* , kendali ini cuma
-     sekumpulan <div> yang tidak berarti apa-apa bagi pembaca layar. --}}
+{{-- ── MENU PILIH ────────────────────────────────────────────────────────── --}}
 <div x-data="{
         buka: false,
         nilai: @js($value),
@@ -54,11 +26,6 @@
             this.label = l;
             this.tutup();
 
-            /* Nilainya dititipkan ke <input> tersembunyi yang membawa
-               wire:model, bukan disetel langsung ke $wire. Isian itu sudah
-               dikenali Livewire beserta pemeriksaannya, jadi pesan galat dan
-               nilai lama sesudah gagal kirim tetap bekerja seperti isian
-               lain — tanpa satu baris pun yang khusus untuk kendali ini. */
             this.$refs.sumber.value = n;
             this.$refs.sumber.dispatchEvent(new Event('input', { bubbles: true }));
         },
@@ -69,9 +36,6 @@
             this.$refs.tombol.focus();
         },
 
-        /* Panah berpindah antar butir yang SEDANG TAMPAK — butir yang
-           tersaring keluar oleh kotak cari harus dilewati, bukan dilompati
-           diam-diam ke tempat yang tidak terlihat. */
         geser(arah) {
             const butir = [...this.$refs.daftar.querySelectorAll('[role=option]')]
                 .filter((b) => b.offsetParent !== null);
@@ -90,10 +54,6 @@
      x-on:click.outside="buka = false"
      class="relative mt-2">
 
-    {{-- Isian tersembunyi pembawa wire:model. type=text, bukan hidden: Livewire
-         mendengarkan peristiwa input, dan isian hidden tidak pernah
-         mengirimkannya sendiri — nilainya memang disetel dari skrip, tapi
-         peristiwanya harus tetap berasal dari unsur yang diawasi. --}}
     <input type="text" x-ref="sumber" wire:model="{{ $name }}" tabindex="-1"
            aria-hidden="true" class="sr-only" @if($required) required @endif>
 
@@ -113,8 +73,6 @@
         <span class="truncate" x-bind:class="label ? 'text-white' : 'text-white/55'"
               x-text="label || @js($placeholder)"></span>
 
-        {{-- Panahnya berputar saat panelnya terbuka: satu-satunya penanda bahwa
-             yang di bawah ini miliknya, dan bahwa menekan lagi menutupnya. --}}
         <svg class="h-3.5 w-3.5 shrink-0 text-site-gilt transition-transform duration-200"
              x-bind:class="buka && 'rotate-180'"
              viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -123,12 +81,6 @@
         </svg>
     </button>
 
-    {{-- Panelnya berbulatan 22px — bulatan yang sama dengan kotak pesan di
-         borang ini, dan dengan panel di seluruh situs. Butirnya berbulatan
-         penuh, sama dengan pil isiannya.
-
-         z-20 supaya ia berdiri di atas isian di bawahnya; tanpa itu, daftar
-         Country menimbun Email dan setengah butirnya tidak bisa ditekan. --}}
     <div x-show="buka" x-cloak x-transition.opacity.duration.150ms
          id="{{ $id }}-daftar" role="listbox"
          aria-labelledby="{{ $id }}"
@@ -137,10 +89,7 @@
                 shadow-[0_24px_48px_-16px_rgba(11,13,12,0.65)]">
 
         @if($pakaiCari)
-            {{-- Kotak cari menggantikan lompat-ke-huruf milik <select> asli.
-                 198 negara tanpa cara menyaring berarti menggulir sampai
-                 ketemu, dan itu lebih buruk daripada kendali bawaan yang
-                 digantikan. --}}
+            
             <div class="border-b border-white/10 p-2">
                 <input type="text" x-model="cari"
                        x-on:keydown.arrow-down.prevent="geser(1)"

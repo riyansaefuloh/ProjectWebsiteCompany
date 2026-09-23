@@ -33,13 +33,11 @@ class Home extends Component
         SEOMeta::setDescription('We are a trusted coffee exporter from Indonesia. Explore our wide range of Arabica and Robusta coffee products, certifications, and export markets.');
         SEOMeta::setCanonical(url('/'));
 
-        // Open Graph (untuk WhatsApp, LinkedIn, Facebook share)
         OpenGraph::setTitle($companyName);
         OpenGraph::setDescription('Premium coffee export company from Indonesia. MOQ, FOB/CIF pricing available for wholesale buyers.');
         OpenGraph::setUrl(url('/'));
         OpenGraph::setType('website');
 
-        // Twitter Card
         TwitterCard::setTitle($companyName);
         TwitterCard::setDescription('Premium coffee exporter from Indonesia.');
     }
@@ -47,11 +45,6 @@ class Home extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        /*
-         * Susunan bagiannya dibaca lebih dulu: berapa produk unggulan yang
-         * diambil ditentukan oleh pengaturan bagian produk, jadi kuerinya tidak
-         * bisa dirakit sebelum pengaturannya diketahui.
-         */
         $settings = Setting::pluck('value', 'key')->toArray();
 
         $homeSections = json_decode($settings['home_sections'] ?? '[]', true) ?: [];
@@ -72,19 +65,8 @@ class Home extends Component
             return $sec;
         }, $activeSections);
 
-        /*
-         * Nama bagian ditulis dua gaya di proyek ini: 'export-markets' di dalam
-         * JSON yang tersimpan, dan 'export_markets' di @case bladenya — karena
-         * baris di atas mengganti tanda hubungnya supaya jadi nama @case yang
-         * sah. Tiga penutup di bawah menyamakannya sendiri, jadi pemanggilnya
-         * boleh menulis yang mana saja tanpa diam-diam kehilangan isinya.
-         */
         $samakan = fn (string $bagian) => str_replace('-', '_', $bagian);
 
-        /*
-         * Pengaturan bukan-teks tiap bagian. Kunci yang tidak tercatat berarti
-         * "ikut bawaan", jadi bawaannya ditulis di pemanggilnya.
-         */
         $opsiBagian = collect($activeSections)
             ->mapWithKeys(fn ($sec) => [$sec['id'] => $sec['opsi'] ?? []])
             ->all();
@@ -99,11 +81,6 @@ class Home extends Component
             ->limit(max(1, (int) $opsi('products', 'jumlah', 6)))
             ->get();
 
-        /*
-         * category dan tags ikut dimuat di muka: kartu berita di beranda kini
-         * menggambar keduanya, dan tanpa ini tiap artikel menembak kuerinya
-         * sendiri.
-         */
         $latestNews = News::where('status', 'published')
             ->with(['translations', 'media', 'category', 'tags'])
             ->orderBy('published_at', 'desc')
@@ -114,29 +91,11 @@ class Home extends Component
             ->with('translations')
             ->get();
 
-        /*
-         * berlaku(), bukan sekadar status aktif: bilah kepercayaan di beranda
-         * menyatakan standing yang BERLAKU SEKARANG, dan di sana tidak ada
-         * ruang untuk menjelaskan bahwa satu di antaranya sudah lewat tanggal.
-         * Halaman Sertifikasi tetap menampilkan yang kedaluwarsa — lihat
-         * keterangan pada cakupannya.
-         */
         $certifications = Certification::berlaku()
             ->with(['translations', 'media'])
             ->orderBy('sort_order')
             ->get();
 
-        /*
-         * Isi tiap bagian dibaca dari larik yang sama dengan urutannya.
-         *
-         * Dibungkus jadi satu penutup supaya bladenya cukup menulis
-         * $isi('hero', 'title') dan tidak perlu tahu apa-apa soal bentuk
-         * JSON-nya. Bahasa yang aktif dicoba lebih dulu, lalu bahasa cadangan,
-         * lalu barulah teks bawaan di berkas bahasa.
-         *
-         * Bawaannya WAJIB ada: beranda tidak boleh pernah tergambar hampa
-         * hanya karena satu kolom di panel belum diisi.
-         */
         $bahasa   = app()->getLocale();
         $cadangan = config('app.fallback_locale', 'en');
 
@@ -162,12 +121,6 @@ class Home extends Component
             ->mapWithKeys(fn ($sec) => [$samakan($sec['id']) => $sec['image'] ?? null])
             ->all();
 
-        /*
-         * "Tahun pengalaman" tidak lagi dihitung di sini: kartu angka yang dulu
-         * berdiri di atas foto hero sudah tidak digambar, dan kolom labelnya
-         * ikut dibuang dari panel. Tahun berdiri sendiri TETAP dipakai — oleh
-         * garis waktu di halaman Profile, lewat IsiHalaman::tahunBerdiri().
-         */
         return view('livewire.public.home', [
             'featuredProducts'  => $featuredProducts,
             'latestNews'        => $latestNews,

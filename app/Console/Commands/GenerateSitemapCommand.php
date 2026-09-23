@@ -10,10 +10,7 @@ use App\Models\News;
 
 class GenerateSitemapCommand extends Command
 {
-    /**
-     * Nama command artisan.
-     * Penggunaan di terminal: php artisan sitemap:generate
-     */
+    // Command signature: php artisan sitemap:generate
     protected $signature = 'sitemap:generate';
 
     protected $description = 'Generate sitemap.xml otomatis untuk produk, berita, dan halaman publik multibahasa';

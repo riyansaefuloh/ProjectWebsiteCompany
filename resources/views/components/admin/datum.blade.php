@@ -6,35 +6,11 @@
 ])
 
 @php
-    /*
-     * Satu keterangan yang hanya bisa dibaca, digambar berbingkai.
-     *
-     * Bingkainya bukan hiasan. Di layar yang separuhnya bisa diubah dan
-     * separuhnya tidak, keterangan tanpa bingkai berdiri dengan tinggi
-     * seadanya menurut panjang isinya — dan deretan nilai yang tepi bawahnya
-     * tidak pernah sejajar terbaca berantakan meski isinya benar semua.
-     * Dengan bingkai, semuanya duduk di garis yang sama.
-     *
-     * Isiannya berlatar putih dengan garis tipis — bentuk yang sama dengan
-     * kolom isian sungguhan. Yang membedakannya dari kendali di kolom kanan
-     * bukan warna latarnya, melainkan permukaan yang menaunginya: kotak
-     * bacaan duduk di kartu putih, kendali yang bisa diubah duduk di panel
-     * abu. cursor-default menutup sisanya — kursor yang tidak berubah jadi
-     * garis tegak saat melewatinya sudah cukup mengatakan "ini tidak
-     * diketik".
-     *
-     * min-h 42px = tinggi .admin-control (teks 13px, leading 20px, bantalan
-     * tegak 2×10px, garis 2×1px). Angkanya disamakan supaya baris keterangan
-     * di kiri berbaris rata dengan kendali di kanan.
-     */
+    
 @endphp
 
-{{-- flex-col + flex-1 + h-full: petak menyamakan tinggi sel sebaris, tapi
-     kotak di dalamnya tidak ikut tinggi itu dengan sendirinya. --}}
 <div {{ $attributes->class(['flex min-w-0 flex-col']) }}>
-    {{-- Huruf normal, bukan kapital — dan begitu kapitalnya lepas, renggang
-         antar-hurufnya ikut dilepas: renggang itu dipasang untuk menolong
-         deretan kapital. --}}
+    
     <dt class="text-admin-label text-ink-faint">{{ $label }}</dt>
 
     <dd class="mt-1.5 flex-1">

@@ -7,10 +7,6 @@
     'tinggi' => 'min-h-[320px]',
 ])
 
-{{-- Editor teks kaya. wire:ignore WAJIB — Quill membangun DOM-nya sendiri di
-     dalam wadah ini, dan tanpa itu tiap pembaruan Livewire menimpanya di
-     tengah pengetikan. wire:key harus ikut BERUBAH; lihat
-     resources/js/editor.js. --}}
 <div wire:ignore
      wire:key="editor-{{ $model }}-{{ $kunci ?? 'baru' }}"
      x-data="editorKaya({

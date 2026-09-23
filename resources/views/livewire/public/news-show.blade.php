@@ -10,20 +10,10 @@
         </script>
     @endpush
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA ARTIKEL
-         ══════════════════════════════════════════════════════════════════ --}}
     <article class="pb-20 pt-6 md:pt-8 lg:pb-24 lg:pt-10">
         <div class="shell">
 
-            {{-- Tautan kembali berupa pil pucat bercincin, rupa yang sama dengan
-                 jalan kembali di halaman detail produk dan gerbang katalog. Yang
-                 lama .link-arrow — tautan telanjang berpanah kecil dari keluarga
-                 tombol lama yang sudah tidak dipakai di halaman publik mana pun
-                 lagi.
-
-                 Berdiri di lebar penuh, bukan di dalam lajur baca: ia bukan
-                 bagian dari artikelnya, melainkan jalan keluar darinya. --}}
+            {{-- Tautan kembali --}}
             <a href="{{ route('news.index') }}"
                class="inline-flex h-10 w-max items-center gap-2.5 rounded-full pl-3 pr-5
                       bg-site-paper text-site-forest ring-1 ring-line-strong
@@ -39,36 +29,21 @@
                 {{ __('site.page_news') }}
             </a>
 
-            {{-- Lajur baca 46rem — sekitar 75 huruf per baris pada 16px. Isi
-                 artikel adalah satu-satunya tempat di situs ini yang benar-benar
-                 dibaca dari awal ke akhir, dan lebar itu yang menahan mata tidak
-                 kehilangan awal baris berikutnya. --}}
+            {{-- Lajur baca artikel --}}
             <div class="mx-auto mt-8 max-w-[46rem] lg:mt-10">
                 @if($news->category)
                     <p class="eyebrow">{{ $news->category->name }}</p>
                 @endif
 
-                {{-- 42px cokelat, ukuran dan warna yang sama dengan judul halaman
-                     lain. Yang lama 48px hitam — ukuran hero. --}}
                 <h1 class="display mt-4 text-site-h2 text-site-forest">
                     {!! \App\Support\Judul::sorot($news->translated_title) !!}
                 </h1>
 
-                {{-- Penulis di kiri, tanggal terbit rata kanan pada garis yang
-                     sama — susunan yang sama dengan kartu di halaman daftar, jadi
-                     pembaca yang baru menekan sebuah kartu menemukan keterangan
-                     yang sama di tempat yang sama.
-
-                     Garis rambut di bawahnya menutup kepala artikel dan membuka
-                     isinya. --}}
+                {{-- Penulis & Tanggal Terbit --}}
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-x-5 gap-y-3
                             border-b border-line pb-6">
                     @if($news->author?->name)
                         <p class="flex items-center gap-2.5 text-ink-muted text-site-small">
-                            {{-- Monogram, bukan ikon orang: proyek ini tidak
-                                 menyimpan foto pengguna, dan inisial jelas
-                                 diturunkan dari nama di sebelahnya sementara ikon
-                                 generik tidak menyatakan apa pun. --}}
                             <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center
                                          rounded-full bg-site-paper font-site-accent text-site-micro
                                          font-semibold text-site-forest"
@@ -99,21 +74,7 @@
                 </div>
 
                 @if($news->tags->isNotEmpty())
-                    {{-- Tanda jadi pil bergaris rambut, rupa yang sama dengan pil
-                         kategori di halaman daftar. Yang lama .chip — keping
-                         berlatar dari palet sebelum Karamel Sangrai.
-
-                         Diberi label, karena tanpa itu deretan pil yang muncul
-                         begitu saja sesudah isi artikel tidak menyatakan dirinya
-                         apa: pembaca yang sampai di sana melihat dua kata
-                         berbingkai dan harus menebak apakah itu penulisnya,
-                         kategorinya, atau tautan ke suatu tempat.
-
-                         Labelnya sebaris DENGAN pilnya, bukan bertumpuk di
-                         atasnya. Ia satu kata; baris sendiri untuk satu kata
-                         menambah tinggi tanpa menambah kejelasan, dan sejajar
-                         di kiri ia terbaca sebagai judul deretan itu — cara
-                         yang sama dengan label di lembar spesifikasi produk. --}}
+                    {{-- Tag Artikel --}}
                     <div class="mt-10 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line pt-8">
                         <p class="eyebrow shrink-0">{{ __('site.tags') }}</p>
 
@@ -131,24 +92,14 @@
         </div>
     </article>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         ARTIKEL LAINNYA
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($related->isNotEmpty())
         <section class="border-t border-line py-16 lg:py-20">
             <div class="shell">
                 <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
-                    {{-- Judul seksi 26px, bukan 42px: ia bawahan judul artikelnya,
-                         dan dua judul seukuran di satu halaman membuat keduanya
-                         sama-sama tidak terbaca sebagai puncak. --}}
                     <h2 class="display max-w-[20ch] text-site-h3 text-site-forest">
                         {!! \App\Support\Judul::sorot(__('site.related_articles')) !!}
                     </h2>
 
-                    {{-- Tautan berpanah, bukan tombol bergaris: ia bukan tindakan
-                         utama halaman ini — yang utama adalah membaca artikel yang
-                         sedang dibuka. Rupanya sama dengan "Read Article" di kartu
-                         di bawahnya. --}}
                     <a href="{{ route('news.index') }}"
                        class="group inline-flex shrink-0 items-center gap-2 font-site-body text-site-small
                               font-semibold text-site-forest transition-colors hover:text-site-gilt-deep">
@@ -161,9 +112,6 @@
                     </a>
                 </div>
 
-                {{-- Kartu tanpa bingkai, sama dengan kisi di halaman daftar:
-                     gambar berbulatan penuh di keempat sudutnya, tulisan jatuh
-                     langsung di bidang halaman. --}}
                 <ul class="mt-8 grid auto-rows-fr gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($related as $article)
                         @php
@@ -175,9 +123,6 @@
                             <a href="{{ route('news.show', $article->slug) }}"
                                class="group flex h-full w-full flex-col">
 
-                                {{-- Nisbah 5:3, sama dengan kartu di halaman daftar,
-                                     supaya tinggi gambarnya sepadan dengan blok
-                                     tulisan di bawahnya. --}}
                                 <span class="relative block aspect-[5/3] w-full shrink-0 overflow-hidden
                                              rounded-panel bg-site-paper">
                                     @if($relatedCover)
@@ -205,25 +150,12 @@
                                         @endif
                                     </span>
 
-                                    {{-- min-h dua baris dalam satuan em: em di sini
-                                         ukuran huruf judulnya sendiri, dan ukuran itu
-                                         sebuah clamp yang menyusut di layar sempit.
-                                         Judul satu baris tetap memesan ruang dua baris,
-                                         jadi baris di bawahnya sejajar di seluruh
-                                         kisi. --}}
                                     <span class="mt-3 line-clamp-2 min-h-[2.75em] font-site-display
                                                  text-site-title font-bold leading-snug tracking-[-0.01em]
                                                  text-site-forest transition-colors group-hover:text-site-gilt-deep">
                                         {{ $article->translated_title }}
                                     </span>
 
-                                    {{-- Ringkasan disertakan, dan itu bukan hiasan:
-                                         tanpa ringkasan, blok tulisan cuma setinggi
-                                         144px di bawah gambar setinggi 224px, dan
-                                         kartunya terbaca berat sebelah persis seperti
-                                         kartu di halaman daftar sebelum diperbaiki.
-                                         Tiga baris terpotong menyamakan keduanya —
-                                         sekaligus memberi pembaca alasan menekan. --}}
                                     @if($article->translated_excerpt)
                                         <span class="mt-2.5 line-clamp-3 block min-h-[4.875em] leading-relaxed
                                                      text-ink-muted text-site-small">

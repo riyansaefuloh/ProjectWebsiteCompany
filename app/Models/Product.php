@@ -20,7 +20,6 @@ class Product extends Model implements HasMedia
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // Field fillable disesuaikan dengan kolom migrasi database produk ekspor
     protected $fillable = [
         'category_id',
         'slug',
@@ -45,35 +44,26 @@ class Product extends Model implements HasMedia
         ];
     }
 
-    
-    //  Relasi ke Kategori (Satu produk berasosiasi dengan satu kategori).
-     
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    
-    
     public function translations(): HasMany
     {
         return $this->hasMany(ProductTranslation::class);
     }
 
-    
-    //  Relasi ke spesifikasi teknis dinamis (seperti moisture, grade, dll.).
-    
     public function specifications(): HasMany
     {
         return $this->hasMany(ProductSpecification::class);
     }
 
-    
-     
     public function certifications(): BelongsToMany
     {
         return $this->belongsToMany(Certification::class, 'product_certification');
     }
+
     public function scopeSearch($query, string $term)
     {
         if (empty(trim($term))) {
@@ -82,10 +72,6 @@ class Product extends Model implements HasMedia
 
         $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
 
-        /*
-         * Kamus 'simple' dan pencocokan awalan — lihat App\Support\PencarianTeks.
-         * Kata pencarian yang habis sesudah dibersihkan jatuh ke LIKE di bawah.
-         */
         $kueri = \App\Support\PencarianTeks::kueriAwalan($term);
 
         if ($driver === 'pgsql' && $kueri !== null) {
@@ -104,7 +90,6 @@ class Product extends Model implements HasMedia
             });
         }
 
-        // Fallback untuk driver selain PostgreSQL (SQLite / MySQL)
         return $query->where(function ($q) use ($term) {
             $q->where('hs_code', 'LIKE', "%{$term}%")
               ->orWhere('origin', 'LIKE', "%{$term}%")
@@ -120,9 +105,8 @@ class Product extends Model implements HasMedia
         $this->addMediaConversion('webp')
             ->format('webp')
             ->quality(85)
-            ->nonQueued(); // Dijalankan langsung saat upload
+            ->nonQueued();
 
-        // Thumbnail WebP 400px — untuk kartu produk di katalog publik
         $this->addMediaConversion('thumb')
             ->format('webp')
             ->width(400)
@@ -130,7 +114,6 @@ class Product extends Model implements HasMedia
             ->quality(80)
             ->nonQueued();
 
-        // Medium WebP 800px — untuk lightbox & detail produk
         $this->addMediaConversion('medium')
             ->format('webp')
             ->width(800)
@@ -138,12 +121,8 @@ class Product extends Model implements HasMedia
             ->nonQueued();
     }
 
-    /**
-     * Daftarkan koleksi media untuk produk.
-     */
     public function registerMediaCollections(): void
     {
-        // Koleksi galeri gambar produk (multi-gambar)
         $this->addMediaCollection('gallery')
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
     }

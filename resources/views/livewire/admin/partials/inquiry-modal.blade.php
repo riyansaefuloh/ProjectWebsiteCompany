@@ -1,6 +1,4 @@
-{{-- ══════════════════════════════════════════════════════════════════
-     MODAL KELOLA INQUIRY
-     ══════════════════════════════════════════════════════════════════ --}}
+
 @php
     $sebutanStatus = $this->sebutanStatus();
     $salesUsers    = $this->penggunaSales();
@@ -31,7 +29,6 @@
 
         @endphp
 
-        
         <div class="modal-open fixed inset-0 z-[100] flex items-center justify-center
                     overflow-clip bg-ink/45 p-4 backdrop-blur-[2px]"
              x-data

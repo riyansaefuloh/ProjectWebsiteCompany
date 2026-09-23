@@ -18,12 +18,6 @@ class About extends Component
         $page    = Page::where('slug', 'about-us')->first();
         $appName = config('app.name');
 
-        /*
-         * Deskripsi meta diambil dari isi bagian Profil, dengan halaman statis
-         * 'about-us' sebagai cadangan selama masa perpindahan. Sebelumnya ia
-         * hanya membaca halaman statis itu — dan ikut kosong begitu barisnya
-         * dihapus, tanpa terlihat dari mana pun kecuali dari hasil pencarian.
-         */
         $isiProfil = \App\Support\IsiHalaman::untuk('profile');
 
         $ringkas = $isiProfil('body', 'site.about_empty', [], $page?->translated_content);
@@ -45,12 +39,6 @@ class About extends Component
 
         $settings = Setting::pluck('value', 'key')->toArray();
 
-        /*
-         * Susunan bagian halaman ini — urutan dan tampil-tidaknya — diatur di
-         * menu Halaman. Yang belum pernah diatur memakai susunan bawaan, jadi
-         * halaman ini tidak pernah tergambar kosong hanya karena kuncinya
-         * belum ada.
-         */
         $tersimpan = \App\Support\IsiHalaman::semua()['profile']['sections'] ?? null;
 
         $bagian = is_array($tersimpan) && $tersimpan !== []
@@ -65,10 +53,7 @@ class About extends Component
         usort($bagian, fn ($a, $b) => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
 
         return view('livewire.public.about', [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
-            'isi' => \App\Support\IsiHalaman::untuk('profile'),
-
+            'isi'            => \App\Support\IsiHalaman::untuk('profile'),
             'profilSections' => $bagian,
             'page'           => $page,
             'settings'       => $settings,

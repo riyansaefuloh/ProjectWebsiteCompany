@@ -3,8 +3,6 @@
     'size' => 'h-[18px] w-[18px]',
 ])
 
-{{-- ══ Ikon panel admin — dikumpulkan di satu berkas supaya tata letaknya
-     tidak dipenuhi data path SVG. ══ --}}
 @switch($name)
 
     @case('dashboard')
@@ -96,9 +94,7 @@
         @break
 
     @case('user')
-        {{-- Satu orang, bukan dua: 'users' yang berdampingan menggambar
-             kelompok dan dipakai menu Pengguna & Peran; yang ini menamai SATU
-             pembeli. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <circle cx="10" cy="6.8" r="3.2" stroke="currentColor" stroke-width="1.5"/>
             <path d="M3.8 16.8c0-3.1 2.8-5 6.2-5s6.2 1.9 6.2 5" stroke="currentColor"
@@ -115,9 +111,7 @@
         @break
 
     @case('chart')
-        {{-- Garis naik di dalam sumbu, bukan diagram batang: yang digambarkan
-             kartu ini memang perubahan sepanjang waktu, bukan perbandingan
-             antar-kategori. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3.4 2.8v12.4a1.6 1.6 0 0 0 1.6 1.6h11.6" stroke="currentColor"
                   stroke-width="1.5" stroke-linecap="round"/>
@@ -157,8 +151,7 @@
         @break
 
     @case('filter')
-        {{-- Corong, bukan tiga garis geser: yang dilakukan barisan kendali ini
-             memang menyaring baris, bukan mengatur nilai. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3.4 4.4h13.2l-5 5.8v5l-3.2 1.6v-6.6z" stroke="currentColor"
                   stroke-width="1.5" stroke-linejoin="round"/>
@@ -166,9 +159,7 @@
         @break
 
     @case('manage')
-        {{-- Dua tuas geser, bukan pensil: pensil menjanjikan "ubah
-             tulisannya", padahal yang dibuka adalah panel untuk menyetel
-             status dan menugaskan sales. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M3.4 6.8h4.2M11.4 6.8h5.2M3.4 13.2h5.2M12.4 13.2h4.2"
                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -195,17 +186,14 @@
         @break
 
     @case('star')
-        {{-- Bintang bersudut BULAT, bukan pentagram bersudut tajam — sudut
-             tajam bertabrakan dengan seluruh ikon lain di panel yang berujung
-             membulat. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"/>
         </svg>
         @break
 
     @case('pdf')
-        {{-- Lembar dengan sudut terlipat: bentuk yang dikenali orang sebagai
-             "berkas", dan lipatannya yang membedakannya dari ikon halaman. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M11.4 2.8H6a1.6 1.6 0 0 0-1.6 1.6v11.2A1.6 1.6 0 0 0 6 17.2h8a1.6 1.6 0 0 0 1.6-1.6V7z"
                   stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
@@ -223,8 +211,7 @@
         @break
 
     @case('send')
-        {{-- Pesawat kertas: "kirim", tanpa menyebut salurannya. Amplop hanya
-             menamai surel, padahal kartunya menawarkan surel DAN WhatsApp. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M17.4 2.6 2.6 8.4l6.3 2.5 2.7 6.5z" stroke="currentColor"
                   stroke-width="1.5" stroke-linejoin="round"/>
@@ -234,9 +221,7 @@
         @break
 
     @case('whatsapp')
-        {{-- Lambang WhatsApp yang SEBENARNYA, bukan gambaran ulang — tiruan
-             buatan sendiri langsung terbaca salah oleh siapa pun yang
-             mengenali aslinya. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/>
         </svg>
@@ -250,9 +235,7 @@
         @break
 
     @case('panel')
-        {{-- Ikon lipat sidebar: bidang dengan satu sisi terisi, bukan tanda
-             panah. Panah menjanjikan "pindah ke sana"; yang terjadi sebenarnya
-             adalah sidebar-nya menyempit. --}}
+        
         <svg {{ $attributes->merge(['class' => $size]) }} viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <rect x="2.8" y="3.6" width="14.4" height="12.8" rx="2" stroke="currentColor" stroke-width="1.5"/>
             <path d="M8 3.6v12.8" stroke="currentColor" stroke-width="1.5"/>

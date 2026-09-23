@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InquiryExportController extends Controller
 {
-    /**
-     * Export data Inquiry ke format CSV.
-     */
     public function export(): StreamedResponse
     {
         $fileName = 'export_inquiries_' . date('Y-m-d_H-i-s') . '.csv';
@@ -24,21 +21,18 @@ class InquiryExportController extends Controller
         ];
 
         $columns = [
-            'ULID', 'Date', 'Buyer Name', 'Company', 'Email', 
-            'Country Code', 'Phone', 'Product', 'Volume', 
+            'ULID', 'Date', 'Buyer Name', 'Company', 'Email',
+            'Country Code', 'Phone', 'Product', 'Volume',
             'Incoterms', 'Status', 'IP Address', 'Message'
         ];
 
         $callback = function () use ($columns) {
             $file = fopen('php://output', 'w');
 
-            // Tambahkan BOM agar UTF-8 terbaca dengan benar di Microsoft Excel
             fputs($file, "\xEF\xBB\xBF");
 
-            // Write header CSV
             fputcsv($file, $columns);
 
-            // Fetch data inquiry dengan eager loading relasi product
             Inquiry::with('product.translations')
                 ->latest()
                 ->chunk(100, function ($inquiries) use ($file) {

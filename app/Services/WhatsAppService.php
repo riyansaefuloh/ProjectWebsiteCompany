@@ -7,22 +7,20 @@ use App\Models\Setting;
 
 class WhatsAppService
 {
-    /**
-     * Generate WhatsApp deep-link dengan prefilled text berdasarkan data Inquiry.
-     */
+    // Generate WhatsApp deep-link
     public static function generateLink(Inquiry $inquiry, ?string $targetPhoneNumber = null): string
     {
-        // Ambil nomor WA dari Settings DB, fallback ke config/default jika kosong (termasuk string kosong)
+        // Nomor WA dari Setting/Config
         $dbPhone = Setting::where('key', 'whatsapp_number')->value('value');
         $phone = $targetPhoneNumber ?: ($dbPhone ?: config('app.whatsapp_number', '6289670475275'));
 
-        // Bersihkan karakter non-digit dari nomor telepon (misal hapus '+', '-', ' ')
+        // Format nomor telepon
         $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
 
-        // Ambil nama produk jika ada relasi ke produk
+        // Nama produk inquiry
         $productName = $inquiry->product ? $inquiry->product->translated_name : 'General Export Inquiry';
 
-        // Format pesan otomatis (Professional Export Inquiry Template)
+        // Template pesan otomatis
         $message = "Hello Sales Team,\n\n";
         $message .= "I would like to inquire about *{$productName}*.\n\n";
         $message .= " *Buyer Details:*\n";
@@ -38,7 +36,7 @@ class WhatsAppService
         $message .= "\n *Message:*\n\"{$inquiry->message}\"\n\n";
         $message .= "Thank you!";
 
-        // Encode teks pesan agar valid di URL
+        // Encode URL
         $encodedMessage = urlencode($message);
 
         return "https://wa.me/{$cleanPhone}?text={$encodedMessage}";

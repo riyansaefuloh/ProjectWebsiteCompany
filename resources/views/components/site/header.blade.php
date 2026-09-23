@@ -1,28 +1,6 @@
 @props([
     'companyName' => '',
     'logo' => '',
-
-    /* Dua keadaan, satu bilah — dan hurufnya PUTIH di keduanya.
-
-       overHero=false — bilah menempel (sticky) dan pejal sejak awal: latar
-       forest PENUH, garis bawah forest-line. Ini yang tampil di seluruh halaman
-       selain beranda.
-
-       Pejal betulan, bukan 95% berkabut seperti dulu: nilainya harus sama
-       persis dengan badan pil "Explore Products" di seksi produk, dan latar
-       tembus yang bercampur dengan apa pun di belakangnya tidak pernah
-       menghasilkan nilai yang sama dua kali.
-
-       overHero=true  — bilah mengambang (fixed) di atas foto hero: latar dan
-       garisnya hilang sama sekali, dan yang menjamin keterbacaan hurufnya
-       adalah peredam gradasi di bawah ini. Begitu halaman digulung lewat 40px
-       ia berubah jadi keadaan pejal yang sama. Dipakai di beranda saja, dan
-       hanya kalau hero benar-benar bagian teratasnya — lihat $heroDiPuncak di
-       layouts/public.blade.php.
-
-       Karena hurufnya putih di kedua keadaan, memanggilnya di halaman yang
-       bagian teratasnya TERANG berarti putih di atas krem: yang berubah saat
-       digulung cuma latar bilahnya, bukan warna hurufnya. */
     'overHero' => false,
 ])
 
@@ -49,8 +27,6 @@
     x-data="{
         mobile: false,
         scrolled: {{ $overHero ? 'false' : 'true' }},
-        /* Laci mobile berlatar gading, jadi bilah di atasnya harus ikut pejal —
-           kalau tidak, tepi keduanya tidak menyambung. */
         get solid() { return this.scrolled || this.mobile }
     }"
     @if($overHero)
@@ -62,22 +38,6 @@
         : 'border-transparent bg-transparent'"
     class="{{ $overHero ? 'fixed' : 'sticky' }} top-0 z-50 w-full border-b transition-colors duration-300">
 
-    {{-- Peredam gelap, HANYA saat mengambang.
-
-         MENAHAN setinggi bilah, baru memudar sesudahnya — bukan memudar dari
-         tepi atas. Gradasi yang memudar di DALAM bilah tidak bisa menjamin apa
-         pun di ujung transparannya: pada foto putih polos, dasar bilah cuma
-         mencapai 2,4:1.
-
-         Ditahan pada 0,58: sejak kapsul menu dilepas, huruf menu berdiri
-         telanjang di atas foto dan tidak lagi punya bidangnya sendiri. 0,58
-         adalah alfa terkecil yang masih menjamin 4,5:1 sekalipun fotonya putih
-         polos — 4,79:1 — jadi menaikkannya lagi hanya menggelapkan foto tanpa
-         menukarnya dengan keterbacaan apa pun.
-
-         Ini satu-satunya peredam di tepi atas. Hero sengaja tidak membuat
-         miliknya sendiri, supaya tidak ada dua yang bertumpuk dan saling tidak
-         tahu. --}}
     @if($overHero)
         <div x-show="!solid" x-cloak aria-hidden="true"
              class="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[150px]
@@ -86,44 +46,15 @@
 
     <div class="shell grid h-[76px] grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr] lg:gap-3 xl:gap-6">
 
-        {{-- ── KIRI: lambang + nama perusahaan ──────────────────────────────
-             Keduanya diatur dari panel: Pengaturan → Identitas. Nama tetap
-             digambar meski lambangnya ada — lambang tanpa nama cuma bisa
-             dikenali orang yang sudah tahu perusahaannya. --}}
         <a href="{{ route('home') }}"
            class="group flex min-w-0 shrink items-center gap-3"
            aria-label="{{ $companyName }}">
 
-            {{-- Lambang berdiri telanjang, tanpa bingkai.
-
-                 Saat mengambang ia dibalik jadi PUTIH PENUH (brightness-0
-                 invert), bukan dibiarkan berwarna aslinya. Itu yang
-                 menggantikan tugas bingkainya: lambang berwarna terang di atas
-                 langit terang akan lenyap, sementara siluet putih pekat tetap
-                 terbaca di atas foto apa pun — dan peredam bilah kepala sudah
-                 menjamin latarnya cukup gelap. --}}
             @if($logo)
                 <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
                      class="h-9 w-auto max-w-[132px] shrink-0 object-contain brightness-0 invert">
             @else
-                {{-- Belum ada logo: MONOGRAM, bukan lambang bergambar.
-
-                     Yang dulu berdiri di sini sebuah SVG biji kopi, dan itu
-                     keliru ke arah yang paling membingungkan — ia menempati
-                     persis tempat logo, jadi terbaca SEBAGAI logo. Menghapus
-                     logo dari panel lalu tetap melihat lambang di sana membaca
-                     seperti penghapusan yang gagal.
-
-                     Inisial tidak punya masalah itu: ia jelas diturunkan dari
-                     nama yang tertulis tepat di sebelahnya. Bingkainya pun
-                     dibuat bergaris tipis dan tembus, bukan pejal — supaya ia
-                     terbaca sebagai tempat yang MENUNGGU diisi, bukan sebagai
-                     lambang yang sudah jadi.
-
-                     Bukan pula kotak "gambar kosong" seperti pada kartu produk:
-                     di slot isi, kotak abu berikon gambar berarti "fotonya
-                     belum ada"; di chrome merek, ia terbaca sebagai gambar yang
-                     GAGAL DIMUAT. --}}
+                
                 @php $inisial = \App\Support\Monogram::inisial($companyName); @endphp
 
                 @if($inisial !== '')
@@ -141,22 +72,12 @@
             </span>
         </a>
 
-        {{-- ── TENGAH: menu ─────────────────────────────────────────────────
-             Berderet telanjang, TANPA kapsul yang mengurungnya. Kapsulnya
-             sempat ada dan dihapus: di atas kanvas krem ia cuma berselisih
-             1,08:1 dengan latarnya, jadi secara optis ia bukan bidang yang
-             dipilih melainkan noda. Yang memisahkan menu dari lambang di kiri
-             dan ajakan di kanan sekarang tinggal jarak — dan itu cukup.
-
-             Hanya menu AKTIF yang berpil. Memberi pil pada semuanya sama saja
-             dengan mengembalikan kapsul yang baru saja dilepas. --}}
         <nav class="hidden items-center gap-1 lg:flex"
              aria-label="{{ __('site.nav_primary') }}">
 
             @foreach($navItems as $item)
                 @if(!empty($item['children']))
-                    {{-- Dibuka oleh SOROT sekaligus KLIK. Sorot saja meninggalkan
-                         papan ketik dan layar sentuh tanpa jalan masuk. --}}
+                    
                     <div x-data="{ open: false }"
                          x-on:mouseenter="open = true"
                          x-on:mouseleave="open = false"
@@ -178,9 +99,6 @@
                             </svg>
                         </button>
 
-                        {{-- pt-3 pada pembungkusnya, bukan margin pada panelnya:
-                             jarak itu harus tetap bisa disorot, kalau tidak menu
-                             menutup sendiri saat kursor menyeberang ke panelnya. --}}
                         <div x-show="open" x-cloak
                              x-transition:enter="transition ease-out duration-150"
                              x-transition:enter-start="opacity-0 -translate-y-1"
@@ -219,15 +137,6 @@
         {{-- ── KANAN ───────────────────────────────────────────────────────── --}}
         <div class="flex items-center justify-end gap-1.5 xl:gap-2">
 
-        {{-- Penukar bahasa: pil TENANG, berdiri sendiri.
-             Ia setelan, bukan tindakan yang ditawarkan halaman ini — jadi ia
-             bergaris di atas krem dan berkaca gelap di atas foto, sementara
-             ajakan di sebelahnya pejal. Dua pil sederajat berat akan membuat
-             keduanya berebut, dan yang kalah justru ajakannya.
-
-             Kaca GELAP, bukan terang: putih/12 di atas foto cerah cuma
-             menyisakan 4,4:1 untuk hurufnya. Yang gelap memberi 10,9:1 di foto
-             mana pun, dan senada dengan pil menu aktif di sebelah kirinya. --}}
         <div x-data="{ open: false }"
              x-on:mouseleave="open = false"
              x-on:keydown.escape.window="open = false"
@@ -282,22 +191,6 @@
             </div>
         </div>
 
-        {{-- Ajakan utama: pil PEJAL BERAKSEN, warna yang sama dengan label hero
-             dan kata aksen judulnya. Satu untuk kedua keadaan — tidak ikut berganti
-             saat halaman digulung, karena ajakan yang warnanya berpindah-pindah
-             sulit dikenali sebagai satu benda yang sama.
-
-             Isinya BERBALIK gelap, dan itu wajib: putih di atas aksen cuma
-             2,10:1. Huruf dan bulatan panahnya memakai forest, yang memberi
-             6,99:1 — dan bulatan gelap di dalam pil terang adalah kebalikan
-             persis dari susunan di gambar acuan, tempat pil gelap membawa
-             bulatan terang.
-
-             Bercincin gilt-deep. Nada terang aksen duduk di L* 73, nyaris
-             seterang kanvas krem: sebagai bidang ia cuma berselisih 2,01:1 di
-             sana, jadi saat halaman digulung tepinya berhenti terbaca sebagai
-             tombol. Cincin nada dalam menggambar tepi itu tanpa menambah warna
-             baru ke palet. --}}
         <a href="{{ route('inquiry.index') }}"
            class="hidden h-10 items-center rounded-full bg-site-gilt px-6
                   text-site-forest ring-1 ring-site-gilt-deep/70
@@ -324,11 +217,6 @@
         </div>
     </div>
 
-    {{-- ── LACI MOBILE ──────────────────────────────────────────────────────
-         Anak menu "Tentang Kami" digambar sebagai daftar bertakuk, bukan di
-         balik menu turun kedua: di layar sempit, menu turun di dalam laci
-         berarti dua lapisan yang harus dibuka berurutan untuk sampai ke satu
-         halaman. --}}
     <div x-show="mobile" x-cloak x-collapse class="border-t border-site-forest-line bg-site-forest lg:hidden">
         <nav class="shell flex flex-col py-4" aria-label="{{ __('site.nav_primary') }}">
             @foreach($navItems as $item)

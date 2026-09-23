@@ -1,10 +1,6 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * Inquiry dan Produk.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
@@ -27,9 +23,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -48,9 +41,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -73,19 +63,11 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                {{-- Keping lambang 36px berlatar hijau muda dengan ikon 18px — sama
-                     persis dengan kepala kartu di dasbor, halaman Inquiry, dan
-                     halaman Produk. --}}
+                
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
                     <x-icon.admin name="category" size="h-[18px] w-[18px]" />
                 </span>
@@ -105,14 +87,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Dua kendali berbagi satu baris — pencarian dua pertiga,
-                     status sepertiga. Produk memberi pencarian baris sendiri
-                     karena di sana penyaringnya tiga. --}}
                 <div class="grid gap-4 p-5 lg:grid-cols-3">
 
                     <div class="relative lg:col-span-2">
@@ -217,11 +194,6 @@
                             @forelse($categories as $cat)
                                 @php
                                     $nama = $cat->translated_name ?: $cat->slug;
-
-                                    /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                       kedua mengembalikan untai kosong saat tidak ada
-                                       berkasnya, dan untai kosong di src membuat
-                                       peramban memuat ulang HALAMAN ini sebagai gambar. */
                                     $berkas = $cat->getFirstMedia('icon');
 
                                     $alamatGambar = $berkas
@@ -233,9 +205,6 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus — keadaan
-                                         aktif sudah terbaca dari pil status
-                                         di kolom Status. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
                                             @if($alamatGambar)
@@ -256,9 +225,6 @@
                                                 <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                {{-- Slug jadi baris kedua: itulah yang muncul
-                                                     di alamat halaman katalog, jadi ia yang
-                                                     dicocokkan saat menelusuri tautan. --}}
                                                 <span class="mt-0.5 block truncate text-admin-caption text-ink-faint"
                                                       title="Slug: {{ $cat->slug }}">{{ $cat->slug }}</span>
                                             </div>
@@ -298,11 +264,6 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasan menyebut akibatnya,
-                                                 bukan sekadar "yakin?":
-                                                 produk yang memakai kategori
-                                                 ini ikut kehilangan
-                                                 golongannya. --}}
                                             <x-admin.confirm-delete :label="'Hapus ' . $nama"
                                                                     judul="Hapus kategori ini?"
                                                                     tombol="Ya, hapus kategori"
@@ -368,9 +329,6 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH KATEGORI
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         @php
             // Galat yang jatuh di tab yang sedang tertutup tidak terlihat sama
@@ -388,9 +346,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            {{-- Lebarnya 900px, bukan 1100 seperti modal produk: isinya jauh
-                 lebih sedikit, dan panel selebar itu cuma menyisakan rongga
-                 kosong di kanan tiap kartunya. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[1000px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -400,9 +355,7 @@
                     {{-- ── Kepala ──────────────────────────────────────── --}}
                     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-5">
                         <div class="flex min-w-0 items-center gap-3.5">
-                            {{-- Keping 52px, setinggi blok dua baris di
-                                 sebelahnya (judul 30px + jarak 6 + keterangan
-                                 17). --}}
+                            
                             <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-corner
                                          bg-brand-wash text-brand">
                                 <x-icon.admin name="category" size="h-6 w-6" />
@@ -450,11 +403,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Tab bahasa dan tombol Terjemahkan
-                                         berdiri TERPISAH: kendali bersegmen
-                                         menjanjikan "pilih salah satu", dan
-                                         tombol tindakan di bingkai yang sama
-                                         mengingkari janji itu. --}}
                                     <div class="flex shrink-0 flex-wrap items-center gap-2">
 
                                         <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
@@ -476,8 +424,6 @@
                                                         ])>
                                                     {{ $sebutan }}
 
-                                                    {{-- Titik merah: tab ini menyimpan galat
-                                                         yang tidak terlihat karena tertutup. --}}
                                                     @if($bergalat)
                                                         <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
                                                               title="Ada isian yang perlu diperbaiki di sini"></span>
@@ -486,9 +432,6 @@
                                             @endforeach
                                         </div>
 
-                                        {{-- Tombol tindakan, bukan pilihan —
-                                             memakai bentuk tombol panel yang
-                                             baku. --}}
                                         <button type="button" wire:click="autoTranslate"
                                                 wire:loading.attr="disabled" wire:target="autoTranslate"
                                                 title="Salin isian Indonesia ke English, lalu terjemahkan"
@@ -511,9 +454,6 @@
 
                                 <div class="p-5">
 
-                                {{-- Pesan gagal-terjemah, tepat di bawah
-                                     tombol yang memicunya — sebelumnya ia
-                                     gagal tanpa mengatakan apa pun. --}}
                                 @if($galatTerjemah)
                                     <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                         <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -527,11 +467,6 @@
 
                                 <div class="space-y-4">
 
-                                    {{-- Nama kategori mengikuti tab. Keduanya
-                                         TETAP di DOM dan yang tidak aktif
-                                         hanya disembunyikan: isian yang
-                                         elemennya lenyap membuat Livewire
-                                         kehilangan nilainya. --}}
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">
                                             Nama kategori <span class="text-brand">*</span>
@@ -563,8 +498,6 @@
                                         <div class="flex flex-wrap items-center justify-between gap-3">
                                             <label class="text-admin-label text-ink-faint">Deskripsi</label>
 
-                                            {{-- Batasnya disebut di depan, bukan menunggu
-                                                 galat muncul sesudah menekan Simpan. --}}
                                             <span class="text-admin-label text-ink-faint">Maksimal 500 karakter</span>
                                         </div>
 
@@ -613,9 +546,6 @@
 
                                 <div class="p-5">
 
-                                {{-- Hanya SATU gambar — save() mengosongkan
-                                     koleksinya sebelum menambah yang baru.
-                                     Karena itu petaknya berhenti di dua ubin. --}}
                                 <div class="grid grid-cols-2 gap-3">
 
                                     @if($editingId && filled($existingImage))
@@ -642,11 +572,6 @@
                                         </div>
                                     @endif
 
-                                    {{-- temporaryUrl() dibungkus try: ia
-                                         melempar galat untuk berkas yang
-                                         bukan gambar, dan atribut accept
-                                         hanya menyaring tampilan penjelajah
-                                         berkas. --}}
                                     @if($imageFile)
                                         @php
                                             try {
@@ -722,8 +647,6 @@
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">Status</label>
 
-                                        {{-- :nullable="false" — kategori selalu berada di
-                                             salah satu dari dua keadaan ini. --}}
                                         <x-admin.select model="status" :value="$status" class="mt-2"
                                                         label="Status kategori" placeholder="Aktif"
                                                         :nullable="false"

@@ -1,21 +1,12 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * admin lainnya.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
             $penyaringAktif->push(['label' => 'Cari', 'nilai' => $search, 'props' => ['search']]);
         }
 
-        /*
-         * filled(), bukan sekadar cek kebenaran nilainya: '0' — pilihan
-         * "Terbuka" — itu palsu di PHP, jadi kepingnya tidak akan pernah
-         * muncul dan penyaring yang menyala jadi tak terlihat.
-         */
         if (filled($selectedGate)) {
             $penyaringAktif->push([
                 'label' => 'Akses',
@@ -32,9 +23,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -53,9 +41,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -78,12 +63,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -107,14 +86,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Dua kendali, jadi keduanya berbagi satu baris — pencarian dua
-                             pertiga, akses sepertiga. Susunan yang sama dengan halaman
-                             Kategori, Sertifikasi, dan Berita. --}}
                         <div class="grid gap-4 p-5 lg:grid-cols-3">
 
                             <div class="relative lg:col-span-2">
@@ -136,10 +110,6 @@
                                 </span>
                             </div>
 
-                            {{-- Nilainya '1' dan '0', bukan true/false: menu
-                                 pilih mengirim untai, dan propertinya pun
-                                 untai supaya "belum dipilih" ('') bisa
-                                 dibedakan dari "Terbuka" ('0'). --}}
                             <x-admin.select model="selectedGate" :value="$selectedGate"
                                             label="Saring menurut akses" placeholder="Semua akses"
                                             :options="[
@@ -224,16 +194,6 @@
                                 @php
                                     $judul = filled($dl->title) ? $dl->title : 'Berkas tanpa judul';
 
-                                    /*
-                                     * Berkasnya benar-benar dicek ada di disk, bukan
-                                     * cuma dicek kolomnya terisi.
-                                     *
-                                     * Baris yang menyimpan nama berkas tapi berkasnya
-                                     * sudah tidak ada akan menawarkan tautan yang
-                                     * berujung 404 — dan itu tautan yang dipakai
-                                     * pembeli di situs publik. Lebih baik ketahuan di
-                                     * sini daripada di sana.
-                                     */
                                     $adaBerkas = filled($dl->file_path)
                                         && \Illuminate\Support\Facades\Storage::disk('public')->exists($dl->file_path);
 
@@ -242,10 +202,6 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus —
-                                         ada-tidaknya berkas sudah terbaca
-                                         dari keterangan di bawah nama
-                                         unduhannya. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
                                             <span @class([
@@ -268,14 +224,7 @@
                                                                   transition-colors hover:text-brand hover:underline"
                                                            title="Buka {{ $namaBerkas }}">{{ $namaBerkas }}</a>
                                                     @elseif($namaBerkas)
-                                                        {{-- Tanpa py dan
-                                                             tanpa leading
-                                                             sendiri: keping
-                                                             yang lebih tinggi
-                                                             dari teks 12px di
-                                                             sebelahnya akan
-                                                             menarik tinggi
-                                                             barisnya. --}}
+                                                        
                                                         <span class="inline-flex shrink-0 items-center rounded-full
                                                                      bg-status-rejected/10 px-1.5 text-admin-caption
                                                                      font-semibold text-status-rejected"
@@ -318,11 +267,6 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasan menyebut akibatnya,
-                                                 bukan sekadar "yakin?":
-                                                 berkas PDF-nya ikut terhapus
-                                                 dan tautan unduh di situs
-                                                 publik jadi mati. --}}
                                             <x-admin.confirm-delete metode="delete"
                                                                     :id="$dl->id"
                                                                     :nama="$judul"
@@ -388,17 +332,8 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH BERKAS
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         @php
-            /*
-             * Berkas lamanya benar-benar dicek ada di disk, bukan cuma dicek
-             * kolomnya terisi — sama seperti di tabelnya. Menawarkan tombol
-             * "Buka berkas" yang berujung 404 lebih buruk daripada mengaku
-             * berkasnya hilang.
-             */
             $adaBerkasLama = filled($existingFilePath)
                 && \Illuminate\Support\Facades\Storage::disk('public')->exists($existingFilePath);
 
@@ -414,8 +349,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            {{-- 900px seperti modal Kategori dan Pasar Ekspor: isiannya cuma
-                 empat, dan panel 1100px cuma menyisakan rongga kosong. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[900px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -487,11 +420,6 @@
                                             @enderror
                                         </div>
 
-                                        {{-- Menu pilih, bukan sakelar geser:
-                                             pil di tabel dan menu penyaring
-                                             di atasnya memakai dua kata yang
-                                             sama, dan sakelar akan
-                                             menanyakannya dengan cara ketiga. --}}
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">Akses unduhan</label>
 
@@ -532,17 +460,10 @@
 
                                 <div class="p-5">
 
-                                    {{-- Petak ubin, sama dengan modal Produk,
-                                         Kategori, Berita, dan Galeri. PDF
-                                         tidak bisa dipratinjau sebagai
-                                         gambar. --}}
                                     <div class="grid grid-cols-2 gap-3">
 
                                         @if($editingId && $adaBerkasLama)
-                                            {{-- Ubinnya SENDIRI yang jadi
-                                                 tautan, bukan tautan kecil di
-                                                 dalamnya: seluruh petak sudah
-                                                 berarti "berkas ini". --}}
+                                            
                                             <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($existingFilePath) }}"
                                                target="_blank" rel="noopener"
                                                title="Buka {{ $namaBerkasLama }}"
@@ -560,9 +481,7 @@
                                                              group-hover/ubin:text-brand">Buka berkas</span>
                                             </a>
                                         @elseif($editingId && filled($existingFilePath))
-                                            {{-- Tercatat di basis data, hilang di disk. Ubinnya cuma
-                                                 menyebut keadaannya; keterangan panjangnya berdiri
-                                                 di bawah petak, tempat ia muat dibaca. --}}
+                                            
                                             <div class="flex aspect-square flex-col items-center justify-center gap-2
                                                         rounded-control border border-dashed border-status-rejected/40
                                                         bg-status-rejected/5 px-3 text-center text-status-rejected">

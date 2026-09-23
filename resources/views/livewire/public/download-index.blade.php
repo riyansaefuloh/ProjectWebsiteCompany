@@ -1,32 +1,16 @@
 <div>
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
+    
     <section class="pb-10 pt-14 md:pt-16 lg:pt-20">
         <div class="shell">
             @php $unduhBody = $isi('body', 'site.page_downloads_sub'); @endphp
 
-            {{-- Rata tengah dalam satu lajur, bukan dua kolom berhadapan —
-                 sama dengan kepala halaman Sertifikat, Pasar Ekspor, dan News.
-
-                 Lebarnya dipatok 44rem dan 56ch supaya barisnya tidak melar
-                 selebar halaman: teks rata tengah yang panjang paling sulit
-                 dibaca, karena mata kehilangan awal baris berikutnya. --}}
             <div class="mx-auto max-w-[44rem] text-center">
                 <p class="eyebrow">{{ $isi('eyebrow', 'site.nav_downloads') }}</p>
 
-                {{-- 42px cokelat, ukuran dan warna yang sama dengan kepala
-                     halaman produk, sertifikat, galeri, dan berita. Yang lama
-                     48px hitam — ukuran hero, di halaman yang bukan beranda. --}}
                 <h1 class="display mx-auto mt-5 max-w-[20ch] text-site-h2 text-site-forest">
                     {!! \App\Support\Judul::sorot($isi('title', 'site.page_downloads')) !!}
                 </h1>
 
-                {{-- Isian ini ditulis lewat penyunting teks kaya, jadi isinya
-                     mengandung tag. Yang lama menggambarnya dengan {{ }} —
-                     tag-nya ikut TERCETAK di layar sebagai "<p>…</p>". Yang
-                     mengandung tag digambar sebagai .rich; yang polos tetap
-                     .lede, karena <p> di dalam <p> bukan HTML yang sah. --}}
                 @if($unduhBody !== strip_tags($unduhBody))
                     <div class="rich mx-auto mt-5 max-w-[56ch]">{!! $unduhBody !!}</div>
                 @else
@@ -36,19 +20,9 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KISI BERKAS
-         ══════════════════════════════════════════════════════════════════ --}}
     <section class="pb-20 lg:pb-24">
         <div class="shell">
             @if($downloads->isNotEmpty())
-                {{-- Judul seksi 26px, bukan 42px: ia bawahan judul halaman, dan
-                     dua judul seukuran di satu layar membuat keduanya sama-sama
-                     tidak terbaca sebagai puncak.
-
-                     Jumlah berkasnya disebut di bawahnya sebagai label kecil —
-                     pembaca tahu sejak awal apakah yang tergambar ini seluruhnya
-                     atau baru sebagian. --}}
                 <h2 class="display text-site-h3 text-site-forest">
                     {!! \App\Support\Judul::sorot(__('site.all_files')) !!}
                 </h2>
@@ -58,23 +32,7 @@
                     {{ trans_choice('site.files_count', $downloads->count(), ['count' => $downloads->count()]) }}
                 </p>
 
-                {{-- ── BARIS BERKAS, bukan kartu tegak ─────────────────────────
-                     Yang didaftar di sini DOKUMEN, dan isi tiap dokumen cuma
-                     nama, jenis, dan satu tombol. Kartu tegak setinggi 240px
-                     untuk tiga baris keterangan menghasilkan bidang yang dua
-                     pertiganya kosong — dan tombol yang didorong ke dasar kartu
-                     oleh ruang kosong itu berdiri jauh dari nama berkas yang
-                     diunduhnya.
-
-                     Sebagai baris mendatar, ketiganya berdampingan: lambang di
-                     kiri, nama dan keterangannya di tengah, tombol di kanan.
-                     Tingginya jadi 88px — sepertiga dari sebelumnya — dan tidak
-                     ada satu piksel pun yang tidak mengerjakan apa-apa.
-
-                     Dua lajur, bukan tiga: nama berkas di sini panjang-panjang
-                     ("Product Specifications & Quality Standards"), dan baris
-                     mendatar berlajur tiga menyisakan lebar yang memaksa nama
-                     itu pecah tiga baris. --}}
+                {{-- Baris Berkas --}}
                 <ul class="mt-8 grid items-start gap-4 lg:grid-cols-2">
                     @foreach($downloads as $download)
                         @php $terpilih = $selectedDownloadId === $download->id; @endphp
@@ -87,9 +45,6 @@
                                 'border-line'        => ! $terpilih,
                             ])>
                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
-                                    {{-- Keping ikon forest berisi lambang terang,
-                                         rupa yang sama dengan keping ikon di gerbang
-                                         katalog. --}}
                                     <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center
                                                  rounded-corner bg-site-forest text-site-canvas"
                                           aria-hidden="true">
@@ -101,43 +56,11 @@
                                     </span>
 
                                     <div class="min-w-0 flex-1">
-                                        {{-- Judul memesan ruang DUA BARIS, selalu.
-
-                                             Nama berkas di sini panjangnya
-                                             berbeda-beda: yang satu baris berakhir
-                                             21px lebih pendek daripada tetangganya
-                                             yang pecah dua, dan dua baris
-                                             berdampingan yang tidak sama tinggi
-                                             terbaca sebagai kisi yang salah pasang.
-
-                                             Dipesan lewat min-h, BUKAN dengan
-                                             meregangkan barisnya ke tinggi
-                                             tetangganya: saat satu baris membuka
-                                             kolom email, regangan itu ikut menyeret
-                                             tetangganya jadi setinggi 241px berisi
-                                             ruang kosong.
-
-                                             2,75em = dua baris pada leading-snug
-                                             (1,375), dalam satuan em supaya ikut
-                                             menyusut bersama hurufnya di layar
-                                             sempit. --}}
                                         <h3 class="min-h-[2.75em] font-site-display text-site-body font-bold
                                                    leading-snug text-site-forest">
                                             {{ $download->title }}
                                         </h3>
 
-                                        {{-- Jenis, jumlah unduhan, dan penanda gerbang
-                                             email BERBAGI satu baris.
-
-                                             Penandanya dulu pil tersendiri di sudut
-                                             kanan atas kartu — benda keempat di kartu
-                                             yang isinya cuma tiga hal. Sebagai butir
-                                             ketiga di baris keterangan, ia terbaca
-                                             sebagai sifat berkasnya, yang memang itu
-                                             adanya.
-
-                                             ink-muted, bukan ink-faint: pada 11px yang
-                                             terukur dari piksel cuma 4,33:1. --}}
                                         <p class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1
                                                   font-site-accent text-site-micro font-medium uppercase
                                                   tracking-[0.12em] text-ink-muted">
@@ -160,15 +83,6 @@
                                         </p>
                                     </div>
 
-                                    {{-- Pil forest berbulatan emas, keluarga tombol yang
-                                         sama dengan "Request Quote" dan gerbang katalog.
-                                         TIDAK melebar penuh: di baris mendatar ia berdiri
-                                         di ujung kanan, sejajar dengan nama berkas yang
-                                         diunduhnya.
-
-                                         Bulatan panahnya menunjuk KE BAWAH — yang terjadi
-                                         sesudah ditekan adalah berkas turun, bukan halaman
-                                         berpindah. --}}
                                     <button type="button" wire:click="download('{{ $download->id }}')"
                                             wire:loading.attr="disabled" wire:target="download('{{ $download->id }}')"
                                             class="group ml-auto inline-flex h-10 shrink-0 items-center gap-3
@@ -188,11 +102,7 @@
                                     </button>
                                 </div>
 
-                                {{-- ── Kolom email, hanya untuk berkas yang sedang
-                                     diminta ──────────────────────────────────────
-                                     Terbuka DI BAWAH baris, dipisah garis rambut dan
-                                     jarak 16px di kedua sisinya — bukan menempel pada
-                                     baris di atasnya maupun pada tombolnya. --}}
+                                {{-- Form Email untuk berkas terproteksi --}}
                                 @if($terpilih)
                                     <div class="mt-4 border-t border-line pt-4">
                                         <label for="dl-email-{{ $download->id }}" class="field-label">

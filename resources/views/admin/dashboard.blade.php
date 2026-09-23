@@ -2,9 +2,6 @@
 
 <div class="mx-auto max-w-[1400px]">
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         SAPAAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @php
         $zona = \App\Models\Setting::where('key', 'timezone')->value('value') ?: config('app.timezone');
         $kini = now()->timezone($zona);
@@ -22,10 +19,6 @@
         
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PERINGATAN MASA BERLAKU SERTIFIKASI
-         ══════════════════════════════════════════════════════════════════ --}}
     @php
         
         $perluDiurus = collect($expiredCerts)->concat($expiringSoonCerts)
@@ -42,7 +35,6 @@
             $jumlahSegera = collect($expiringSoonCerts)->count();
         @endphp
 
-        
         <div class="card mb-8" role="alert">
 
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -152,10 +144,6 @@
         </div>
     @endif
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         RINGKASAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @php
         $ubah = function (int $kini, int $lalu): ?int {
             return $lalu > 0 ? (int) round((($kini - $lalu) / $lalu) * 100) : null;
@@ -228,7 +216,6 @@
             </a>
         @endcan
 
-
         {{-- ── Kartu 2: produk ──────────────────────────────────────────── --}}
         @can('manage products')
             <a href="{{ route('admin.products.index') }}" wire:navigate.hover
@@ -268,7 +255,6 @@
                 </span>
             </a>
         @endcan
-
 
         {{-- Kartu 3: kunjungan --}}
         <div class="card flex flex-col p-5">
@@ -324,38 +310,13 @@
         </div>
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         GRAFIK
-         ══════════════════════════════════════════════════════════════════ --}}
     @can('view inquiries')
         <div class="mb-8 grid gap-6 lg:grid-cols-5">
 
             <div class="lg:col-span-3">
-        {{-- ══════════════════════════════════════════════════════════════════
-             GRAFIK INQUIRY PER BULAN
-             ══════════════════════════════════════════════════════════════════ --}}
+        
             @php
 
-                /*
-                 * Tanda seru di depan pola WAJIB: '!M Y', bukan 'M Y'.
-                 *
-                 * Tanpa tanda itu, Carbon cuma mengisi bagian yang disebut
-                 * polanya — bulan dan tahun — dan sisanya diambil dari waktu
-                 * SEKARANG. Tanggalnya jadi tanggal hari ini.
-                 *
-                 * Akibatnya cuma muncul di akhir bulan, dan itu sebabnya cacat
-                 * ini lama tidak ketahuan. Saat hari ini tanggal 31, "Sep 2025"
-                 * terbaca sebagai 31 September — tanggal yang tidak ada — dan
-                 * Carbon melubernya jadi 1 Oktober. Sumbu grafiknya lalu
-                 * berbunyi Okt, Okt, Des, Des, Jan, Mar, Mar, Mei, Mei, Jul,
-                 * Jul, Agt: sebelas bulan bertumpuk-tumpuk, dan September,
-                 * November, Februari, April, Juni lenyap sama sekali.
-                 *
-                 * Tanda seru menyetel seluruh bagian yang tidak disebut ke
-                 * nilai awalnya — tanggal 1, pukul 00:00 — jadi hasilnya tidak
-                 * lagi bergantung pada kapan halaman ini dibuka.
-                 */
                 $bulan = collect($chartMonthLabels)->map(function ($l) {
                     try {
                         return \Carbon\Carbon::createFromFormat('!M Y', $l);
@@ -470,9 +431,7 @@
             </div>
 
             <div class="lg:col-span-2">
-    {{-- ══════════════════════════════════════════════════════════════════
-         NEGARA PENGIRIM INQUIRY
-         ══════════════════════════════════════════════════════════════════ --}}
+    
     @php
         $namaNegaraGrafik = config('countries', []);
 
@@ -529,13 +488,6 @@
 
                                     <td class="px-2 py-2.5">
 
-                                        {{-- Komponennya, bukan salinan kepingnya.
-
-                                             Sebelum ini baris ini menyalin isi
-                                             <x-admin.country> apa adanya lalu menulis
-                                             bantalannya sendiri — dan bantalan itu yang
-                                             lepas: 22px di sini, 18px di daftar inquiry
-                                             tepat di sebelahnya. --}}
                                         <x-admin.country :code="$n['kode']" size="md" class="min-w-0" />
                                     </td>
 
@@ -565,9 +517,6 @@
         </div>
     @endcan
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         INQUIRY TERBARU
-         ══════════════════════════════════════════════════════════════════ --}}
     @can('view inquiries')
         @if($latestInquiries->isNotEmpty())
             

@@ -20,14 +20,6 @@ class ProductIndex extends Component
     public string $search = '';
     public string $selectedCategory = '';
     public string $selectedStatus = '';
-
-    /*
-     * Penyaring unggulan. Untai, bukan boolean: '' berarti "semua", '1'
-     * berarti unggulan saja, '0' berarti yang bukan unggulan.
-     *
-     * Nilai '0' inilah yang menuntut kehati-hatian di kuerinya — lihat
-     * catatan di render().
-     */
     public string $selectedFeatured = '';
 
     // Modal & Edit State
@@ -52,32 +44,14 @@ class ProductIndex extends Component
 
     // Pivot & Dynamic Specifications (Key-Value Repeater)
     public array $selectedCertifications = [];
-    public array $specifications = []; // [['key' => 'Moisture', 'value' => '12%']]
+    public array $specifications = [];
 
     public $imageFiles = [];
     public $existingMedia = [];
     public string $activeTab = 'en';
     public bool $isTranslating = false;
-
-    /*
-     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
-     *
-     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
-     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
-     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
-     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
-     * tombolnya gagal tanpa mengatakan apa pun.
-     */
     public ?string $galatTerjemah = null;
 
-    /**
-     * Kembali ke halaman satu tiap kali penyaringnya diubah.
-     *
-     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
-     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
-     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
-     * padahal hasilnya ada, cuma tidak di halaman itu.
-     */
     public function updating($property, $value): void
     {
         if (in_array($property, ['search', 'selectedCategory', 'selectedStatus', 'selectedFeatured'], true)) {
@@ -103,7 +77,7 @@ class ProductIndex extends Component
             'incoterms'        => 'required|string|max:100',
             'is_featured'      => 'boolean',
             'status'           => 'required|in:draft,published',
-            'imageFiles.*'     => 'nullable|image|max:3072', // Max 3MB
+            'imageFiles.*'     => 'nullable|image|max:3072',
         ];
     }
 
@@ -120,13 +94,6 @@ class ProductIndex extends Component
 
     public function create(): void
     {
-        /*
-         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
-         *
-         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
-         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
-         * data lain menampilkan pesan merah milik data yang tadi.
-         */
         $this->resetValidation();
         $this->galatTerjemah = null;
         $this->resetForm();
@@ -200,7 +167,7 @@ class ProductIndex extends Component
     {
         $this->validate();
 
-        $product = $this->editingId 
+        $product = $this->editingId
             ? Product::findOrFail($this->editingId)
             : new Product();
 
@@ -260,7 +227,7 @@ class ProductIndex extends Component
         $product = Product::findOrFail($this->editingId);
         $media = $product->media()->findOrFail($mediaId);
         $media->delete();
-        
+
         $this->existingMedia = $product->getMedia('gallery');
         session()->flash('message', 'Image deleted successfully!');
     }
@@ -268,18 +235,16 @@ class ProductIndex extends Component
     public function setCoverMedia(int $mediaId): void
     {
         $product = Product::findOrFail($this->editingId);
-        
-        // Remove cover status from all media
+
         $product->media()->where('collection_name', 'gallery')->get()->each(function ($media) {
             $media->forgetCustomProperty('is_cover');
             $media->save();
         });
 
-        // Set the new cover
         $media = $product->media()->findOrFail($mediaId);
         $media->setCustomProperty('is_cover', true);
         $media->save();
-        
+
         $this->existingMedia = $product->getMedia('gallery');
         session()->flash('message', 'Cover image updated successfully!');
     }
@@ -318,9 +283,6 @@ class ProductIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        // 'media' ikut dimuat di depan karena tabelnya kini menampilkan gambar
-        // tiap produk. Tanpa ini, tiap baris menembak kuerinya sendiri —
-        // sepuluh baris jadi sepuluh kueri tambahan di tiap muat halaman.
         $products = Product::with(['category.translations', 'translations', 'certifications', 'media'])
             ->when($this->search, function ($q) {
                 $q->search($this->search);
@@ -331,14 +293,6 @@ class ProductIndex extends Component
             ->when($this->selectedStatus, function ($q) {
                 $q->where('status', $this->selectedStatus);
             })
-            /*
-             * !== '', BUKAN when($this->selectedFeatured, ...).
-             *
-             * when() memakai kebenaran nilainya, dan untai '0' itu palsu di
-             * PHP — jadi pilihan "bukan unggulan" tidak akan pernah menyaring
-             * apa pun, dan diam-diam menampilkan seluruh produk seolah tidak
-             * ada penyaring yang menyala.
-             */
             ->when($this->selectedFeatured !== '', function ($q) {
                 $q->where('is_featured', $this->selectedFeatured === '1');
             })

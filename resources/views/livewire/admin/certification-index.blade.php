@@ -23,9 +23,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -44,8 +41,6 @@
         </button>
     </div>
 
-    {{-- ══ PERINGATAN MASA BERLAKU — kalimat, bentuk, dan rona barisnya
-         disalin apa adanya dari peringatan yang sama di dasbor. ══ --}}
     @php
         $perluDiurus = collect($expiredCerts)->concat($expiringSoonCerts)
             ->unique('id')
@@ -60,8 +55,6 @@
     @if($perluDiurus->isNotEmpty())
         <div class="card mb-6" role="alert">
 
-            {{-- Kepala bergaris bawah, keping 36px berikon 18px — sama persis
-                 dengan peringatan yang sama di dasbor. --}}
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
                 <div class="flex min-w-0 items-center gap-2.5">
                     <span @class([
@@ -77,10 +70,7 @@
                     </span>
 
                     <div class="min-w-0">
-                        {{-- Kalimatnya menyebut jumlah dan keadaannya, bukan
-                             jendela waktu kuerinya: "dalam 30 hari" di atas
-                             baris berbunyi "11 hari lagi" terbaca seperti dua
-                             hal berbeda. --}}
+                        
                         <p @class([
                             'text-admin-title',
                             'text-danger' => $adaKedaluwarsa,
@@ -103,9 +93,6 @@
                     </div>
                 </div>
 
-                {{-- Dasbor menaruh tautan "Kelola sertifikasi" di sini; di
-                     halaman ini tautan itu menunjuk ke halaman yang sedang
-                     dibuka, jadi sengaja tidak ikut. --}}
             </div>
 
             <div class="space-y-2 p-5">
@@ -127,10 +114,7 @@
                         'border-line bg-mist'          => ! $lewatAlert,
                     ])>
                         <div class="flex min-w-0 items-center gap-3">
-                            {{-- Logo 40px. Yang belum punya logo tetap
-                                 mendapat petaknya — berbingkai putus-putus —
-                                 supaya nama sertifikasi di seluruh daftar
-                                 tetap berawal di garis yang sama. --}}
+                            
                             @if($logoAlert)
                                 <img src="{{ $logoAlert->getUrl() }}" alt=""
                                      loading="lazy" width="40" height="40"
@@ -172,9 +156,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -197,19 +178,11 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
             <div class="flex items-center gap-2.5">
-                {{-- Keping lambang 36px berlatar hijau muda dengan ikon 18px — sama
-                     persis dengan kepala kartu di dasbor, Inquiry, Produk, dan
-                     Kategori. --}}
+                
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-brand-wash text-brand">
                     <x-icon.admin name="certification" size="h-[18px] w-[18px]" />
                 </span>
@@ -229,13 +202,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Dua kendali berbagi satu baris — pencarian dua pertiga, status
-                     sepertiga. Susunan yang sama dengan halaman Kategori. --}}
                 <div class="grid gap-4 p-5 lg:grid-cols-3">
 
                     <div class="relative lg:col-span-2">
@@ -310,17 +279,6 @@
                 <div class="overflow-x-auto">
 
                     @php
-                        /* Susunan kolomnya tetap seperti yang sudah ada — tujuh
-                           kolom, urutan sama — hanya diterjemahkan dan ditata. */
-                        /* Satu sel untuk logo, nama, nomor, dan berkas PDF-nya —
-                           pola yang sama dengan halaman Produk dan Kategori.
-                           Keempatnya menunjuk benda yang sama; memisahkannya
-                           jadi dua kolom memaksa mata melompat untuk merangkai
-                           satu keterangan. */
-                        /* Tanggal terbit tidak ikut ditabelkan. Yang menuntut
-                           tindakan adalah tanggal kedaluwarsanya; tanggal
-                           terbitnya cuma catatan arsip yang bisa dilihat saat
-                           sertifikasinya dibuka. Isiannya tetap ada di modal. */
                         $kolom = [
                             ['label' => 'Sertifikasi',  'lebar' => 'w-[34%]', 'rata' => 'text-left'],
                             ['label' => 'Penerbit',     'lebar' => 'w-[21%]', 'rata' => 'text-left'],
@@ -349,10 +307,6 @@
                         @endif
 
                         @php
-                            /* Nomor urutan yang dipakai lebih dari satu sertifikasi.
-                               Dihitung sekali di sini, bukan di dalam perulangan:
-                               menghitungnya per baris berarti menyapu seluruh
-                               koleksinya sebanyak jumlah barisnya. */
                             $urutanGanda = collect($certifications->items())
                                 ->countBy('sort_order')
                                 ->filter(fn ($n) => $n > 1)
@@ -364,12 +318,6 @@
                                 @php
                                     $nama = $cert->translated_name ?: $cert->slug;
                                     $urutanKembar = $urutanGanda->contains($cert->sort_order);
-
-                                    /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                       kedua mengembalikan untai kosong saat tidak ada
-                                       berkasnya, dan untai kosong di src membuat
-                                       peramban memuat ulang HALAMAN ini sebagai
-                                       gambar. */
                                     $logo = $cert->getFirstMedia('logos');
                                     $pdf  = $cert->getFirstMedia('pdfs');
 
@@ -385,19 +333,9 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus — keadaan
-                                         kedaluwarsa sudah terbaca dari kolom
-                                         Berlaku sampai. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
 
-                                            {{-- object-contain, bukan
-                                                 object-cover: lambang lembaga
-                                                 sertifikasi bentuknya
-                                                 macam-macam, dan memotongnya
-                                                 sampai penuh kotak membuang
-                                                 bagian yang justru
-                                                 mengenalinya. --}}
                                             @if($logo)
                                                 <img src="{{ $logo->getUrl() }}" alt=""
                                                      loading="lazy" width="40" height="40"
@@ -417,13 +355,6 @@
                                                 <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                {{-- Baris kedua: nomor
-                                                     sertifikat, berangka
-                                                     lebar seragam — yang
-                                                     dilakukan orang dengan
-                                                     nomor ini adalah
-                                                     mencocokkannya karakter
-                                                     per karakter. --}}
                                                 <span class="mt-0.5 flex items-center gap-2">
                                                     <span class="min-w-0 truncate text-admin-caption tabular-nums text-ink-faint"
                                                           title="Nomor sertifikat: {{ $cert->certificate_number }}">{{ $cert->certificate_number ?: 'Tanpa nomor' }}</span>
@@ -474,11 +405,6 @@
                                         @endif
                                     </td>
 
-                                    {{-- Angka urutan yang kembar diberi
-                                         tanda: dua sertifikasi berangka sama
-                                         akan berurutan seadanya di situs
-                                         publik, dan tanpa tanda tidak ada
-                                         yang memberi tahu. --}}
                                     <td class="px-3 py-4 align-middle">
                                         <span @class([
                                             'inline-flex h-7 min-w-7 items-center justify-center rounded-control
@@ -571,9 +497,6 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH SERTIFIKASI
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         <div class="modal-open fixed inset-0 z-[100] flex items-center justify-center
                     overflow-clip bg-ink/45 p-4 backdrop-blur-[2px]"
@@ -593,9 +516,7 @@
                     {{-- ── Kepala ──────────────────────────────────────── --}}
                     <div class="flex shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-5">
                         <div class="flex min-w-0 items-center gap-3.5">
-                            {{-- Keping 52px, setinggi blok dua baris di
-                                 sebelahnya (judul 30px + jarak 6 + keterangan
-                                 17). --}}
+                            
                             <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-corner
                                          bg-brand-wash text-brand">
                                 <x-icon.admin name="certification" size="h-6 w-6" />
@@ -630,13 +551,7 @@
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
                             <section class="overflow-hidden rounded-corner border border-line bg-canvas">
-                                {{-- Sakelar bahasa dan tombol Terjemahkan duduk di KEPALA KARTU,
-                                     sebaris dengan judulnya — susunan yang sama dengan modal
-                                     Produk, Kategori, Pasar Ekspor, Berita, dan Halaman.
                                 
-                                     Sebelumnya keduanya berdiri di dalam badan kartu, dan karena
-                                     barisnya selebar kartu, tombolnya terlempar 201px dari
-                                     sakelarnya. Di modal lain jaraknya 8px. --}}
                                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
                                     <div class="flex min-w-0 items-center gap-2.5">
                                         <span class="flex h-9 w-9 shrink-0 items-center justify-center
@@ -656,11 +571,6 @@
                                          role="group" aria-label="Bahasa yang sedang disunting">
                                         @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
                                             @php
-                                                /* Titik penanda: bahasa ini masih kosong
-                                                   sementara bahasa satunya sudah diisi.
-                                                   Akibatnya tidak kentara dari panel —
-                                                   kartunya akan menampilkan teks bahasa
-                                                   satunya. */
                                                 $lain    = $kode === 'en' ? 'id' : 'en';
                                                 $isiIni  = filled(trim($kode === 'en' ? $name_en : $name_id));
                                                 $isiLain = filled(trim($lain === 'en' ? $name_en : $name_id));
@@ -710,31 +620,8 @@
 
                                 <div class="space-y-4">
 
-                                    {{-- Dua bahasa BERDAMPINGAN, bukan di
-                                         balik sakelar seperti modal Produk
-                                         dan Kategori: di sini sakelarnya
-                                         hanya akan mengatur satu isian, dan
-                                         sakelar untuk satu isian cuma
-                                         menambah langkah. --}}
-                                    {{-- Sakelar bahasa DI SAMPING tombol terjemah, dan
-                                         kolomnya bertukar di tempat yang sama — pola
-                                         yang sama dengan modal Halaman.
-
-                                         Yang lama menaruh kolom Indonesia dan Inggris
-                                         berdampingan: dua bahasa harus dibaca sekaligus
-                                         padahal yang dikerjakan satu, dan tiap kolom
-                                         cuma dapat separuh lebar — mahal untuk
-                                         keterangan sepanjang 300 karakter.
-
-                                         Sakelarnya berdiri di bingkai sendiri, terpisah
-                                         dari tombol terjemah: bingkai berlekuk begitu
-                                         berjanji "pilih salah satu", dan tombol tindakan
-                                         di dalamnya mengingkari janji itu. --}}
                                     <div>
 
-                                        {{-- Pesan gagal-terjemah, tepat di bawah sakelar yang
-                                             dilayaninya — bukan di puncak jendela dan bukan
-                                             lewat flash. --}}
                                         @if($galatTerjemah)
                                             <p class="mt-2 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                                 <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -788,9 +675,6 @@
                                             Nomor sertifikat
                                         </label>
 
-                                        {{-- tabular-nums: yang dilakukan orang dengan nomor
-                                             ini adalah mencocokkannya karakter demi
-                                             karakter dengan dokumen aslinya. --}}
                                         <input type="text" wire:model="certificate_number" id="sertif-nomor"
                                                placeholder="mis. ID31110001234560124"
                                                class="admin-control mt-2 tabular-nums">
@@ -843,12 +727,6 @@
                                             Tanggal kedaluwarsa
                                         </label>
 
-                                        {{-- min/max saling mengunci,
-                                             mencerminkan
-                                             after_or_equal:issued_at di
-                                             komponennya — tanggal yang
-                                             mustahil tidak pernah sempat
-                                             terkirim. --}}
                                         <input type="date" wire:model="expires_at" id="sertif-kedaluwarsa"
                                                min="{{ $issued_at ?: '' }}" class="admin-control mt-2">
 
@@ -893,9 +771,7 @@
                                     @if($editingId && filled($existingLogoUrl))
                                         <div class="group relative aspect-square overflow-hidden
                                                     rounded-control border border-line">
-                                            {{-- object-contain: lambang lembaga berbentuk
-                                                 macam-macam, dan memotongnya sampai penuh
-                                                 kotak membuang bagian yang mengenalinya. --}}
+                                            
                                             <img src="{{ $existingLogoUrl }}" alt=""
                                                  class="block h-full w-full bg-canvas object-contain p-2">
 
@@ -988,8 +864,6 @@
                                         </div>
                                     @endif
 
-                                    {{-- Berkas PDF tidak bisa dipratinjau sebagai gambar,
-                                         jadi yang ditampilkan namanya. --}}
                                     @if($pdfFile)
                                         <div class="relative flex aspect-square flex-col items-center justify-center
                                                     gap-1.5 overflow-hidden rounded-control border border-dashed
@@ -1042,8 +916,6 @@
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">Status</label>
 
-                                        {{-- :nullable="false" — sertifikasi selalu berada
-                                             di salah satu dari dua keadaan ini. --}}
                                         <x-admin.select model="status" :value="$status" class="mt-2"
                                                         label="Status sertifikasi" placeholder="Aktif"
                                                         :nullable="false"

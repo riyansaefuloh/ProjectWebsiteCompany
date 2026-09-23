@@ -19,36 +19,26 @@ class Category extends Model implements HasMedia
 
     protected $fillable = [
         'slug',
-        'icon', // We'll keep icon field for backward compatibility, but won't use it actively for image. Or maybe use it to store string if no image.
+        'icon',
         'sort_order',
         'status',
     ];
 
-    /**
-     * Relasi ke data terjemahan bahasa (Kategori mendukung ID/EN).
-     */
     public function translations(): HasMany
     {
         return $this->hasMany(CategoryTranslation::class);
     }
 
-    /**
-     * Relasi One-to-Many ke tabel Produk (Satu Kategori memiliki banyak Produk).
-     */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
     }
 
-    /**
-     * Register Media Conversions (Auto WebP).
-     * PRD Bab 8.2 & 7.10: Konversi gambar otomatis ke WebP.
-     */
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('webp')
             ->format('webp')
             ->quality(80)
-            ->nonQueued(); // Langsung konversi saat upload (bisa diganti queued jika server kuat)
+            ->nonQueued();
     }
 }

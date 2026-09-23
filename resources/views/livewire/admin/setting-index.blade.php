@@ -1,12 +1,6 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Zona waktu yang masuk akal untuk eksportir Indonesia. Nilai yang
-         * sedang tersimpan selalu ikut disertakan meski di luar daftar —
-         * kalau tidak, menu pilihnya akan menampilkan pilihan pertama dan
-         * diam-diam mengganti zona waktunya begitu disimpan.
-         */
         $zona = collect([
             'Asia/Jakarta'  => 'Asia/Jakarta — WIB',
             'Asia/Makassar' => 'Asia/Makassar — WITA',
@@ -20,9 +14,7 @@
 
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ── KEPALA HALAMAN ────────────────────────────────────────────── --}}
     <form wire:submit.prevent="save">
 
         <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -30,8 +22,6 @@
                 <h1 class="text-admin-display text-heading">
                     Pengaturan
                 </h1>
-                {{-- Yang diatur di sini identitas dan sambungan situs, bukan
-                     isi halamannya. Isi halaman publik diatur di menu Halaman. --}}
                 <p class="mt-1.5 text-admin-body text-ink-muted">
                     Identitas perusahaan, logo, kontak, tautan sosial, dan integrasi.
                 </p>
@@ -48,9 +38,7 @@
             </button>
         </div>
 
-        {{-- ══════════════════════════════════════════════════════════════
-             PESAN SETELAH TERSIMPAN
-             ══════════════════════════════════════════════════════════════ --}}
+        {{-- ── PESAN SETELAH TERSIMPAN ───────────────────────────────────── --}}
         @if(session()->has('message'))
             <div x-data="{ tampil: true }" x-show="tampil" x-collapse
                  class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -73,9 +61,7 @@
             </div>
         @endif
 
-        {{-- ══════════════════════════════════════════════════════════════
-             DUA KOLOM
-             ══════════════════════════════════════════════════════════════ --}}
+        {{-- ── PENGATURAN UTAMA ────────────────────────────────────────── --}}
         <div class="grid gap-6 lg:grid-cols-3">
 
             {{-- ══ KIRI ══ --}}
@@ -186,9 +172,6 @@
                                 @enderror
                             </div>
 
-                            {{-- ── Jam operasional. SATU isian, berlaku
-                                 Senin–Sabtu. Yang lama tiga isian terpisah dan
-                                 pada praktiknya selalu diisi jam yang sama. ── --}}
                             <div class="border-t border-line pt-4">
                                 <label for="set-jam" class="block text-admin-label text-ink-faint">
                                     Jam operasional
@@ -282,18 +265,10 @@
                                     <span class="block text-admin-label text-ink-faint">{{ $berkas['label'] }}</span>
 
                                     @php
-                                        /* Alamatnya dicek benar-benar ada di disk, bukan cuma
-                                           kolomnya terisi: <img> beralamat mati menggambar ikon
-                                           rusak, dan itu terbaca sebagai logonya yang rusak. */
                                         $adaLama = filled($berkas['lama'])
                                             && \Illuminate\Support\Facades\Storage::disk('public')->exists($berkas['lama']);
                                     @endphp
 
-                                    {{-- Ubin PERSEGI, sama dengan modal
-                                         Produk, Kategori, Berita, Galeri, dan
-                                         Unduhan. Logo memang melintang, tapi
-                                         object-contain membuatnya duduk utuh
-                                         di dalamnya. --}}
                                     <div class="mt-2 grid grid-cols-2 gap-3">
                                         @if($adaLama)
                                             <div class="group/ubin relative aspect-square overflow-hidden
@@ -301,11 +276,6 @@
                                                 <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($berkas['lama']) }}"
                                                      alt="" class="block h-full w-full object-contain p-3">
 
-                                                {{-- Tombol hapus bersembunyi
-                                                     di lapisan gelap yang
-                                                     naik saat kursor lewat,
-                                                     sama dengan ubin gambar
-                                                     di halaman lain. --}}
                                                 <div class="absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t
                                                             from-ink/80 to-transparent p-2 opacity-0 transition-opacity
                                                             group-hover/ubin:opacity-100 group-focus-within/ubin:opacity-100">
@@ -333,9 +303,6 @@
                                             </div>
                                         @endif
 
-                                        {{-- Berkas yang baru dipilih tapi belum tersimpan.
-                                             temporaryUrl() dibungkus try: ia melempar galat
-                                             untuk berkas yang bukan gambar. --}}
                                         @if($this->{$berkas['prop']})
                                             @php
                                                 try {
@@ -415,8 +382,6 @@
                                     Zona waktu <span class="text-brand">*</span>
                                 </label>
 
-                                {{-- :nullable="false" — situs selalu berada di satu zona
-                                     waktu; kekosongan bukan jawaban yang sah. --}}
                                 <x-admin.select model="timezone" :value="$timezone" class="mt-2"
                                                 label="Zona waktu situs" :nullable="false"
                                                 :options="$zona->map(fn ($label, $nilai) => [

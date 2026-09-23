@@ -1,5 +1,5 @@
 @php
-    /* Bahasa dari ruas alamat — alasannya sama dengan halaman 404. */
+    
     $ruas   = request()->segment(1);
     $bahasa = array_key_exists((string) $ruas, config('laravellocalization.supportedLocales', []))
         ? $ruas
@@ -15,21 +15,6 @@
     <title>{{ __('site.error_500_eyebrow') }} - {{ config('app.name', 'Coffee Nusantara') }}</title>
     <meta name="robots" content="noindex">
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         Halaman ini BERDIRI SENDIRI, dan itu keputusan, bukan kemalasan.
-
-         Halaman 404 memakai tata letak publik lengkap. Halaman ini TIDAK boleh,
-         karena tata letak itu memanggil basis data dua kali di dalam <head> —
-         Setting::pluck() dan Page::where() — dan memuat CSS lewat manifes Vite.
-
-         Ketiganya justru penyebab paling lazim dari galat 500. Menggambar
-         halaman "maaf, ada yang salah" yang bergantung pada hal yang barusan
-         rusak berarti melempar galat kedua di tengah penggambaran, dan Laravel
-         lalu jatuh ke halaman bawaannya — persis yang mau kita hindari.
-
-         Karena itu: tanpa basis data, tanpa Vite, tanpa huruf dari luar. Yang
-         dipakai cuma berkas bahasa (dibaca dari cakram) dan CSS di bawah ini.
-         ══════════════════════════════════════════════════════════════════ --}}
     <style>
         :root {
             --kanvas: #fdfaf5;
@@ -53,10 +38,7 @@
             padding: 40px 24px;
             background: var(--kanvas);
             color: var(--tinta);
-            /* Huruf sistem, bukan Fraunces dan Inter lewat Google Fonts: huruf
-               dari luar menuntut jaringan, dan halaman ini harus tetap utuh
-               justru ketika ada yang tidak beres. Serif untuk judul supaya
-               nadanya tetap sekeluarga dengan situsnya. */
+            
             font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 16px;
             line-height: 1.625;
@@ -141,8 +123,6 @@
 
         <p class="isi">{{ __('site.error_500_body') }}</p>
 
-        {{-- url(), bukan route(): satu sambungan lebih sedikit ke bagian
-             aplikasi yang mungkin sedang rusak. --}}
         <a class="tombol" href="{{ url('/' . $bahasa) }}">
             {{ __('site.error_back_home') }}
             <span aria-hidden="true">

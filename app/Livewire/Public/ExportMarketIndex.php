@@ -37,10 +37,7 @@ class ExportMarketIndex extends Component
             ->get();
 
         return view('livewire.public.export-market-index', [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
-            'isi' => \App\Support\IsiHalaman::untuk('export-markets'),
-
+            'isi'          => \App\Support\IsiHalaman::untuk('export-markets'),
             'exportMarkets' => $exportMarkets,
         ]);
     }

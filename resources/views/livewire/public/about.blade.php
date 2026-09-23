@@ -1,7 +1,4 @@
 @php
-    /* Foto profil menempel pada bagiannya sendiri. Kunci pengaturan lama
-       'about_image' tetap dibaca sebagai cadangan supaya foto yang sudah
-       terlanjur diunggah tidak hilang. */
     $fotoProfil = \App\Support\IsiHalaman::gambar('profile')
         ?: ($settings['about_image'] ?? null);
 
@@ -9,7 +6,7 @@
         ? \Illuminate\Support\Facades\Storage::url($fotoProfil)
         : null;
 
-    // ── Enam tonggak sejarah ─────────────────────────────────────────────
+    // Enam tonggak sejarah
     $establishedYear = \App\Support\IsiHalaman::tahunBerdiri();
     $currentYear = (int) date('Y');
 
@@ -18,16 +15,7 @@
     $milestoneCount = 6;
     $milestones = [];
 
-    /* Tahun yang diketik sendiri di panel, per tonggak. Yang tidak diisi tidak
-       tercatat — dan yang tidak tercatat dihitung seperti dulu: dibagi rata dari
-       tahun berdiri sampai tahun berjalan. Jadi kolom yang belum pernah disentuh
-       menggambar angka yang sama persis dengan sebelum kolomnya ada. */
     $tahunDiketik = \App\Support\IsiHalaman::opsi('profile');
-
-    /* Gambar tiap tonggak, diunggah satu per satu dari panel. Yang belum ada
-       tidak digambar sama sekali — bukan diganti petak "foto kosong". Di
-       garis waktu, tonggak tanpa gambar itu keadaan yang wajar; petak abu di
-       sana malah terbaca seperti gambarnya gagal dimuat. */
     $gambarTonggak = \App\Support\IsiHalaman::gambarTonggak('profile');
 
     for ($i = 0; $i < $milestoneCount; $i++) {
@@ -46,61 +34,25 @@
 
     $trackInset = 100 / (2 * $milestoneCount);
     $trackSpan  = round(100 - (2 * $trackInset), 4);
-
-    // Dirakit di sini lalu dipasang lewat direktif @style, BUKAN ditulis
-    // langsung sebagai atribut style="...". Isi atribut style dibaca editor
-    // sebagai CSS, dan penanda Blade di dalamnya ditandai merah sebagai galat
-    // padahal keluarannya sah — galat palsu semacam itu menyamarkan galat
-    // sungguhan di berkas yang sama. Direktif @style menghasilkan atribut yang
-    // sama persis tanpa pernah terlihat sebagai CSS oleh editor.
-    /* Rel membentang PENUH dari tepi ke tepi, dan isiannya juga mulai dari
-       tepi kiri — bukan dari titik pertama.
-
-       Yang lama memulai keduanya di titik pertama, jadi pada tonggak pertama
-       isiannya selebar nol dan tidak ada satu pun garis berwarna di layar.
-       Dibaca sebagai garis yang hilang, bukan sebagai kemajuan yang belum
-       berjalan. Sekarang tonggak pertama tetap punya potongan berwarna dari
-       tepi kiri sampai titiknya. */
-    $fillBase = $trackInset;
+    $fillBase   = $trackInset;
 @endphp
 
 <div>
-    {{-- ══ Bagian halaman digambar menurut urutan dan tampil-tidaknya yang
-         diatur di panel: Halaman → Susunan. ══ --}}
     @foreach($profilSections as $profilSection)
         @switch($profilSection['id'])
             @case('profil')
-        {{-- Seluruh judul dan keterangan di halaman ini memakai ukuran, rupa,
-             dan warna yang sama dengan seksi produk di beranda: label Jost 11px
-             aksen-dalam, judul Fraunces 42px tebal cokelat, keterangan Inter
-             16px.
-
-             Perhatikan font-site-display, bukan font-display. Di lingkup .situs
-             token font-display sengaja dipetakan ke huruf BADAN, jadi kelas itu
-             menghasilkan Inter — bukan serifnya. Judul-judul kecil di halaman ini
-             semuanya memakainya sebelum ini, dan itu sebabnya tidak ada satu pun
-             yang berupa serif. --}}
-        {{-- ══════════════════════════════════════════════════════════════════
-             PROFIL
-             ══════════════════════════════════════════════════════════════════ --}}
+        {{-- Section: Profil --}}
         <section class="pb-20 pt-14 md:pt-16 lg:pb-24 lg:pt-20">
             <div class="shell">
 
                 <div class="grid gap-x-12 gap-y-8 lg:grid-cols-12">
 
                     <div class="lg:col-span-7">
-                        {{-- Label dan paragraf kanan kini isian bagian
-                             Profil; baris lama dari /page/about-us tetap
-                             dibaca sebagai cadangan. --}}
+                        
                         <p class="eyebrow">
                             {{ $isi('eyebrow', 'site.nav_about', [], $page?->translated_title) }}
                         </p>
 
-                        {{-- 42px cokelat, ukuran dan warna yang sama dengan judul
-                             seksi produk di beranda. Tetap <h1> — ia judul halaman
-                             ini — tapi tidak lagi 48px: ukuran itu membuatnya lebih
-                             besar daripada judul seksi mana pun di situs, padahal
-                             perannya sama. --}}
                         <h1 class="display mt-5 max-w-[20ch] text-site-h2 text-site-forest">
                             {!! \App\Support\Judul::sorot($isi('headline', 'site.about_headline')) !!}
                         </h1>
@@ -133,9 +85,7 @@
                 @break
 
             @case('vision_mission')
-        {{-- ══════════════════════════════════════════════════════════════════
-             VISI & MISI
-             ══════════════════════════════════════════════════════════════════ --}}
+        
         <section class="section border-t border-line">
             <div class="shell">
 
@@ -146,47 +96,23 @@
                     </h2>
                 </div>
 
-                {{-- Kolomnya SAMA LEBAR, enam petak masing-masing.
-
-                     Pembagian rata ini sempat gagal sebelumnya karena pernyataan
-                     visi menentukan tinggi panelnya sendiri: di kolom yang sempit
-                     ia pecah tujuh baris dan panel kiri jadi bidang tertinggi di
-                     seksi. Yang membuatnya berhasil sekarang bukan lebarnya
-                     melainkan max-w-[30ch] pada kalimatnya — panjang barisnya
-                     dipatok, jadi jumlah barisnya tidak lagi berubah mengikuti
-                     lebar kolom, dan tinggi seksi kembali ditentukan daftar misi.
-
-                     Keduanya MERENTANG sama tinggi, dan labelnya berdiri di luar —
-                     satu di atas panel, satu di atas daftar, keduanya .eyebrow yang
-                     sama. Selama label visi masih di DALAM panelnya, tepi atas panel
-                     sejajar dengan label misi, bukan dengan daftarnya: kalimat visi
-                     dan butir misi mulai di dua garis yang berbeda. --}}
+                {{-- Section: Visi & Misi --}}
                 <div class="mt-12 grid items-stretch gap-6 lg:mt-14 lg:grid-cols-12 lg:gap-8">
 
-                    {{-- ── VISI ───────────────────────────────────────────────── --}}
+                    {{-- Visi --}}
                     <div class="flex flex-col lg:col-span-6">
                         <p class="eyebrow">{{ $isi('vision_label', 'site.vision_label') }}</p>
 
-                        {{-- Isinya DITENGAHKAN, mendatar maupun tegak. Panel ini cuma
-                             memuat satu pernyataan; ditambatkan ke kaki, ia menyisakan
-                             lubang di atasnya begitu panelnya merentang menyamai daftar
-                             misi. Yang di tengah tidak punya sisi yang lebih kosong. --}}
                         <div class="relative mt-5 flex flex-1 flex-col justify-center overflow-hidden rounded-panel
                                     bg-site-forest p-8 text-center sm:p-10">
 
-                            {{-- 21px, sama dengan judul tiap butir misi. Pada 26px
-                                 pernyataan sepanjang ini memenuhi panelnya sampai ke
-                                 tepi dan panel itu jadi bidang paling berat di seksi —
-                                 padahal ia satu dari dua hal yang sederajat. Yang
-                                 membedakannya dari butir misi bukan ukuran melainkan
-                                 bidang gelapnya sendiri. --}}
                             <p class="relative mx-auto max-w-[30ch] font-site-display font-bold leading-[1.5] tracking-[-0.01em] text-white text-site-title">
                                 {{ $isi('vision_body', 'site.vision_body') }}
                             </p>
                         </div>
                     </div>
 
-                    {{-- ── MISI ───────────────────────────────────────────────── --}}
+                    {{-- Misi --}}
                     <div class="lg:col-span-6">
                         <p class="eyebrow">{{ $isi('mission_label', 'site.mission_label') }}</p>
 
@@ -195,21 +121,6 @@
                         <ol class="mt-5 list-none divide-y divide-line border-y border-line">
                             @for($i = 1; $i <= $missionCount; $i++)
                                 <li class="flex items-start gap-3.5 py-4">
-                                    {{-- Angka hantu, rupa yang sama dengan nomor kartu
-                                         pilar di beranda: huruf judul tebal, bertitik,
-                                         nyaris tak terbaca.
-
-                                         Kepekatannya 0,14 di sini, bukan 0,07 seperti
-                                         di kartu pilar. Di sana angkanya 76px dan punya
-                                         seluruh sudut kartu untuk dirinya; di baris
-                                         daftar ia 40px dan berdampingan dengan judul —
-                                         pada 0,07 ia lenyap dan yang tersisa cuma
-                                         lekukan kosong sebelum judulnya.
-
-                                         Lebarnya dipatok supaya judul ketiga butirnya
-                                         mulai di garis yang sama, dan tabular-nums
-                                         menjaga "1" tidak lebih sempit daripada angka
-                                         lain. --}}
                                     <span aria-hidden="true" data-hias
                                           class="w-[2.2rem] shrink-0 select-none pt-px font-site-display
                                                  text-[26px] font-bold leading-none tracking-[-0.04em]
@@ -218,11 +129,6 @@
                                     </span>
 
                                     <div class="min-w-0">
-                                        {{-- 17px, bukan 21px. Ketiga butir inilah yang
-                                             menentukan tinggi seluruh seksi — panel visi
-                                             merentang mengikutinya — jadi tiap piksel di
-                                             sini dibayar tiga kali lalu ditiru panel di
-                                             sebelahnya. --}}
                                         <h3 class="font-site-display font-bold leading-snug tracking-[-0.01em] text-site-forest text-site-lede">
                                             {{ $isi('mission_' . $i . '_title', 'site.mission_' . $i . '_title') }}
                                         </h3>
@@ -240,18 +146,12 @@
                 @break
 
             @case('values')
-        {{-- ══════════════════════════════════════════════════════════════════
-             CORE VALUES
-             ══════════════════════════════════════════════════════════════════ --}}
+        
         <section class="section border-t border-line">
             <div class="shell">
 
                 @php
-                    /* Ikonnya dipatok di kode, judul dan keterangannya diketik dari
-                       panel — keduanya bisa berjalan sendiri-sendiri. Yang di sini
-                       dipilih untuk isi yang SEKARANG terpasang: integritas, mutu,
-                       kemitraan, tanggung jawab. Kalau isinya nanti diganti jauh,
-                       ikonnya perlu ditinjau ulang di sini. */
+                    
                     $values = collect(['integrity', 'quality', 'partnership', 'responsibility'])
                         ->map(fn ($ikon, $i) => [
                             'icon'  => $ikon,
@@ -263,9 +163,7 @@
                     $nilaiBody = $isi('values_body', 'site.values_body');
                 @endphp
 
-                {{-- Kepala seksi disusun seperti "Why Choose Us" di beranda: label
-                     dan judul di kiri, keterangan di kanan yang ditambatkan ke dasar
-                     judul. --}}
+                {{-- Section: Core Values --}}
                 <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                     <div class="lg:col-span-6">
                         <p class="eyebrow">{{ $isi('values_eyebrow', 'site.values_eyebrow') }}</p>
@@ -283,16 +181,7 @@
                     </div>
                 </div>
 
-                {{-- Kartunya sama persis dengan kartu pilar di beranda: nomor hantu
-                     di puncak, petak ikon, lalu judul dan keterangan bertambat di
-                     kaki. Yang lama sederet petak berpembatas rambut tanpa bidang
-                     sendiri — di halaman yang seluruh seksinya berkartu, ia satu-
-                     satunya yang terbaca sebagai tabel.
-
-                     Melebar saat disorot juga ikut, dan HANYA di lg ke atas: di
-                     bawah itu tidak ada kursor yang bisa menyorot, jadi kartunya
-                     kembali jadi baris gulir bersnap dengan keterangan yang selalu
-                     terbuka. --}}
+                {{-- List Values --}}
                 <ul class="mt-12 -mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-6 pb-2
                            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 sm:px-8
                            lg:mx-0 lg:mt-14 lg:overflow-visible lg:px-0">
@@ -313,17 +202,6 @@
                                     {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}.
                                 </span>
 
-                                {{-- Keping BULAT beraksen emas — rupa yang sama dengan keping kontak
-                                     di kaki halaman dan di halaman Contact Us.
-
-                                     Warnanya MEMBALIK saat disorot: bidang cokelat berlambang emas jadi
-                                     bidang emas berlambang cokelat. Yang ditukar bidang dan tintanya,
-                                     bukan diredupkan — jadi lambangnya sama pekatnya di kedua keadaan,
-                                     6,99:1 dua-duanya.
-
-                                     Pembalikan itu juga yang menjaganya tetap TERLIHAT. Kartu ini sendiri
-                                     berubah cokelat saat disorot, dan keping cokelat akan lenyap ke dalam
-                                     kartunya. --}}
                                 <span class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center
                                              rounded-full bg-site-forest text-site-gilt
                                              transition-colors duration-300
@@ -354,17 +232,12 @@
                 @break
 
             @case('history')
-        {{-- ══════════════════════════════════════════════════════════════════
-             SEJARAH
-             ══════════════════════════════════════════════════════════════════ --}}
+        {{-- Section: Sejarah / Timeline --}}
         <section class="section border-t border-line"
                  x-data="{
                      active: 0,
                      total: {{ count($milestones) }},
                      go(dir) {
-                         /* Dijepit di kedua ujung, tidak memutar balik ke awal:
-                            ini garis waktu, dan melompat dari tonggak terakhir
-                            kembali ke tahun berdiri membaca seperti kekeliruan. */
                          this.active = Math.min(Math.max(this.active + dir, 0), this.total - 1);
                      }
                  }">
@@ -372,35 +245,15 @@
 
                 <p class="eyebrow">{{ $isi('history_eyebrow', 'site.history_eyebrow') }}</p>
 
-                {{-- SATU bidang judul, bukan dua. Bagian beraksennya ditandai
-                     *…* di dalam judulnya sendiri — cara yang sama dengan judul
-                     seksi mana pun di situs ini — dan .display em yang memberinya
-                     rupa tulis tangan sekaligus warnanya.
-
-                     Yang lama memisahkannya jadi kolom kedua lalu membungkusnya
-                     .text-brand: warnanya berbeda dari kata beraksen di seluruh
-                     halaman lain, rupanya tetap serif biasa, dan urutannya terkunci
-                     di belakang — aksen di tengah kalimat mustahil ditulis. --}}
                 <h2 class="display mt-5 max-w-[20ch] text-site-h2 text-site-forest">
                     {!! \App\Support\Judul::sorot($isi('history_title', 'site.history_title')) !!}
                 </h2>
 
-                {{-- ── Rel waktu, DI ATAS panel tonggaknya ────────────────────
-                     Ia daftar isi bagi panel di bawahnya; menaruhnya sesudah
-                     panel berarti pembaca melihat isi satu tonggak sebelum tahu
-                     ada berapa tonggak dan yang mana yang sedang dibuka. --}}
+                {{-- Timeline Navigation --}}
                 <div class="relative mt-12 lg:mt-14">
 
                     <div class="absolute inset-x-0 top-[7px] h-px bg-line" aria-hidden="true"></div>
 
-                    {{-- Yang dianimasikan HANYA width.
-
-                         transition-all menyuruh peramban mengawasi setiap sifat
-                         yang bisa berubah pada elemen ini — termasuk yang tidak
-                         pernah berubah — dan tiap gerak jadi lebih berat daripada
-                         yang diperlukan. Durasinya juga dipangkas 300ms ke 200ms:
-                         geser sejauh beberapa ratus piksel yang memakan sepertiga
-                         detik terbaca sebagai lambat, bukan sebagai halus. --}}
                     <div class="absolute left-0 top-[7px] h-px bg-brand
                                 transition-[width] duration-200 ease-out"
                          x-bind:style="`width: ${ {{ $fillBase }} + (active / (total - 1)) * {{ $trackSpan }} }%`"
@@ -415,32 +268,7 @@
                                         class="group flex flex-col items-center gap-3 pt-0">
                                     <span class="sr-only">{{ $milestone['year'] }} — {{ $milestone['title'] }}</span>
 
-                                    {{-- Titiknya BERUKURAN TETAP; yang berubah cuma
-                                         skala bulatan di dalamnya.
-
-                                         Yang lama menukar h-2 w-2 jadi h-3.5 w-3.5,
-                                         dan itu mengubah TATA LETAK: tiap kali tonggak
-                                         berpindah, tinggi barisnya berubah 6px dan
-                                         seluruh deret tahun di bawahnya ikut bergeser.
-                                         Skala cuma menggambar ulang, tidak menghitung
-                                         ulang letak apa pun — itu sebabnya ia terasa
-                                         halus sementara yang lama tersendat. --}}
                                     <span class="flex h-3.5 w-3.5 items-center justify-center" aria-hidden="true">
-                                        {{-- TIGA keadaan, bukan dua: sudah dilewati, sedang
-                                             disorot, dan belum dilewati.
-
-                                             Yang sudah dilewati berwarna sama dengan garis
-                                             isian yang menghubungkannya — cokelat tua — tapi
-                                             tetap kecil. Kalau ia sewarna titik yang belum
-                                             dilewati, garis berwarna berhenti di titik yang
-                                             warnanya bilang "belum", dan rel itu berhenti
-                                             menceritakan apa pun: warnanya cuma menandai satu
-                                             titik alih-alih menandai kemajuan.
-
-                                             Ukurannya yang membedakannya dari titik yang
-                                             sedang disorot. Besar berarti "di sinilah kamu",
-                                             warna berarti "ini sudah lewat" — dua pertanyaan
-                                             berbeda, dua penanda berbeda. --}}
                                         <span x-bind:class="active === {{ $index }}
                                                 ? 'scale-100 bg-brand'
                                                 : ({{ $index }} < active
@@ -461,12 +289,9 @@
                     </ul>
                 </div>
 
-                {{-- ── Panel tonggak ──────────────────────────────────────────── --}}
+                {{-- Panel Milestone --}}
                 <div class="mt-10 min-h-[240px] sm:min-h-[220px] lg:mt-12">
                     @foreach($milestones as $index => $milestone)
-                        {{-- 180ms dan hanya alfa. Yang lama 300ms sambil menggeser
-                             dua piksel; gerak tegak sependek itu tidak terbaca
-                             sebagai gerak, cuma menunda munculnya isi. --}}
                         <div x-show="active === {{ $index }}"
                              @if($index > 0) x-cloak @endif
                              x-transition:enter="transition ease-out duration-[180ms]"
@@ -474,35 +299,8 @@
                              x-transition:enter-end="opacity-100"
                              class="grid gap-x-12 gap-y-6 lg:grid-cols-12">
 
-                            {{-- Kolom kiri kini HANYA gambar.
-
-                                 Ia digambar lazy dan bernisbah tetap 2:1: tinggi
-                                 petaknya sudah dipesan sebelum berkasnya sampai, jadi
-                                 garis waktu di bawahnya tidak melompat saat gambar
-                                 tonggak berikutnya selesai dimuat.
-
-                                 Tanpa aria-hidden dan tanpa alt kosong: gambar ini ISI,
-                                 bukan hiasan — ia menunjukkan tonggak yang sedang
-                                 diceritakan. Alt-nya diambil dari judul tonggaknya,
-                                 satu-satunya keterangan yang benar tentang apa yang
-                                 tergambar. --}}
                             @if($milestone['image'])
                                 <div class="lg:col-span-5">
-                                    {{-- Di layar lebar gambarnya MERENTANG setinggi
-                                         kolomnya, bukan dipatok nisbah.
-
-                                         Nisbah tetap membuat tingginya ditentukan
-                                         lebarnya sendiri — dan panjang keterangan tiap
-                                         tonggak berbeda-beda, jadi tepi bawah gambar
-                                         hampir tidak pernah bertemu tepi bawah teks di
-                                         sebelahnya. Dengan h-full, tinggi barisnya
-                                         ditentukan teks dan gambarnya menyesuaikan;
-                                         keduanya mulai dan berakhir di garis yang sama
-                                         berapa pun panjang keterangannya.
-
-                                         Nisbah 2:1 tetap dipasang untuk layar sempit,
-                                         tempat kedua kolomnya bertumpuk dan tidak ada
-                                         tinggi baris untuk diikuti. --}}
                                     <div class="max-w-[420px] overflow-hidden rounded-corner border border-line
                                                 bg-site-paper lg:h-full">
                                         <img src="{{ $milestone['image'] }}" alt="{{ $milestone['title'] }}"
@@ -512,15 +310,6 @@
                                 </div>
                             @endif
 
-                            {{-- Tahun, judul, dan keterangannya kini SATU blok di kanan.
-
-                                 Tempat blok itu ikut ada-tidaknya gambar: dengan gambar
-                                 ia mulai di petak ketujuh, tanpa gambar ia melebar dari
-                                 petak pertama. Kalau tempatnya dipatok, tonggak yang
-                                 belum bergambar akan menggambar separuh baris kosong di
-                                 kiri lalu teks yang terdorong sendirian ke kanan — dan
-                                 itu terbaca seperti gambarnya gagal dimuat, bukan
-                                 seperti tonggak yang memang belum berfoto. --}}
                             <div @class([
                                 'lg:col-span-6 lg:col-start-7' => $milestone['image'],
                                 'lg:col-span-8' => ! $milestone['image'],
@@ -563,16 +352,11 @@
                 @break
 
             @case('certification')
-        {{-- ══════════════════════════════════════════════════════════════════
-             BANNER SERTIFIKASI
-             ══════════════════════════════════════════════════════════════════ --}}
+        {{-- Section: Sertifikasi --}}
         <section class="pb-20 pt-16 lg:pb-24 lg:pt-20">
             <div class="shell">
                 <div class="rounded-panel border border-line bg-site-paper p-8 sm:p-10 lg:p-12">
 
-                    {{-- Kepala banner disusun seperti seksi produk di beranda: label
-                         dan judul di kiri, keterangan dan tombolnya di kanan yang
-                         ditambatkan ke dasar judul. --}}
                     <div class="grid gap-8 lg:grid-cols-12 lg:gap-12">
                         <div class="lg:col-span-6">
                             <p class="eyebrow">{{ $isi('cert_eyebrow', 'site.certifications') }}</p>
@@ -584,14 +368,6 @@
                         <div class="lg:col-span-5 lg:col-start-8 lg:self-end">
                             <p class="lede max-w-[46ch] text-site-body">{{ $isi('cert_body', 'site.cert_card_body') }}</p>
 
-                            {{-- Bentuknya sama dengan "Explore Products": pil forest
-                                 pejal setinggi 40px dengan bulatan emas berpanah.
-
-                                 Yang digantikan .btn .btn-outline .btn-arrow — tombol
-                                 bergaris bersudut 4px setinggi 44px berhuruf aksen
-                                 kapital. Empat hal berbeda sekaligus dari tombol
-                                 seksi mana pun di situs ini, padahal tugasnya sama:
-                                 mengantar ke halaman daftarnya. --}}
                             <a href="{{ route('certifications.index') }}"
                                class="group mt-7 inline-flex h-10 items-center gap-3 rounded-full pl-5 pr-1.5
                                       bg-site-forest text-white

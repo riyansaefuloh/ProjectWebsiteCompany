@@ -28,7 +28,7 @@ class ExportMarket extends Model
         ];
     }
 
-    //  Relasi ke data terjemahan nama negara & catatan pasar ekspor.
+    // Relasi terjemahan
     public function translations(): HasMany
     {
         return $this->hasMany(ExportMarketTranslation::class);

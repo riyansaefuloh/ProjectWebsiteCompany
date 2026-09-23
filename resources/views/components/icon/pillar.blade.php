@@ -3,14 +3,6 @@
     'size' => 'h-5 w-5',
 ])
 
-{{-- Ikon empat pilar beranda. Namanya menggambarkan ISI kartunya, bukan urutan
-     kartunya — supaya yang menukar urutan pilar di kode tidak diam-diam
-     menukar maknanya juga.
-
-     Semuanya digambar pada petak 24 dengan tebal goresan 1,7 dan tanpa isian,
-     jadi keempatnya punya bobot optik yang sama saat disandingkan. Ikon yang
-     satu berisi dan yang lain bergaris akan terbaca sebagai dua tingkat
-     kepentingan, padahal keempat pilar ini sederajat. --}}
 @switch($name)
 
     {{-- Mutu: biji kopi dengan tanda centang --}}

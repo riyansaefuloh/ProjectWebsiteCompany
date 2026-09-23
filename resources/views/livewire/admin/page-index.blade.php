@@ -1,8 +1,5 @@
 <div class="mx-auto max-w-[1400px]">
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -21,9 +18,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -46,8 +40,6 @@
         </div>
     @endif
 
-    {{-- ══ HALAMAN PUBLIK — kesepuluh halaman dalam SATU daftar, urut seperti
-         pengunjung menemuinya: beranda dulu, footer terakhir. ══ --}}
     <section class="card mb-6">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -81,9 +73,6 @@
                             : [];
 
                         $terbentang = $susunanDibuka === $hal['id'];
-
-                        /* Sudah ditulis sendiri atau masih memakai teks bawaan.
-                           Dari daftar ini tidak ada cara lain membedakannya. */
                         $isiHal = $halaman_publik[$hal['id']]['isi'] ?? [];
 
                         $bahasaTerisi = collect(['en', 'id'])->filter(
@@ -119,9 +108,7 @@
                             </div>
 
                             @if($berbagian)
-                                {{-- Untuk halaman berbagian, yang berguna sekilas
-                                     bukan "sudah ditulis atau belum" melainkan
-                                     berapa bagiannya yang menyala. --}}
+                                
                                 <span class="shrink-0 rounded-full border border-line bg-canvas px-2.5 py-1
                                              text-admin-caption font-semibold tabular-nums text-ink-muted"
                                       title="Bagian yang tampil di halaman ini">
@@ -154,8 +141,7 @@
                                         <x-icon.admin name="external" size="h-4 w-4" />
                                     </a>
                                 @else
-                                    {{-- Ruang kosong selebar tombolnya, supaya tombol
-                                         di baris ini tetap sekolom dengan baris lain. --}}
+                                    
                                     <span class="inline-block h-8 w-8" aria-hidden="true"></span>
                                 @endif
 
@@ -190,9 +176,6 @@
                             </div>
                         </div>
 
-                        {{-- ── Daftar bagian, terbentang di tempat. Metodenya
-                             berbeda antara beranda dan Profile, jadi namanya
-                             diambil dari satu peta di bawah. ── --}}
                         @if($berbagian && $terbentang)
                             @php
                                 $aksi = $hal['id'] === 'home'
@@ -208,10 +191,6 @@
                                         Urutan dan tampil-tidaknya tiap bagian di {{ $hal['nama'] }}.
                                     </p>
 
-                                    {{-- Daftar ini menyimpan sendiri tiap
-                                         kali disentuh — tanpa keterangan ini
-                                         orang mengira perubahannya menunggu
-                                         tombol Simpan. --}}
                                     <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line
                                                  bg-mist px-3 py-1 text-admin-caption font-semibold text-ink-muted">
                                         <svg class="h-3.5 w-3.5 shrink-0 text-brand" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -241,12 +220,7 @@
                                             ])>{{ $bg['name'] }}</span>
 
                                             <div class="flex shrink-0 items-center gap-1.5">
-                                                {{-- Tombol di ujung daftar
-                                                     digambar MATI, bukan
-                                                     dihilangkan: kalau
-                                                     hilang, tombol di baris
-                                                     lain ikut bergeser dan
-                                                     sasarannya meleset. --}}
+                                                
                                                 @foreach([
                                                     ['arah' => $aksi['naik'],  'mati' => $j === 0,
                                                      'nama' => 'Naikkan',  'jalur' => 'M10 15.5V5.4M5.4 10 10 5.4l4.6 4.6'],
@@ -277,13 +251,6 @@
                                                     @endif
                                                 @endforeach
 
-                                                {{-- Hanya untuk bagian yang
-                                                     isinya memang bisa
-                                                     disunting. Bagian lain
-                                                     merakit diri dari data,
-                                                     dan tombol yang membuka
-                                                     borang kosong menjanjikan
-                                                     yang tidak ada. --}}
                                                 @if($hal['id'] === 'profile'
                                                     || array_key_exists($bg['id'], \App\Livewire\Admin\PageIndex::BIDANG_BAGIAN))
                                                     <button type="button" wire:click="{{ $aksi['ubah'] }}('{{ $bg['id'] }}')"
@@ -299,9 +266,6 @@
                                                     <span class="inline-block h-8 w-[86px]" aria-hidden="true"></span>
                                                 @endif
 
-                                                {{-- Sakelar tampil. wire:click, bukan wire:model:
-                                                     nilainya hidup di dalam larik JSON, dan
-                                                     metodenya yang menyimpannya. --}}
                                                 <button type="button" wire:click="{{ $aksi['sakelar'] }}('{{ $bg['id'] }}')"
                                                         role="switch" aria-checked="{{ $bg['active'] ? 'true' : 'false' }}"
                                                         aria-label="{{ $bg['active'] ? 'Sembunyikan' : 'Tampilkan' }} {{ $bg['name'] }}"
@@ -341,8 +305,6 @@
         </div>
     </section>
 
-    {{-- ══ HALAMAN BUATAN SENDIRI — kartu tersendiri, bukan menyambung di
-         bawah kesepuluh halaman di atas. Keduanya berbeda jenis. ══ --}}
     <section class="card mb-6">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -438,8 +400,6 @@
         </div>
     </section>
 
-    {{-- ══ MODAL ISI BAGIAN — satu modal untuk beranda dan halaman publik:
-         bentuk isinya sama persis, teks per bahasa dan kadang foto. ══ --}}
     @if($bagianDibuka)
         @php
             $daftarBidang = match ($jenisDibuka) {
@@ -458,32 +418,11 @@
             };
 
             $skemaOpsi = collect($opsi)->keyBy('nama');
-
-            /* Medan dipecah jadi kartu-kartu menurut 'kelompok'.
-             *
-             * 'kelompok' menandai medan PERTAMA sebuah kelompok; medan
-             * sesudahnya ikut kelompok terakhir yang disebut. Karena itu
-             * kelompok harus berupa deretan yang bersambung — dan karena
-             * medan pertama tiap himpunan selalu membawa kelompok, tidak ada
-             * medan yang bisa jatuh ke luar kartu mana pun.
-             *
-             * Dipakai daftar berurutan, bukan array berkunci nama kelompok:
-             * nama yang kebetulan sama tidak boleh diam-diam menyatukan dua
-             * kartu yang berjauhan letaknya.
-             *
-             * Slot ber-'jenis' => 'opsi' bukan medan teks melainkan penunjuk
-             * tempat: ia diganti skema opsi bernama sama, supaya pengaturan
-             * bukan-teks bisa berdiri DI TENGAH teks — tahun tiap tonggak
-             * sejarah tepat di atas judul tonggaknya, bukan terlempar ke kartu
-             * terpisah. 'bentuk' menandai mana yang mana saat menggambar. */
             $kartuBidang  = [];
             $opsiTerpakai = [];
 
             foreach ($bidang as $b) {
                 if (($b['jenis'] ?? null) === 'opsi') {
-                    /* Slot tanpa skema dilewati, bukan digambar kosong: yang
-                       tergambar akan berupa kotak tanpa label yang tidak
-                       tersimpan ke mana pun. */
                     if (! $skemaOpsi->has($b['nama'])) {
                         continue;
                     }
@@ -492,9 +431,6 @@
                     $medan['bentuk'] = 'opsi';
                     $opsiTerpakai[] = $b['nama'];
                 } elseif (($b['jenis'] ?? null) === 'gambar') {
-                    /* Slot gambar: satu unggahan tanpa versi per bahasa. Gambar
-                       tonggak sejarah sama di kedua bahasa — yang berbeda cuma
-                       kalimat di sebelahnya. */
                     $medan = $b;
                     $medan['bentuk'] = 'gambar';
                 } else {
@@ -509,8 +445,6 @@
                 $kartuBidang[array_key_last($kartuBidang)]['medan'][] = $medan;
             }
 
-            /* Opsi yang tidak ditempatkan di kartu mana pun tetap perlu tempat:
-               ia jatuh ke kartu "Pengaturan" tersendiri, seperti sebelumnya. */
             $opsiSisa = array_values(array_filter(
                 $opsi,
                 fn ($o) => ! in_array($o['nama'], $opsiTerpakai, true)
@@ -535,8 +469,6 @@
                 default  => 'Isi halaman',
             };
 
-            /* Foto yang tercatat belum tentu ada di disk. <img> beralamat mati
-               menggambar ikon rusak, dan itu terbaca sebagai fotonya yang rusak. */
             $fotoAda = filled($gambarBagianLama)
                 && \Illuminate\Support\Facades\Storage::disk('public')->exists($gambarBagianLama);
         @endphp
@@ -586,21 +518,8 @@
                     {{-- ── Badan ───────────────────────────────────────── --}}
                     <div class="admin-scroll min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-6">
 
-                        {{-- Kendali bahasa berdiri di LUAR kartu-kartu teks:
-                             isian kini terbagi ke beberapa kartu, dan sakelar
-                             di kepala salah satunya akan tampak hanya
-                             mengurus kartu itu. --}}
-                        {{-- justify-end, bukan justify-between: judul "Teks per
-                             bahasa" di kiri sudah dilepas, dan tanpa penggantinya
-                             justify-between akan melemparkan kendalinya ke tepi
-                             kiri. --}}
                         <div class="flex flex-wrap items-center justify-end gap-3">
 
-                            {{-- Tab bahasa dan tombol Terjemahkan berdiri
-                                 TERPISAH: kendali bersegmen menjanjikan
-                                 "pilih salah satu", dan tombol tindakan di
-                                 dalam bingkai yang sama mengingkari janji
-                                 itu. --}}
                             <div class="flex shrink-0 flex-wrap items-center gap-2">
 
                                 <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
@@ -608,14 +527,6 @@
                                      role="group" aria-label="Bahasa yang sedang disunting">
                                     @foreach(['id' => 'Indonesia', 'en' => 'English'] as $kode => $sebutan)
                                         @php
-                                            /* Titik penanda: bahasa ini masih kosong sementara
-                                               bahasa satunya sudah diisi.
-
-                                               Perlu terlihat, karena akibatnya tidak kentara —
-                                               halaman berbahasa itu akan menampilkan teks bahasa
-                                               satunya, bukan teks bawaan yang sudah diterjemahkan.
-                                               Dari panel, keduanya sama-sama tampak "belum
-                                               diisi". */
                                             $terisi = fn ($l) => collect($isiBagian[$l] ?? [])
                                                 ->contains(fn ($v) => filled(is_string($v) ? trim($v) : $v)
                                                     && $v !== '<p><br></p>');
@@ -665,9 +576,6 @@
                             </div>
                         </div>
 
-                        {{-- Pesan gagal-terjemah, tepat di bawah tombol yang
-                             memicunya — sebelumnya ia gagal tanpa mengatakan
-                             apa pun. --}}
                         @if($galatTerjemah)
                             <p class="flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                 <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -709,10 +617,6 @@
                             </div>
                         @endif
 
-                        {{-- Kartu digambar SEKALI, bukan sekali per bahasa.
-                             Yang bertukar mengikuti sakelar hanya kotak
-                             teksnya; kartu, judul, dan kolom angkanya tetap
-                             berdiri. --}}
                         <div class="space-y-5">
                             @foreach($kartuBidang as $kartu)
                                 <section class="rounded-corner border border-line bg-canvas p-5">
@@ -734,10 +638,7 @@
                                                     <span class="block text-admin-label text-ink-faint">{{ $b['label'] }}</span>
 
                                                     <div class="mt-2 flex items-center gap-3">
-                                                        {{-- Petak pratinjau 64px, bukan bidang unggah
-                                                             selebar kartu: enam tonggak berarti enam
-                                                             kotak di satu modal, dan yang selebar kartu
-                                                             membuat daftar tonggaknya jadi enam layar. --}}
+                                                        
                                                         <span class="flex h-16 w-16 shrink-0 items-center justify-center
                                                                      overflow-hidden rounded-control border border-line bg-mist">
                                                             @if($baru)
@@ -789,11 +690,6 @@
                                                         {{ $b['label'] }}
                                                     </label>
 
-                                                    {{-- Kotaknya mengikuti JENIS opsinya. Angka
-                                                         memakai kotak angka berbatas; teks memakai
-                                                         kotak biasa selebar penuh — alamat YouTube
-                                                         tidak muat di kotak 140px, dan kotak angka
-                                                         menolak huruf. --}}
                                                     @if(($b['jenis'] ?? 'angka') === 'teks')
                                                         <input type="text" id="opsi-{{ $b['nama'] }}"
                                                                wire:model="opsiBagian.{{ $b['nama'] }}"
@@ -866,8 +762,6 @@
                             @endforeach
                         </div>
 
-                        {{-- Pengaturan bukan-teks, di kartu sendiri di luar
-                             sakelar bahasa: nilainya sama di bahasa mana pun. --}}
                         @if($opsiSisa)
                             <section class="rounded-corner border border-line bg-canvas p-5">
                                 <div class="mb-4">
@@ -1023,23 +917,12 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ── MODAL TAMBAH / UBAH HALAMAN ──────────────────────────────── --}}
     @if($isOpen)
         @php
-            /* Titik merah di sakelar bahasa: menandai tab mana yang isian
-               wajibnya belum beres, supaya galat di tab tersembunyi tidak
-               berujung tombol Simpan yang seakan tidak bereaksi. */
             $galatEn = $errors->hasAny(['label_en', 'title_en', 'content_en']);
             $galatId = $errors->hasAny(['label_id', 'title_id', 'content_id']);
 
-            /*
-             * Alamat halamannya dirangkai ulang dari judul Inggris TIAP KALI
-             * disimpan — lihat store(). Jadi mengganti judul Inggris diam-diam
-             * memindahkan halamannya, dan tautan lama jadi mati. Itu perlu
-             * terlihat sebelum tombol simpan ditekan, bukan sesudah.
-             */
             $alamatBaru = \Illuminate\Support\Str::slug((string) $title_en);
             $alamatPindah = $page_id && filled($slug) && filled($alamatBaru) && $alamatBaru !== $slug;
         @endphp
@@ -1053,8 +936,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.call('closeModal')"></div>
 
-            {{-- 1100px seperti modal Berita: isi halamannya butuh kotak tulis
-                 yang benar-benar lebar. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[1100px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -1119,20 +1000,12 @@
 
                             <section class="rounded-corner border border-line bg-canvas p-5">
 
-                                {{-- Sakelar bahasa di kepala kartu: ia mengatur dua
-                                     isian sekaligus — judul dan isi — bukan menempel
-                                     di salah satunya. --}}
                                 <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
                                     <div>
                                         <h3 class="text-admin-title text-heading">Isi halaman</h3>
                                         <p class="mt-0.5 text-admin-label text-ink-muted">Label, judul, dan isi halaman dalam dua bahasa.</p>
                                     </div>
 
-                                    {{-- Tab bahasa dan tombol Terjemahkan
-                                         berdiri TERPISAH: kendali bersegmen
-                                         menjanjikan "pilih salah satu", dan
-                                         tombol tindakan di dalam bingkai yang
-                                         sama mengingkari janji itu. --}}
                                     <div class="flex shrink-0 flex-wrap items-center gap-2">
 
                                         <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
@@ -1151,8 +1024,7 @@
                                                             'text-ink-muted hover:text-ink' => $activeTab !== $kode,
                                                         ])>
                                                     {{ $sebutan }}
-                                                    {{-- Titik merah: tab ini menyimpan galat yang
-                                     tidak terlihat karena tertutup. --}}
+                                                    
                                 @if(($kode === 'en' && $galatEn) || ($kode === 'id' && $galatId))
                                     <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
                                           title="Ada isian yang perlu diperbaiki di sini"></span>
@@ -1161,9 +1033,6 @@
                                             @endforeach
                                         </div>
 
-                                        {{-- Tombol tindakan, bukan pilihan —
-                                             memakai bentuk tombol panel yang
-                                             baku. --}}
                                         <button type="button" wire:click="autoTranslate"
                                                 wire:loading.attr="disabled" wire:target="autoTranslate"
                                                 title="Salin isian Indonesia ke English, lalu terjemahkan"
@@ -1184,9 +1053,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Pesan gagal-terjemah, tepat di bawah
-                                     tombol yang memicunya — sebelumnya ia
-                                     gagal tanpa mengatakan apa pun. --}}
                                 @if($galatTerjemah)
                                     <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                         <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -1200,14 +1066,6 @@
 
                                 <div class="space-y-4">
 
-                                    {{-- Label: kata kecil di ATAS judul di
-                                         halaman publik. Boleh kosong — yang
-                                         kosong tidak menggambar apa pun di
-                                         sana, bukan menggambar petak hampa.
-
-                                         Ditaruh sebelum Judul karena di
-                                         halaman jadinya pun ia lebih dulu
-                                         dibaca. --}}
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">
                                             Label halaman
@@ -1238,19 +1096,11 @@
                                         </p>
                                     </div>
 
-                                    {{-- Judul mengikuti tab. Keduanya TETAP
-                                         di DOM dan yang tidak aktif hanya
-                                         disembunyikan: isian yang elemennya
-                                         lenyap membuat Livewire kehilangan
-                                         nilainya. --}}
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">
                                             Judul halaman <span class="text-brand">*</span>
                                         </label>
 
-                                        {{-- .live, satu-satunya di modal ini: pratinjau
-                                             alamat di panel kanan baru berguna kalau ia
-                                             menyusul sambil mengetik. --}}
                                         <div @class(['mt-2', 'hidden' => $activeTab !== 'en'])>
                                             <input type="text" wire:model.live.debounce.500ms="title_en"
                                                    aria-label="Judul halaman dalam bahasa Inggris"
@@ -1272,10 +1122,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Isi halaman, penyunting kaya.
-                                         Keduanya tetap digambar dan yang
-                                         tidak aktif hanya disembunyikan —
-                                         lihat catatan pada Judul di atas. --}}
                                     <div>
                                         <div class="flex flex-wrap items-center justify-between gap-3">
                                             <label class="text-admin-label text-ink-faint">Isi halaman</label>
@@ -1303,11 +1149,6 @@
                                             @enderror
                                         </div>
 
-                                        {{-- Isi boleh kosong menurut store(),
-                                             tapi halaman terbit yang kosong
-                                             tergambar hampa di situs publik —
-                                             disebut di sini supaya bukan
-                                             kejutan. --}}
                                         <p class="admin-hint">
                                             Boleh dikosongkan, tapi halaman terbit yang isinya kosong
                                             tergambar hampa di situs publik.
@@ -1367,8 +1208,6 @@
                                 <div>
                                     <label class="block text-admin-label text-ink-faint">Status</label>
 
-                                    {{-- :nullable="false" — halaman selalu berada di salah
-                                         satu dari dua keadaan ini. --}}
                                     <x-admin.select model="status" :value="$status" class="mt-2"
                                                     label="Status halaman" :nullable="false"
                                                     :options="[

@@ -6,55 +6,16 @@
     'label'       => null,    // nama yang dibacakan pembaca layar
     'nullable'    => true,    // sertakan pilihan kosong di puncak daftar?
 
-    /*
-     * Baris "tambah baru" di kaki daftarnya — pilihan, tidak menyala kecuali
-     * diminta. Kalau diisi nama metode Livewire, kaki daftarnya menampilkan
-     * satu baris yang menukar isi menunya jadi kotak ketik; namanya dikirim
-     * ke metode itu, dan metodenya yang memutuskan apa yang dibuat serta
-     * langsung memilihkannya.
-     */
     'aksiTambah'     => null,
     'labelTambah'    => 'Tambah baru',
     'petunjukTambah' => 'Nama baru…',
 
-    /*
-     * Tong sampah di tiap baris — juga pilihan, juga mati kecuali diminta.
-     *
-     * Penegasannya dibuat DI DALAM barisnya sendiri: barisnya bertukar jadi
-     * "Hapus X?" dengan dua tombol. Bukan x-admin.confirm-delete seperti di
-     * tempat lain, karena daftar ini melayang di z-[120] sementara kotak
-     * penegas itu berdiri di z-[110] — ia akan muncul DI BALIK daftarnya.
-     */
     'aksiHapus'  => null,
     'labelHapus' => 'Hapus',
 ])
 
 @php
-    /*
-     * Menu pilih untuk panel admin.
-     *
-     * <select> bawaan tidak bisa ditata isinya. Daftar yang terbuka digambar
-     * oleh sistem operasi, bukan oleh halaman: hurufnya bukan huruf panel,
-     * barisnya bukan tinggi baris panel, dan yang terpilih ditandai biru
-     * bawaan Windows — satu-satunya benda di seluruh panel ini yang tidak
-     * mengikuti paletnya.
-     *
-     * Maka daftarnya dibangun sendiri. Yang ditukar cuma tampilannya;
-     * nilainya tetap mengalir ke properti Livewire yang sama.
-     *
-     * Nilainya dikirim lewat $wire.$set, BUKAN lewat $wire.prop = nilai.
-     * Penugasan biasa hanya menyentuh salinan yang ada di peramban — ia
-     * mengubah tulisan di tombolnya, tapi tidak pernah sampai ke server,
-     * sehingga tabelnya tidak ikut menyaring. Kesalahan itu pernah terjadi
-     * di proyek ini dan tidak terlihat sama sekali dari luar.
-     */
-    /*
-     * Pilihan kosong di puncak daftar hanya masuk akal kalau kekosongan itu
-     * memang sebuah jawaban — "Semua status" di bilah penyaring, "Belum
-     * ditugaskan" di kolom sales. Untuk status inquiry ia justru merusak:
-     * tiap inquiry pasti punya status, jadi baris kosong itu akan tampil
-     * sebagai "Baru" yang kedua di daftar yang sama.
-     */
+
     $daftar = collect($options)
         ->map(fn ($o) => ['nilai' => (string) $o['nilai'], 'label' => (string) $o['label']]);
 
@@ -71,12 +32,6 @@
     $labelAwal = collect($daftar)->firstWhere('nilai', $sekarang)['label'] ?? $placeholder;
 @endphp
 
-{{-- $attributes->class([...]), BUKAN class="relative" ditambah {{ $attributes
-     }} — yang kedua menggambar DUA atribut class di satu elemen, dan peramban
-     hanya membaca yang pertama. --}}
-{{-- wire:key ikut berubah saat daftar pilihannya berubah: x-data cuma dibaca
-     sekali saat elemennya lahir, dan morph DOM Livewire tidak melahirkannya
-     ulang. --}}
 <div wire:key="pilih-{{ $model }}-{{ substr(md5(json_encode($daftar)), 0, 8) }}"
      {{ $attributes->class(['relative']) }}
      x-data="{
@@ -90,15 +45,12 @@
              teksBaru: '',
              menyimpan: false,
          @else
-             /* Menu ini tidak punya baris tambah, jadi keadaannya pun tidak
-                dibawa: bukaMenu() di bawah tetap menyetel `tambah` supaya
-                cabangnya satu, dan properti yang tidak dideklarasikan di sini
-                cukup diabaikan Alpine. */
+             
              tambah: false,
          @endif
 
          @if($aksiHapus)
-             /* Baris mana yang sedang menanyakan penegasan hapus. */
+             
              hapusId: null,
              menghapus: false,
          @endif
@@ -117,9 +69,7 @@
          bukaMenu() {
              this.buka   = true
              this.tambah = false
-             {{-- Titik koma WAJIB: @endif menelan baris barunya, jadi tanpa
-                  pemisah ini pernyataan berikutnya menempel dan seluruh
-                  x-data gagal diurai. --}}
+             
              @if($aksiHapus) this.hapusId = null; @endif
              this.sorot  = Math.max(0, this.daftar.findIndex(p => p.nilai === this.nilai))
              this.hitungLetak()
@@ -140,15 +90,6 @@
                  this.$nextTick(() => this.$refs.tombol.focus())
              },
 
-             /*
-              * Namanya dikirim ke metode Livewire, lalu menunya ditutup.
-              *
-              * Daftarnya TIDAK disusun sendiri di sini: server yang membuat
-              * barisnya sekaligus memilihkannya, dan wire:key di atas yang
-              * melahirkan ulang menu ini dengan daftar yang sudah berisi.
-              * Menambah salinan di sisi peramban cuma membuat dua sumber
-              * kebenaran yang gampang berselisih.
-              */
              async simpanBaru() {
                  const nama = this.teksBaru.trim()
                  if (! nama || this.menyimpan) return
@@ -165,13 +106,7 @@
          @endif
 
          @if($aksiHapus)
-             /*
-              * Daftarnya DITUTUP sesudahnya, berhasil maupun ditolak.
-              *
-              * Kalau ditolak — kategori yang masih dipakai berita — sebabnya
-              * digambar sebagai galat di bawah menunya, dan menu yang masih
-              * terbuka berdiri tepat menutupi tempat pesan itu muncul.
-              */
+             
              async hapusPilihan(p) {
                  if (this.menghapus) return
 
@@ -186,35 +121,11 @@
              },
          @endif
 
-         /*
-          * Letak daftarnya dihitung sendiri, dan daftarnya dipasang dengan
-          * position: fixed.
-          *
-          * Alasannya bukan kerapian. Daftar yang ditempatkan secara absolut
-          * tetap tunduk pada induk mana pun yang punya overflow — dan begitu
-          * menu pilih ini dipakai di dalam kolom yang bisa digulung (kolom
-          * kanan modal, misalnya), daftarnya terpotong di tepi kolom itu.
-          * fixed melepaskannya dari semua induk sekaligus.
-          *
-          * Sekalian: kalau ruang di bawah tombolnya tidak cukup, daftarnya
-          * dibalik ke atas. Tanpa itu, menu di dekat kaki layar cuma
-          * menampilkan satu-dua baris pertamanya.
-          */
          letak: { kiri: 0, lebar: 0, atas: null, bawah: null },
 
          hitungLetak() {
              const t = this.$refs.tombol.getBoundingClientRect()
 
-             /* 34px per baris + bantalan; dibatasi setinggi kotaknya (264px).
-                Baris tambah-baru di kaki daftarnya ikut dihitung — kalau tidak,
-                menu di dekat kaki layar membalik ke atas terlambat dan baris
-                itu justru yang terpotong.
-
-                Catatan: JANGAN pakai tanda kutip ganda di mana pun dalam blok
-                ini, komentar sekalipun. Seluruh x-data ini satu atribut HTML
-                yang dibatasi kutip ganda; satu saja di dalamnya menutup
-                atributnya di tengah jalan, sisanya terbaca sebagai atribut
-                sampah, dan Alpine melempar SyntaxError di tiap menu pilih. */
              const kaki   = {{ $aksiTambah ? 42 : 0 }}
              const tinggi = Math.min(264 + kaki, this.daftar.length * 40 + 12 + kaki)
              const bawah  = window.innerHeight - t.bottom - 12
@@ -245,23 +156,13 @@
              this.keBaris()
          },
 
-         /* Baris yang sedang disorot digulung ke dalam pandangan — daftar
-            produk lebih panjang dari kotaknya, dan tanpa ini panah bawah
-            menyorot baris yang tidak terlihat.
-
-            x-ref-nya menunjuk WADAH BARISNYA, bukan kotak daftarnya. Dulu
-            ia menunjuk kotak luar, yang anak-anaknya cuma dua — pembungkus
-            baris dan kaki daftar — jadi children[sorot] tidak pernah berupa
-            baris, dan panah bawah tidak pernah menggulung apa pun. */
          keBaris() {
              this.$refs.baris?.children[this.sorot]?.scrollIntoView({ block: 'nearest' })
          },
      }"
      x-on:keydown.escape.stop="buka && tutup()"
      x-on:click.outside="buka = false"
-     {{-- Daftarnya melayang di titik yang dihitung saat dibuka, jadi begitu
-          apa pun bergulir ia tidak lagi di tempat yang benar — kecuali
-          gulungan dari dalam daftarnya sendiri. --}}
+     
      x-on:scroll.window.capture="buka && ! $refs.menu?.contains($event.target) && (buka = false)"
      x-on:resize.window="buka = false">
 
@@ -278,8 +179,6 @@
             class="admin-control admin-control-button"
             x-bind:class="buka && '!border-brand'">
 
-        {{-- Satu warna untuk kedua keadaan: text-ink, terpilih maupun belum.
-             Keadaan kosong yang diredupkan terbaca seperti kendali yang mati. --}}
         <span class="min-w-0 truncate" x-text="terpilih.label">{{ $labelAwal }}</span>
 
         <svg class="h-3 w-3 shrink-0 text-ink-faint transition-transform duration-150"
@@ -289,9 +188,6 @@
         </svg>
     </button>
 
-    {{-- Kotaknya kolom flex, BUKAN kotak yang menggulung sendiri: kaki
-         "tambah baru" yang sticky di dalam kotak bergulung akan MELAYANG di
-         atas barisnya. --}}
     <div x-show="buka" x-cloak
          x-bind:style="gaya"
          x-transition:enter="transition ease-out duration-150"
@@ -300,14 +196,10 @@
          class="fixed z-[120] flex flex-col overflow-hidden rounded-corner border border-line
                 bg-canvas shadow-[0_18px_44px_-18px_rgba(26,29,27,0.32)]">
 
-    {{-- Bantalan mendatar di SINI, bukan di kotak luarnya: kepingnya masuk
-         dari tepi panel, sementara kaki "+ tambah" di luar bungkus ini tetap
-         rata tepi. --}}
     <div x-ref="baris" role="listbox"
          class="admin-scroll min-h-0 max-h-[264px] flex-1 overflow-y-auto overscroll-contain px-1.5 py-1.5">
         <template x-for="(p, i) in daftar" x-bind:key="p.nilai">
-            {{-- Bentuk sama persis dengan baris "Lihat situs" di dropdown
-                 profil — ketiganya baris yang bisa ditindak. --}}
+            
             <div class="group/baris relative">
 
                 <button type="button" role="option"
@@ -321,17 +213,12 @@
                         }"
                         @class([
                             'admin-menu-row w-full justify-between rounded-control hover:text-brand-deep',
-                            /* Ruang untuk tong sampah yang melayang di tepi
-                               kanan; tanpa ini nama yang panjang berjalan
-                               tepat di bawahnya. */
+                            
                             'pr-9' => (bool) $aksiHapus,
                         ])>
 
                     <span class="min-w-0 truncate" x-text="p.label"></span>
 
-                    {{-- Centang, bukan sekadar huruf tebal: di daftar panjang
-                         yang isinya mirip-mirip, tebal huruf saja tidak cukup
-                         untuk menjawab "yang mana yang sedang aktif". --}}
                     <svg x-show="p.nilai === nilai" class="h-3.5 w-3.5 shrink-0 text-brand"
                          viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <path d="m3.6 8.4 2.8 2.8 6-6" stroke="currentColor" stroke-width="1.8"
@@ -340,9 +227,7 @@
                 </button>
 
                 @if($aksiHapus)
-                    {{-- Tong sampahnya MELAYANG di atas barisnya, bukan
-                         berdiri sebagai saudaranya: tombol di dalam tombol
-                         adalah HTML yang tidak sah. --}}
+                    
                     <button type="button" x-show="p.nilai !== '' && hapusId !== p.nilai"
                             x-on:click.stop="hapusId = p.nilai"
                             x-bind:aria-label="'{{ $labelHapus }} ' + p.label"
@@ -353,9 +238,6 @@
                         <x-icon.admin name="trash" size="h-3.5 w-3.5" />
                     </button>
 
-                    {{-- Barisnya BERTUKAR jadi pertanyaan, bukan menumpuk
-                         kotak baru: daftar ini sudah melayang di z-[120], dan
-                         apa pun di atasnya harus lebih tinggi lagi. --}}
                     <div x-show="hapusId === p.nilai" x-cloak
                          class="flex items-center gap-1.5 rounded-control bg-danger/5 px-2.5 py-1.5">
                         <span class="min-w-0 flex-1 truncate text-admin-caption text-ink-muted">
@@ -398,9 +280,6 @@
                     {{ $labelTambah }}
                 </button>
 
-                {{-- Barisnya jadi kotak ketik. .prevent.stop di Enter WAJIB —
-                     tanpanya Enter ikut mengirim <form> modal yang
-                     membungkusnya. --}}
                 <div x-show="tambah" x-cloak class="flex items-center gap-1.5 p-1.5">
                     <input type="text" x-ref="isian" x-model="teksBaru"
                            placeholder="{{ $petunjukTambah }}"

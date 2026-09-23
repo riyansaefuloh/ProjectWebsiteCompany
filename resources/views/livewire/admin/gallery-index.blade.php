@@ -1,11 +1,6 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * admin lainnya. Di sini cuma pencarian: album tidak punya status,
-         * kategori, atau tanggal terbit yang bisa disaring.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
@@ -20,9 +15,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -41,9 +33,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -66,12 +55,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: kendali penyaring di dalamnya melayang keluar
-         bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -95,14 +78,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Satu kendali saja, jadi ia membentang selebar kartunya. Album
-                             belum punya keterangan lain yang masuk akal disaring — status,
-                             kategori, dan tanggal terbit tidak ada di tabelnya. --}}
                         <div class="p-5">
                             <div class="relative">
                                 <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
@@ -168,9 +146,6 @@
                         ];
                     @endphp
 
-                    {{-- Lebar minimalnya turun begitu kolom deretan ubin hilang;
-                         kalau dibiarkan 820px, tiga kolom ini melar dan kolom
-                         Aksi terlempar jauh dari Diperbarui. --}}
                     <table class="w-full min-w-[620px] table-fixed">
                         @if($galleries->isNotEmpty())
                             <thead>
@@ -196,42 +171,23 @@
                                     $foto  = $isi->where('type', 'image')->count();
                                     $video = $isi->where('type', 'video')->count();
 
-                                    /*
-                                     * Satu petak sampul saja, bukan deretan ubin.
-                                     *
-                                     * Album bisa berisi puluhan foto, dan deretan yang
-                                     * ikut memanjang menarik tinggi barisnya berubah-ubah
-                                     * sampai tabelnya kehilangan iramanya. Jumlahnya sudah
-                                     * disebut di baris kedua; petaknya cukup menjawab
-                                     * "album yang mana", bukan "isinya apa saja" — itu
-                                     * urusan modal kelolanya.
-                                     */
                                     $sampul = $isi->first(function ($i) {
                                         return $i->type === 'image' && $i->getFirstMedia('gallery');
                                     });
 
                                     $berkas = $sampul?->getFirstMedia('gallery');
 
-                                    /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                       kedua mengembalikan untai kosong saat tidak ada
-                                       berkasnya, dan untai kosong di src membuat peramban
-                                       memuat ulang HALAMAN ini sebagai gambar. */
                                     $alamatSampul = $berkas
                                         ? ($berkas->hasGeneratedConversion('thumb')
                                             ? $berkas->getUrl('thumb')
                                             : $berkas->getUrl())
                                         : null;
 
-                                    /* Album yang isinya video semua tetap punya penanda
-                                       sendiri, bukan petak kosong yang menyesatkan. */
                                     $sampulVideo = ! $alamatSampul && $video > 0;
                                 @endphp
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus —
-                                         ada-tidaknya isi sudah terbaca dari
-                                         jumlah foto di kolom Isi. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
                                             @if($alamatSampul)
@@ -301,9 +257,6 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasannya menyebut akibatnya, bukan
-                                                 sekadar "yakin?": seluruh isi albumnya
-                                                 ikut terhapus. --}}
                                             <x-admin.confirm-delete metode="delete"
                                                                     :id="$gallery->id"
                                                                     :nama="$nama"
@@ -368,9 +321,6 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL KELOLA ALBUM
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($isOpen)
         <div class="modal-open fixed inset-0 z-[100] flex items-center justify-center
                     overflow-clip bg-ink/45 p-4 backdrop-blur-[2px]"
@@ -381,8 +331,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.call('closeModal')"></div>
 
-            {{-- 1100px seperti modal produk dan berita: petak medianya butuh
-                 ruang, dan panel 900px cuma memuat dua ubin per baris. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[1100px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -489,20 +437,10 @@
 
                                 <div class="p-5">
 
-                                    {{-- Ubin persegi, sama dengan modal
-                                         Produk, Kategori, Sertifikasi, dan
-                                         Berita. Fotonya dipotong konversi
-                                         'thumb' ke 4:3, jadi ubin persegi ini
-                                         memangkas sisi kiri-kanannya. --}}
                                     <div class="grid grid-cols-2 gap-3">
 
                                         @foreach($isiAlbum as $item)
                                             @php
-                                                /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                                   kedua mengembalikan untai kosong saat tidak ada
-                                                   berkasnya, dan untai kosong di src membuat
-                                                   peramban memuat ulang HALAMAN ini sebagai
-                                                   gambar. */
                                                 $berkas = $item->getFirstMedia('gallery');
 
                                                 $alamat = $berkas
@@ -556,11 +494,6 @@
                                             </div>
                                         @endforeach
 
-                                        {{-- temporaryUrl() dibungkus try: ia
-                                             melempar galat untuk berkas yang
-                                             bukan gambar, dan atribut accept
-                                             hanya menyaring tampilan
-                                             penjelajah berkas. --}}
                                         @foreach($photos ?? [] as $foto)
                                             @php
                                                 try {
@@ -638,9 +571,6 @@
                                                placeholder="https://youtube.com/watch?v=…"
                                                class="admin-control mt-2">
 
-                                        {{-- Satu tautan per simpan, bukan
-                                             daftar: store() membuat satu isi
-                                             video lalu mengosongkan kotaknya. --}}
                                         <p class="admin-hint">
                                             Tautan YouTube atau Vimeo.
                                         </p>
@@ -656,9 +586,7 @@
 
                     {{-- ── Kaki ────────────────────────────────────────── --}}
                     <div class="flex shrink-0 items-center justify-end gap-2 border-t border-line px-6 py-4">
-                        {{-- "Batal" di kedua keadaan: menekan Simpan menutup
-                             modalnya, jadi tidak ada lagi keadaan "sudah
-                             tersimpan tapi masih di dalam modal". --}}
+                        
                         <button type="button" wire:click="closeModal"
                                 class="admin-btn admin-btn-quiet">
                             Batal

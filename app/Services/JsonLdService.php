@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class JsonLdService
 {
-    /**
-     * Schema.org Organization (Dipasang di Beranda & About)
-     */
     public static function organizationSchema(): array
     {
         $logoPath = Setting::where('key', 'logo')->value('value');
@@ -32,9 +29,6 @@ class JsonLdService
         ];
     }
 
-    /**
-     * Schema.org Product (Dipasang di Detail Produk)
-     */
     public static function productSchema(Product $product): array
     {
         return [
@@ -58,9 +52,6 @@ class JsonLdService
         ];
     }
 
-    /**
-     * Schema.org Article (Dipasang di Detail Berita)
-     */
     public static function articleSchema(News $news): array
     {
         return [
@@ -76,17 +67,6 @@ class JsonLdService
         ];
     }
 
-    /**
-     * Schema.org BreadcrumbList (Dipasang di semua halaman dengan navigasi bertingkat)
-     *
-     * Cara pakai — kirimkan array pasangan ['name' => '...', 'url' => '...']:
-     *
-     *   JsonLdService::breadcrumbSchema([
-     *       ['name' => 'Home',     'url' => url('/')],
-     *       ['name' => 'Products', 'url' => route('products.index')],
-     *       ['name' => 'Kopi Arabika Gayo'], // item terakhir tidak perlu url
-     *   ]);
-     */
     public static function breadcrumbSchema(array $items): array
     {
         $listElements = [];
@@ -98,7 +78,6 @@ class JsonLdService
                 'name'     => $item['name'],
             ];
 
-            // URL opsional — item terakhir (halaman aktif) biasanya tidak perlu url
             if (!empty($item['url'])) {
                 $element['item'] = $item['url'];
             }
@@ -117,10 +96,6 @@ class JsonLdService
     // HELPER — Breadcrumb siap pakai per halaman
     // ============================================================
 
-    /**
-     * Breadcrumb untuk halaman Detail Produk
-     * Home > Products > {Nama Produk}
-     */
     public static function productBreadcrumb(Product $product): array
     {
         return self::breadcrumbSchema([
@@ -130,10 +105,6 @@ class JsonLdService
         ]);
     }
 
-    /**
-     * Breadcrumb untuk halaman Detail Berita
-     * Home > News > {Judul Berita}
-     */
     public static function newsBreadcrumb(News $news): array
     {
         return self::breadcrumbSchema([
@@ -143,10 +114,6 @@ class JsonLdService
         ]);
     }
 
-    /**
-     * Breadcrumb untuk halaman About
-     * Home > About Us
-     */
     public static function aboutBreadcrumb(): array
     {
         return self::breadcrumbSchema([

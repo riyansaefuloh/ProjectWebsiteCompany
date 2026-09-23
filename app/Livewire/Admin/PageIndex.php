@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 
 class PageIndex extends Component
 {
-    // Tanpa WithPagination: daftar halamannya tidak lagi berpaginasi.
     use WithFileUploads;
 
     // Form fields
@@ -23,60 +22,19 @@ class PageIndex extends Component
     public $status = 'draft';
     
     // Translation fields (id and en)
-    /* Label = kata kecil di atas judul halaman publik. Ikut diterjemahkan,
-       karena ia dibaca pengunjung sama seperti judulnya. */
     public $label_id, $title_id, $content_id;
     public $label_en, $title_en, $content_en;
     public bool $isTranslating = false;
 
-    /*
-     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
-     *
-     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
-     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
-     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
-     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
-     * tombolnya gagal tanpa mengatakan apa pun.
-     */
     public ?string $galatTerjemah = null;
 
-    /*
-     * Bahasa yang sedang ditampilkan di modalnya. Kedua terjemahan tetap ada
-     * di DOM; yang tidak aktif cuma disembunyikan, karena isian yang diketik
-     * lalu elemennya lenyap membuat Livewire kehilangan nilainya.
-     */
+    // Tab bahasa aktif di modal
     public string $activeTab = 'en';
 
-    /*
-     * Susunan beranda.
-     *
-     * Beranda bukan baris di tabel 'pages' — ia dirakit dari bagian-bagian
-     * tetap (hero, produk, sertifikasi, dan seterusnya) yang urutan dan
-     * tampil-tidaknya disimpan sebagai satu larik JSON di kunci pengaturan
-     * 'home_sections'. Karena itu bentuknya kartu tersendiri, bukan baris tabel.
-     *
-     * Tempatnya di sini, bukan di Pengaturan: yang diatur adalah isi halaman
-     * publik, sama seperti halaman statis di tabel bawah.
-     */
+    // Susunan bagian beranda
     public array $home_sections = [];
 
-    /*
-     * Daftar bawaan, dipakai kalau kuncinya belum pernah ada isinya sama
-     * sekali. Urutannya sama dengan urutan bagian di beranda saat ini.
-     */
-    /*
-     * Bagian yang BENAR-BENAR digambar beranda — tujuh, tidak lebih.
-     *
-     * Daftar ini harus sama dengan cabang @switch di blade beranda publik.
-     * Yang ada di sini tapi tidak ada di sana jatuh ke cabang @default, dan
-     * cabang itu menggambar kotak bergaris putus-putus bertuliskan
-     * "[FRONTEND TASK: ...]" — ke pengunjung sungguhan, bukan ke panel.
-     *
-     * 'gallery' dan 'downloads' pernah ada di sini padahal berandanya tidak
-     * pernah punya keduanya. Tersimpan mati, jadi tidak terlihat; tapi
-     * sakelarnya ada di panel, dan satu ketukan memisahkan situs publik dari
-     * tulisan itu.
-     */
+    // Daftar bawaan bagian beranda
     private const BAGIAN_BAWAAN = [
         ['id' => 'hero',           'name' => 'Hero Slider',    'active' => true, 'order' => 1],
         ['id' => 'about',          'name' => 'About Us',       'active' => true, 'order' => 2],
@@ -87,53 +45,12 @@ class PageIndex extends Component
         ['id' => 'contact',        'name' => 'Contact Us',     'active' => true, 'order' => 7],
     ];
 
-    /* ══════════════════════════════════════════════════════════════════════
-       ISI TIAP BAGIAN BERANDA
-       ══════════════════════════════════════════════════════════════════════
+    // ── ISI TIAP BAGIAN BERANDA ──────────────────────────────────────────
 
-       Teksnya menumpang di dalam larik JSON yang sama dengan urutannya, di
-       bawah kunci 'isi', dipisah per bahasa:
-
-           { "id": "hero", "active": true, "order": 1,
-             "image": "settings/hero-xxx.jpg",
-             "isi": { "en": { "title": "…", "body": "…" },
-                      "id": { "title": "…", "body": "…" } } }
-
-       Isian yang DIKOSONGKAN jatuh ke teks bawaan di berkas bahasa site.php.
-       Itu disengaja: beranda tidak boleh pernah tergambar hampa hanya karena
-       satu kolom belum diisi, dan bawaan yang sudah diterjemahkan lebih baik
-       daripada ruang kosong.
-
-       (Jangan menulis alamat berkas berpola bintang-garis-miring di dalam
-       komentar blok seperti ini — urutan itu menutup komentarnya lebih awal
-       dan sisa berkasnya berhenti terbaca sebagai komentar.)
-    */
-
-    /**
-     * Isian apa saja yang dimiliki tiap bagian.
-     *
-     * Ditulis sebagai data, bukan sebagai borang yang diketik satu-satu, supaya
-     * menambah bagian berikutnya cukup menambah satu entri di sini.
-     *
-     * 'jenis': 'teks' kolom sebaris, 'kaya' penyunting teks kaya.
-     * 'bawaan': kunci lang yang dipakai kalau isiannya kosong — ditampilkan
-     * sebagai placeholder supaya jelas apa yang akan muncul bila dibiarkan.
-     */
-    /** Keterangan konvensi penekanan, dipakai di tiap medan judul besar. */
     public const CATATAN_TEKANAN =
         'Kata yang diapit bintang — *seperti ini* — digambar dengan huruf serif miring, sebagai penekanan di dalam judul.';
 
     public const BIDANG_BAGIAN = [
-        /*
-         * Urutan medan mengikuti urutan yang TERGAMBAR di hero, dari atas ke
-         * bawah: label kecil, judul besar, deskripsi, lalu dua tombol. Kolom
-         * yang disusun mengikuti hasilnya bisa diperiksa sambil diisi; yang
-         * disusun mengikuti sejarah penambahannya tidak.
-         *
-         * 'years_label' dibuang — kartu "Angka pengalaman" yang dulu berdiri di
-         * atas foto hero sudah tidak digambar lagi, dan kolom yang tidak
-         * menghasilkan apa pun di halaman adalah janji yang tidak ditepati.
-         */
         'hero' => [
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'descriptor', 'label' => 'Label', 'jenis' => 'teks', 'bawaan' => 'site.hero_descriptor'],
             ['nama' => 'title',         'label' => 'Judul besar',        'jenis' => 'teks',  'bawaan' => 'site.hero_title', 'catatan' => self::CATATAN_TEKANAN],
@@ -205,13 +122,7 @@ class PageIndex extends Component
         ],
     ];
 
-    /**
-     * Pengaturan bagian yang BUKAN teks, jadi tidak punya versi per bahasa.
-     *
-     * Angka seperti "berapa produk ditampilkan" sama saja di bahasa mana pun.
-     * Menyimpannya bersama teks per bahasa berarti angka yang sama tertulis
-     * dua kali dan bisa berbeda — sesuatu yang tidak masuk akal untuk dijawab.
-     */
+    // Pengaturan non-teks tiap bagian beranda
     public const OPSI_BAGIAN = [
         'products' => [
             [
@@ -227,28 +138,9 @@ class PageIndex extends Component
         ],
     ];
 
-    /* ══════════════════════════════════════════════════════════════════════
-       HALAMAN PUBLIK SELAIN BERANDA
-       ══════════════════════════════════════════════════════════════════════
+    // ── HALAMAN PUBLIK ───────────────────────────────────────────────────
 
-       Kedelapan halaman ini punya kepala yang bentuknya seragam — label kecil,
-       judul, lalu deskripsi — dan sisanya dirakit dari data. Yang bisa
-       disunting karena itu kepalanya, teks keadaan kosongnya, dan beberapa
-       label yang memang kalimat, bukan kendali borang.
-
-       Label isian borang (nama, email, negara, dan seterusnya) sengaja TIDAK
-       dibuka: ia bagian dari cara halaman itu bekerja, bukan pesan yang ingin
-       disampaikan perusahaan, dan seluruhnya sudah diterjemahkan.
-    */
-    /**
-     * Kesepuluh halaman publik dalam SATU senarai, urut seperti pengunjung
-     * menemuinya — beranda dulu, footer terakhir.
-     *
-     * 'jenis' menentukan apa yang dibuka barisnya:
-     *   'susunan' — halaman yang dirakit dari bagian-bagian yang bisa
-     *               diurutkan dan dimatikan (Beranda, Profile).
-     *   'isi'     — halaman berkepala satu; yang bisa ditulis kepalanya.
-     */
+    // Daftar semua halaman publik
     public const DAFTAR_HALAMAN = [
         ['id' => 'home',           'nama' => 'Home',           'jenis' => 'susunan', 'rute' => 'home'],
         ['id' => 'profile',        'nama' => 'Profile',        'jenis' => 'susunan', 'rute' => 'about'],
@@ -259,9 +151,7 @@ class PageIndex extends Component
         ['id' => 'gallery',        'nama' => 'Gallery',        'jenis' => 'isi',     'rute' => 'gallery.index'],
         ['id' => 'downloads',      'nama' => 'Downloads',      'jenis' => 'isi',     'rute' => 'downloads.index'],
         ['id' => 'contact',        'nama' => 'Contact Us',     'jenis' => 'isi',     'rute' => 'inquiry.index'],
-
-        /* Footer tidak punya alamatnya sendiri — ia menempel di semua
-           halaman. Barisnya karena itu tidak menawarkan "Lihat halaman". */
+        // Footer menempel di semua halaman, tidak punya rute sendiri
         ['id' => 'footer',         'nama' => 'Footer',         'jenis' => 'isi',     'rute' => null],
     ];
 
@@ -275,19 +165,9 @@ class PageIndex extends Component
         ['id' => 'contact',        'nama' => 'Contact Us',     'rute' => 'inquiry.index'],
     ];
 
-    /* ══════════════════════════════════════════════════════════════════════
-       HALAMAN PROFILE
+    // ── HALAMAN PROFILE ──────────────────────────────────────────────────
 
-       Profile bukan halaman berkepala-satu seperti tujuh lainnya: ia tersusun
-       dari lima bagian yang berdiri sendiri, dan tiap bagian punya judul serta
-       isinya masing-masing. Karena itu ia dapat kartu sendiri di panel, dengan
-       urutan dan sakelar tampil — sama seperti susunan beranda.
-
-       Isinya tetap menumpang di satu tempat, 'page_contents' → 'profile' →
-       'isi', dengan nama bidang yang datar. Yang dipecah cuma cara
-       menyuntingnya; memecah penyimpanannya juga hanya akan membuat isi yang
-       sama tersebar di lima tempat tanpa alasan.
-    */
+    // Susunan bawaan bagian halaman Profile
     public const PROFIL_BAWAAN = [
         ['id' => 'profil',          'name' => 'Profil',              'active' => true, 'order' => 1],
         ['id' => 'vision_mission',  'name' => 'Visi & Misi',         'active' => true, 'order' => 2],
@@ -342,19 +222,7 @@ class PageIndex extends Component
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'history_eyebrow', 'label' => 'Label kecil', 'jenis' => 'teks', 'bawaan' => 'site.history_eyebrow'],
             ['nama' => 'history_title',        'label' => 'Judul',                   'jenis' => 'teks', 'bawaan' => 'site.history_title', 'catatan' => self::CATATAN_TEKANAN],
 
-            /*
-             * Garis waktu: tahun berdiri, lalu keenam tonggak sebagai rangkai
-             * tahun–judul–keterangan.
-             *
-             * 'jenis' => 'opsi' berarti slot ini diisi oleh skema opsi bernama
-             * sama di opsiProfil(). Yang dinyatakan di sini hanya DI MANA ia
-             * muncul; label, batas angkanya, dan tempat simpannya tetap satu di
-             * sana — bukan disalin ke sini untuk lama-lama berbeda.
-             *
-             * Angka tahun dulu terlempar ke kartu "Pengaturan" tersendiri,
-             * terpisah dari judul tonggak yang justru ia beri tahun. Mengisi
-             * satu tonggak berarti melompat antara dua kartu.
-             */
+            // Garis waktu history & tonggak
             ['kelompok' => 'Garis waktu', 'nama' => 'established_year', 'jenis' => 'opsi'],
 
             ['nama' => 'milestone_1_year',  'jenis' => 'opsi'],
@@ -399,26 +267,7 @@ class PageIndex extends Component
     /** Bagian Profile yang punya foto sendiri. */
     public const PROFIL_BERFOTO = ['profil'];
 
-    /**
-     * Pengaturan bukan-teks tiap bagian Profile.
-     *
-     * Metode, bukan konstanta, karena batas atasnya tahun berjalan — dan
-     * konstanta tidak bisa memanggil date().
-     *
-     * 'sumber' => 'setting' menandai bahwa nilainya TIDAK disimpan di dalam
-     * JSON isi halaman, melainkan tetap di kunci pengaturannya sendiri. Tahun
-     * berdiri dibaca dua tempat yang berbeda — garis waktu di halaman Profile
-     * dan angka pengalaman di hero beranda — jadi memindahkannya ke dalam isi
-     * halaman Profile akan membuat beranda bergantung pada isi halaman lain.
-     * Yang berpindah cuma tempat menyuntingnya.
-     */
-    /**
-     * Pengaturan bukan-teks milik HALAMAN publik.
-     *
-     * Bentuknya sama dengan opsiProfil(): yang menentukan label, jenis, dan
-     * tempat simpannya cuma satu tempat — di sini — sementara BIDANG_HALAMAN
-     * cuma menyatakan DI MANA ia muncul di antara kolom teksnya.
-     */
+    // Pengaturan non-teks halaman publik
     public static function opsiHalaman(): array
     {
         return [
@@ -438,6 +287,7 @@ class PageIndex extends Component
         ];
     }
 
+    // Pengaturan non-teks bagian Profile
     public static function opsiProfil(): array
     {
         return [
@@ -453,62 +303,28 @@ class PageIndex extends Component
                     'bawaan'  => '',
                     'catatan' => 'Titik awal garis waktu di bawah. Tonggak yang tahunnya '
                                . 'dikosongkan dihitung sendiri dari sini sampai tahun '
-                               . 'berjalan. Angka ini juga dipakai menghitung "tahun '
-                               . 'pengalaman" di beranda. Dikosongkan berarti garis waktunya '
-                               . 'memakai tahun berjalan — dan tampak seolah perusahaan ini '
-                               . 'baru berdiri tahun ini.',
+                               . 'berjalan. Dikosongkan berarti garis waktunya memakai tahun berjalan.',
                 ],
-
-                /*
-                 * Tahun tiap tonggak — pengaturan, bukan teks per bahasa.
-                 *
-                 * "2015" sama saja dibaca dalam bahasa mana pun. Menaruhnya di
-                 * kartu teks berarti ia diketik dua kali dan bisa berbeda antara
-                 * Indonesia dan English — sesuatu yang tidak masuk akal untuk
-                 * dijawab, dan yang kalah selalu pembacanya.
-                 *
-                 * Boleh kosong, dan kosong bukan berarti hampa: tonggak yang
-                 * tahunnya tidak diisi kembali dihitung sendiri dari tahun
-                 * berdiri sampai tahun berjalan, persis seperti sebelum kolom
-                 * ini ada. Jadi yang sudah berjalan tidak berubah apa-apa
-                 * sampai ada yang benar-benar diketik.
-                 */
                 ...self::tahunTonggak(),
             ],
         ];
     }
 
-    /**
-     * Keenam kolom tahun tonggak.
-     *
-     * Dibangkitkan, bukan ditulis enam kali: keenamnya hanya berbeda pada
-     * nomornya, dan enam salinan yang nyaris sama adalah enam tempat yang harus
-     * diperbaiki tiap kali ada perubahan.
-     */
+    // Bangkitkan keenam kolom tahun tonggak
     private static function tahunTonggak(): array
     {
         $keluar = [];
 
         for ($i = 1; $i <= 6; $i++) {
             $keluar[] = [
-                'nama'   => 'milestone_' . $i . '_year',
-                'label'  => 'Tonggak ' . $i . ' — tahun',
-                'jenis'  => 'angka',
-                /*
-                 * Batas atasnya longgar, bukan tahun berjalan: garis waktu boleh
-                 * memuat tonggak yang direncanakan. Letak titiknya toh tidak
-                 * bergantung pada tahunnya — keenamnya berjarak sama rata
-                 * menurut urutan, dan tahunnya cuma tulisan di bawah titik.
-                 */
-                'min'    => 1900,
-                'max'    => (int) date('Y') + 20,
-                'bawaan' => '',
-
-                /* Kosong berarti "hitung sendiri", jadi tidak boleh dipaksa
-                   diisi — lihat keterangan di kolom Tahun berdiri. */
+                'nama'         => 'milestone_' . $i . '_year',
+                'label'        => 'Tonggak ' . $i . ' — tahun',
+                'jenis'        => 'angka',
+                'min'          => 1900,
+                'max'          => (int) date('Y') + 20,
+                'bawaan'       => '',
                 'boleh_kosong' => true,
-
-                'catatan' => $i === 1
+                'catatan'      => $i === 1
                     ? 'Dikosongkan berarti tahunnya dihitung sendiri dari Tahun berdiri '
                       . 'sampai tahun berjalan, seperti sebelumnya. Boleh diisi sebagian.'
                     : null,
@@ -533,15 +349,6 @@ class PageIndex extends Component
             ['kelompok' => 'Daftar produk', 'nama' => 'view_label', 'label' => 'Label tautan tiap produk', 'jenis' => 'teks', 'bawaan' => 'site.view_details'],
             ['nama' => 'empty',   'label' => 'Teks saat tidak ada produk yang cocok', 'jenis' => 'teks', 'bawaan' => 'site.no_products_found'],
 
-            /*
-             * SATU label tombol, bukan judul dan keterangan kartu.
-             *
-             * Kartu katalognya sudah tidak ada di halaman publik — yang tersisa
-             * sebuah tombol. Dua kolom yang mengisi judul dan keterangan kartu itu
-             * jadi kolom yang bisa diisi tapi tidak muncul di mana pun, dan itu
-             * lebih buruk daripada tidak ada kolomnya: yang mengisinya akan
-             * mencari-cari hasilnya di halaman yang tidak pernah berubah.
-             */
             ['kelompok' => 'Tombol katalog', 'nama' => 'catalog_cta', 'label' => 'Label tombol', 'jenis' => 'teks', 'bawaan' => 'site.download_pdf'],
         ],
 
@@ -566,13 +373,6 @@ class PageIndex extends Component
             ['nama' => 'title',   'label' => 'Judul',                     'jenis' => 'teks', 'bawaan' => 'site.page_gallery', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'body',    'label' => 'Deskripsi',                 'jenis' => 'kaya', 'bawaan' => 'site.page_gallery_sub'],
 
-            /*
-             * Video sorotan: satu alamat YouTube, bukan teks per bahasa.
-             *
-             * Alamatnya sama dibaca dalam bahasa mana pun — menaruhnya di kartu
-             * teks berarti ia diketik dua kali dan bisa berbeda antara Indonesia
-             * dan English, sesuatu yang tidak masuk akal untuk dijawab.
-             */
             ['kelompok' => 'Video sorotan', 'nama' => 'video_url', 'jenis' => 'opsi'],
 
             ['kelompok' => 'Daftar album', 'nama' => 'empty',   'label' => 'Teks saat belum ada isi galeri', 'jenis' => 'teks', 'bawaan' => 'site.no_gallery_items'],
@@ -592,13 +392,6 @@ class PageIndex extends Component
             ],
         ],
 
-        /*
-         * Footer bukan halaman, tapi ia tergambar di SETIAP halaman — dan
-         * satu-satunya kalimatnya sendiri selama ini tidak bisa disentuh dari
-         * panel. Sisanya memang bukan tulisan: alamat, kontak, jam, dan
-         * tautan sosial datang dari Pengaturan, dan label navigasinya
-         * mengikuti nama halamannya masing-masing.
-         */
         'footer' => [
             ['kelompok' => 'Ajakan', 'nama' => 'headline', 'label' => 'Ajakan besar di kepala footer', 'jenis' => 'panjang', 'bawaan' => 'site.footer_headline', 'catatan' => self::CATATAN_TEKANAN],
             [
@@ -611,12 +404,6 @@ class PageIndex extends Component
         ],
 
         'contact' => [
-            /*
-             * Label kecil di atas judul — kolom yang selama ini TIDAK ada di
-             * halaman ini saja, sementara enam halaman publik lain punya.
-             * Akibatnya kepala halaman Kontak berdiri tanpa penanda golongan,
-             * dan yang menyuntingnya dari panel tidak punya cara menambahkannya.
-             */
             ['kelompok' => 'Judul & deskripsi', 'nama' => 'eyebrow', 'label' => 'Label kecil di atas judul', 'jenis' => 'teks', 'bawaan' => 'site.nav_contact'],
             ['nama' => 'headline',   'label' => 'Judul halaman', 'jenis' => 'teks', 'bawaan' => 'site.inquiry_headline', 'catatan' => self::CATATAN_TEKANAN],
             ['nama' => 'intro',      'label' => 'Deskripsi',     'jenis' => 'kaya', 'bawaan' => 'site.inquiry_intro'],
@@ -631,13 +418,13 @@ class PageIndex extends Component
         ],
     ];
 
-    /** Halaman yang punya foto sendiri. */
+    // Halaman yang punya foto sendiri
     public const HALAMAN_BERFOTO = [];
 
-    /** Bagian yang punya foto sendiri. */
+    // Bagian yang punya foto sendiri
     public const BAGIAN_BERFOTO = ['hero', 'contact'];
 
-    /** Keterangan foto tiap bagian, supaya ukurannya jelas sebelum diunggah. */
+    // Keterangan foto tiap bagian
     public const CATATAN_FOTO = [
         'hero'    => 'Melebar penuh di bawah teks hero, sebaiknya 1920×1080 piksel. '
                    . 'Dikosongkan berarti tempatnya digambar sebagai kotak penanda.',
@@ -648,48 +435,28 @@ class PageIndex extends Component
                    . 'Dikosongkan berarti tempatnya digambar sebagai kotak penanda.',
     ];
 
-    /**
-     * Isi kedelapan halaman publik, dibaca dari kunci pengaturan 'page_contents'.
-     *
-     * Berdiri terpisah dari home_sections: halaman tidak punya urutan atau
-     * sakelar tampil untuk ditumpangi, jadi menumpangkannya di sana hanya
-     * membuat satu larik memikul dua urusan yang berbeda.
-     */
+    // Isi semua halaman publik
     public array $halaman_publik = [];
 
-    /**
-     * Susunan bagian halaman Profile.
-     *
-     * Menumpang di 'page_contents' → 'profile' → 'sections', bersebelahan
-     * dengan isinya. Bentuknya sama dengan susunan beranda: id, nama, aktif,
-     * urutan.
-     */
+    // Susunan bagian halaman Profile
     public array $profile_sections = [];
 
-    /** 'bagian' beranda, 'halaman' publik, atau 'profil' bagian halaman Profile. */
+    // 'bagian' beranda, 'halaman' publik, atau 'profil' bagian Profile
     public string $jenisDibuka = 'bagian';
 
-    /** Bagian atau halaman yang sedang dibuka isinya; null berarti tertutup. */
+    // Bagian/halaman yang sedang dibuka; null = tertutup
     public ?string $bagianDibuka = null;
 
-    /** isiBagian[locale][nama] — nilai yang sedang disunting di modal. */
+    // isiBagian[locale][nama] — nilai di modal
     public array $isiBagian = [];
 
-    /** opsiBagian[nama] — pengaturan bukan-teks yang sedang disunting. */
+    // opsiBagian[nama] — pengaturan non-teks di modal
     public array $opsiBagian = [];
 
     public $gambarBagian;
     public ?string $gambarBagianLama = null;
 
-    /*
-     * Gambar per tonggak sejarah, berkunci nama slotnya (milestone_1_image, …).
-     *
-     * Terpisah dari $gambarBagian karena keduanya menjawab hal yang berbeda:
-     * yang satu foto MILIK BAGIAN — satu untuk seluruh halaman Profile — yang
-     * satu lagi gambar milik satu baris di dalam bagian. Menumpangkannya pada
-     * kunci 'image' yang sama akan membuat gambar tonggak keenam menimpa foto
-     * halamannya.
-     */
+    // Gambar per tonggak sejarah
     public array $gambarTonggak = [];
     public array $gambarTonggakLama = [];
 
@@ -697,12 +464,6 @@ class PageIndex extends Component
     {
         $nilai = Setting::pluck('value', 'key');
 
-
-        /*
-         * json_decode() mengembalikan null untuk JSON yang rusak — diperiksa
-         * supaya satu baris pengaturan yang cacat tidak mematikan seluruh
-         * halaman ini, yang justru satu-satunya tempat memperbaikinya.
-         */
         $isiHalaman = json_decode($nilai[\App\Support\IsiHalaman::KUNCI] ?? '', true);
         $this->halaman_publik = is_array($isiHalaman) ? $isiHalaman : [];
 
@@ -711,11 +472,6 @@ class PageIndex extends Component
         $tersimpan = Setting::where('key', 'home_sections')->value('value');
         $bagian = $tersimpan ? json_decode($tersimpan, true) : null;
 
-        /*
-         * json_decode() mengembalikan null untuk JSON yang rusak. Tanpa
-         * pemeriksaan is_array(), halaman ini akan mati dengan galat foreach
-         * atas null — dan satu-satunya cara memperbaikinya lewat basis data.
-         */
         if (! is_array($bagian) || $bagian === []) {
             $this->home_sections = self::BAGIAN_BAWAAN;
             $this->simpanBagian();
@@ -726,28 +482,7 @@ class PageIndex extends Component
 
         $this->home_sections = $bagian;
 
-        /*
-         * Susunan tersimpan didamaikan dengan BAGIAN_BAWAAN — dua arah, karena
-         * keduanya sama-sama pernah terjadi:
-         *
-         *   BUANG  bagian tersimpan yang tidak dikenal lagi. Beranda publik
-         *          hanya bisa menggambar id yang ada di cabang @switch
-         *          bladenya; yang di luar itu jatuh ke @default, dan @default
-         *          menggambar kotak "[FRONTEND TASK: ...]" — ke pengunjung
-         *          sungguhan, bukan ke panel. Selama bagiannya masih duduk di
-         *          JSON, sakelarnya masih ada di panel: satu ketukan dari
-         *          menerbitkan tulisan itu. ('gallery' dan 'downloads' persis
-         *          begitu — tersimpan mati, jadi tidak pernah terlihat.)
-         *
-         *   SISIP  bagian bawaan yang belum ada di JSON lama. Tanpa ini,
-         *          bagian yang ditambahkan sesudah susunannya pernah tersimpan
-         *          tidak akan pernah muncul di daftar — tidak bisa diurutkan,
-         *          tidak bisa dimatikan.
-         *
-         * Dikerjakan dalam satu jalan, bukan dua cabang yang saling mendahului:
-         * susunan yang sekaligus kelebihan DAN kekurangan bagian harus selesai
-         * dalam sekali mount, bukan separuh sekarang separuh nanti.
-         */
+        // Damaikan: buang yang tidak dikenal, sisipkan yang baru
         $dikenal = array_column(self::BAGIAN_BAWAAN, 'id');
         $bersih  = array_values(array_filter(
             $this->home_sections,
@@ -771,11 +506,6 @@ class PageIndex extends Component
 
         $this->urutkanBagian();
 
-        /*
-         * Hanya ditulis kalau memang berubah — mount terjadi pada tiap muat
-         * halaman, dan menulis ulang nilai yang sama setiap kali cuma
-         * membebani basis data tanpa mengubah apa pun.
-         */
         if ($berubah) {
             $this->simpanBagian();
         }
@@ -783,35 +513,7 @@ class PageIndex extends Component
         $this->pindahkanFotoHeroLama($nilai);
     }
 
-    /**
-     * MEMINDAHKAN foto yang dulu tersimpan sebagai pengaturan lepas — sekali,
-     * lalu kunci lamanya dibuang.
-     *
-     * Foto hero dan foto ajakan kini menempel pada bagiannya sendiri, bukan
-     * pada kunci 'hero_image' / 'cta_image' yang berdiri terpisah.
-     *
-     * Kunci lamanya DULU sengaja dibiarkan, supaya alamat aslinya masih ada
-     * kalau perpindahannya keliru. Itu ternyata membuat foto tidak bisa
-     * dihapus sama sekali:
-     *
-     *   1. Bagiannya dikosongkan dari panel — kuncinya benar-benar dibuang.
-     *   2. Beranda membaca $gambarBagian['hero'] ?? $settings['hero_image'],
-     *      lalu jatuh ke kunci lama dan menggambar foto LAIN yang tidak
-     *      pernah dihapus siapa pun.
-     *   3. Pada mount berikutnya, pemindahan di bawah melihat bagiannya
-     *      kosong dan kunci lamanya terisi — lalu MENYALINNYA KEMBALI.
-     *
-     * Jadi ada dua jalan yang masing-masing menghidupkan ulang foto yang sudah
-     * dihapus, dan tidak satu pun meninggalkan jejak yang bisa dilihat dari
-     * panel. Yang menyembuhkan keduanya cuma satu hal: sesudah dipindahkan,
-     * kunci lamanya HARUS hilang. Tidak ada lagi yang menulisnya — dicek: tidak
-     * satu pun berkas di app/ atau database/ menyetel ketiga kunci ini — jadi
-     * begitu dibuang, ia tidak akan kembali.
-     *
-     * Kuncinya dibuang juga ketika bagiannya SUDAH punya foto sendiri: nilai
-     * lama itu sudah tergantikan, dan membiarkannya cuma menyisakan jebakan
-     * yang sama untuk penghapusan berikutnya.
-     */
+    // Migrasi satu kali: foto hero/ajakan lama → bagian JSON, hapus kunci lama
     private function pindahkanFotoHeroLama($nilai): void
     {
         $perlu = false;
@@ -826,8 +528,6 @@ class PageIndex extends Component
 
             $index = $this->cariBagian($bagian);
 
-            /* Bagiannya belum ada di susunan — kunci lamanya JANGAN dibuang
-               dulu, karena belum ada tempat untuk memindahkannya. */
             if ($index === null) {
                 continue;
             }
@@ -852,33 +552,11 @@ class PageIndex extends Component
         $this->pindahkanIsiAboutLama();
     }
 
-    /**
-     * Memindahkan foto Tentang Kami yang dulu tersimpan sebagai pengaturan lepas.
-     *
-     * Alasannya sama dengan foto hero dan foto ajakan: satu foto tidak boleh
-     * punya dua tempat pengaturan yang bisa berbeda isinya. Kunci lamanya
-     * sengaja TIDAK dihapus, supaya perpindahan ini masih bisa dikembalikan.
-     */
-    /**
-     * Memindahkan isi halaman statis 'about-us' ke bagian Profil.
-     *
-     * Halaman itu memasok tiga hal di halaman Profile: label kecil di atas
-     * judul, satu paragraf di kolom kanan, dan deskripsi meta SEO. Ia tidak
-     * pernah tampil sebagai halaman tersendiri — kaki situs pun sengaja
-     * mengecualikannya — jadi keberadaannya di tabel Daftar halaman menyesatkan:
-     * ia tampak seperti halaman biasa yang bisa dihapus, padahal menghapusnya
-     * ikut mengosongkan tiga tempat itu.
-     *
-     * Isinya karena itu dipindahkan sekali ke bagian Profil, tempat seluruh isi
-     * halaman Profile yang lain sudah berada. Baris aslinya TIDAK ikut dihapus
-     * di sini: memindahkan dan menghapus dalam satu langkah tidak menyisakan
-     * cara memeriksa hasil pemindahannya lebih dulu.
-     */
+    // Migrasi satu kali: isi halaman about-us → bagian Profil
     private function pindahkanIsiAboutLama(): void
     {
         $sudah = $this->halaman_publik['profile']['isi'] ?? [];
 
-        // Sudah pernah dipindahkan, atau isian itu sudah ditulis sendiri.
         foreach (['en', 'id'] as $bahasa) {
             if (filled($sudah[$bahasa]['body'] ?? null) || filled($sudah[$bahasa]['eyebrow'] ?? null)) {
                 return;
@@ -914,7 +592,7 @@ class PageIndex extends Component
         $this->simpanHalaman();
     }
 
-    /** Sama seperti di atas, dan karena alasan yang sama kunci lamanya dibuang. */
+    // Migrasi satu kali: foto profil lama → bagian Profile, hapus kunci lama
     private function pindahkanFotoProfilLama($nilai): void
     {
         $lama = $nilai['about_image'] ?? null;
@@ -931,30 +609,10 @@ class PageIndex extends Component
         Setting::where('key', 'about_image')->delete();
     }
 
-    /* ══════════════════════════════════════════════════════════════════════
-       MODAL ISI BAGIAN
-       ══════════════════════════════════════════════════════════════════════ */
+    // ── MODAL ISI BAGIAN ─────────────────────────────────────────────────
 
-    /**
-     * Membuka isi satu bagian untuk disunting.
-     *
-     * Nilainya disalin ke $isiBagian, bukan disunting langsung di dalam
-     * $home_sections. Kalau disunting di tempat, menekan Batal tidak
-     * mengembalikan apa pun — perubahannya sudah terlanjur menempel di larik
-     * yang juga dipakai daftar di belakang modalnya.
-     */
-    /* ══════════════════════════════════════════════════════════════════════
-       SUSUNAN HALAMAN PROFILE
-       ══════════════════════════════════════════════════════════════════════ */
+    // ── SUSUNAN HALAMAN PROFILE ──────────────────────────────────────────
 
-    /**
-     * Menyiapkan susunan bagian Profile.
-     *
-     * Bagian yang ditambahkan sesudah susunannya pernah tersimpan tidak ada di
-     * dalam JSON lama, jadi ia tidak akan pernah muncul di daftar — tidak bisa
-     * diurutkan, tidak bisa dimatikan. Yang hilang disisipkan di ujung, bukan
-     * diam-diam dilewati.
-     */
     private function muatSusunanProfil(): void
     {
         $tersimpan = $this->halaman_publik['profile']['sections'] ?? null;
@@ -1006,13 +664,6 @@ class PageIndex extends Component
         $this->geserProfil($id, 1);
     }
 
-    /**
-     * Menukar satu bagian Profile dengan tetangganya.
-     *
-     * Yang ditukar POSISINYA di dalam larik, bukan angka 'order'-nya —
-     * alasannya sama dengan susunan beranda: menukar angkanya saja
-     * meninggalkan lariknya dalam urutan lama sampai diurutkan ulang.
-     */
     private function geserProfil(string $id, int $arah): void
     {
         $index  = $this->cariProfil($id);
@@ -1055,13 +706,6 @@ class PageIndex extends Component
         $this->bukaIsi('bagian', $id);
     }
 
-    /**
-     * Membuka isi satu halaman publik.
-     *
-     * Modal yang sama dipakai untuk bagian beranda dan halaman: bentuk isinya
-     * sama persis — teks per bahasa, kadang foto — dan dua modal kembar hanya
-     * berarti dua tempat yang harus diperbaiki tiap kali ada perubahan.
-     */
     public function ubahIsiHalaman(string $id): void
     {
         $this->bukaIsi('halaman', $id);
@@ -1116,7 +760,6 @@ class PageIndex extends Component
         $this->bagianDibuka     = $id;
     }
 
-    /** Isi yang tersimpan untuk satu bagian atau halaman. */
     private function sumberIsi(string $jenis, string $id): array
     {
         if ($jenis === 'bagian') {
@@ -1125,11 +768,6 @@ class PageIndex extends Component
             return $index === null ? [] : $this->home_sections[$index];
         }
 
-        /*
-         * Seluruh bagian Profile berbagi satu kantong isi yang sama; yang
-         * memisahkannya cuma daftar bidang tiap bagian. Fotonya pun satu untuk
-         * halaman itu, dan hanya bagian 'profil' yang menawarkannya.
-         */
         if ($jenis === 'profil') {
             return $this->halaman_publik['profile'] ?? [];
         }
@@ -1137,19 +775,7 @@ class PageIndex extends Component
         return $this->halaman_publik[$id] ?? [];
     }
 
-    /**
-     * Medan yang benar-benar teks per bahasa.
-     *
-     * Daftar medan boleh memuat slot ber-'jenis' => 'opsi' atau 'gambar' —
-     * penanda tempat bagi isian bukan-teks yang ingin berdiri di tengah teks,
-     * seperti tahun dan gambar tiap tonggak sejarah. Keduanya tidak punya isi
-     * per bahasa, dan memperlakukannya sebagai teks akan membuat panel
-     * menyediakan dua kotak untuk satu angka — atau dua unggahan untuk satu
-     * gambar.
-     *
-     * @param  array<int, array<string, mixed>>  $bidang
-     * @return array<int, array<string, mixed>>
-     */
+    // Saring hanya bidang bertipe teks (bukan 'opsi' atau 'gambar')
     public static function bidangTeks(array $bidang): array
     {
         return array_values(array_filter(
@@ -1187,11 +813,6 @@ class PageIndex extends Component
             return;
         }
 
-        /*
-         * Batas angkanya diambil dari skema, bukan ditulis ulang di sini.
-         * Kalau batasnya ditulis dua kali, kotak isian dan pemeriksaannya bisa
-         * lama-lama berbeda — dan yang kalah selalu pemakainya.
-         */
         $aturan = [
             'gambarBagian'    => 'nullable|image|max:4096',
             'gambarTonggak.*' => 'nullable|image|max:4096',
@@ -1203,16 +824,6 @@ class PageIndex extends Component
 
         foreach ($this->skemaOpsi($this->jenisDibuka, $this->bagianDibuka) as $opsi) {
             if ($opsi['jenis'] === 'angka') {
-                /*
-                 * Boleh kosong kalau skemanya bilang begitu — dan yang bersumber
-                 * pengaturan selalu begitu: bawaannya memang untai kosong, dan
-                 * pembacanya sudah punya cadangan.
-                 *
-                 * 'boleh_kosong' ditulis terpisah dari 'sumber' karena keduanya
-                 * menjawab pertanyaan yang berbeda: yang satu di mana nilainya
-                 * disimpan, yang satu lagi apakah ia wajib diisi. Tahun tonggak
-                 * disimpan di dalam isi halaman, tapi tetap boleh dikosongkan.
-                 */
                 $bolehKosong = ($opsi['sumber'] ?? null) === 'setting'
                     || ! empty($opsi['boleh_kosong']);
 
@@ -1223,11 +834,7 @@ class PageIndex extends Component
                 $sebutan['opsiBagian.' . $opsi['nama']] = mb_strtolower($opsi['label']);
             }
 
-            /*
-             * Opsi bertipe teks selalu boleh kosong: mengosongkannya berarti
-             * bagian yang memakainya tidak digambar sama sekali, dan itu
-             * jawaban yang sah.
-             */
+            // Opsi teks selalu nullable
             if ($opsi['jenis'] === 'teks') {
                 $aturan['opsiBagian.' . $opsi['nama']] = 'nullable|string|max:255';
                 $sebutan['opsiBagian.' . $opsi['nama']] = mb_strtolower($opsi['label']);
@@ -1242,14 +849,8 @@ class PageIndex extends Component
             return;
         }
 
-        /*
-         * Isian kosong DIBUANG, bukan disimpan sebagai untai kosong.
-         *
-         * Bedanya terasa saat membaca: kunci yang tidak ada berarti "pakai
-         * bawaan", sedangkan untai kosong yang tersimpan tidak bisa dibedakan
-         * dari "sengaja dikosongkan". Membuangnya juga menjaga JSON-nya tetap
-         * ramping — ia menumpang di satu baris pengaturan.
-         */
+        // Saring isian kosong
+
         $bersih = [];
 
         foreach ($this->isiBagian as $bahasa => $nilai) {
@@ -1265,18 +866,7 @@ class PageIndex extends Component
             }
         }
 
-        /*
-         * Kelima bagian halaman Profile BERBAGI satu kantong isi yang sama.
-         *
-         * Karena itu isinya digabung, bukan ditimpa: $bersih hanya memuat
-         * bidang milik bagian yang sedang dibuka, dan menulisnya apa adanya
-         * akan menghapus isi keempat bagian lainnya — tersimpan rapi, lalu
-         * lenyap begitu bagian berikutnya disimpan.
-         *
-         * Bidang milik bagian ini dibuang lebih dulu dari kantongnya supaya
-         * isian yang sengaja DIKOSONGKAN benar-benar hilang, bukan tertinggal
-         * karena penggabungan.
-         */
+        // Bagian Profile berbagi satu kantong — gabung, jangan timpa
         if ($this->jenisDibuka === 'profil') {
             $milikBagian = array_column(
                 self::bidangTeks(self::BIDANG_PROFIL[$this->bagianDibuka] ?? []),
@@ -1292,28 +882,18 @@ class PageIndex extends Component
                 $kantong[$bahasa] = array_merge($kantong[$bahasa] ?? [], $nilai);
             }
 
-            // Bahasa yang jadi kosong seluruhnya tidak perlu ikut tersimpan.
             $bersih = array_filter($kantong, fn ($n) => $n !== []);
         }
 
         $this->tulisIsi('isi', $bersih);
 
-        /*
-         * Opsi yang nilainya sama dengan bawaannya tidak ikut disimpan, dengan
-         * alasan yang sama seperti teks kosong: yang tidak tercatat berarti
-         * "ikut bawaan", dan bawaannya boleh berubah tanpa perlu menyunting
-         * ulang tiap bagian satu-satu.
-         */
+        // Opsi yang sama dengan bawaan tidak perlu disimpan
         $opsi = [];
 
         foreach ($this->skemaOpsi($this->jenisDibuka, $this->bagianDibuka) as $skema) {
             $nilai = $this->opsiBagian[$skema['nama']] ?? null;
 
-            /*
-             * Yang bersumber pengaturan ditulis ke kunci pengaturannya sendiri,
-             * bukan ke JSON isi halaman — termasuk saat dikosongkan, supaya
-             * mengosongkannya benar-benar berpengaruh.
-             */
+            // Opsi dengan sumber=setting disimpan ke tabel settings
             if (($skema['sumber'] ?? null) === 'setting') {
                 Setting::updateOrCreate(['key' => $skema['kunci']], ['value' => $nilai]);
 
@@ -1327,18 +907,7 @@ class PageIndex extends Component
             $opsi[$skema['nama']] = $skema['jenis'] === 'angka' ? (int) $nilai : trim((string) $nilai);
         }
 
-        /*
-         * Opsi digabung untuk Profile, dengan alasan yang sama seperti teksnya:
-         * kelima bagiannya berbagi SATU kantong.
-         *
-         * Menulisnya apa adanya berarti menyimpan bagian Nilai — yang tidak
-         * punya opsi sama sekali — akan menghapus tahun tonggak milik bagian
-         * Sejarah. Tersimpan rapi, lalu lenyap begitu bagian lain disimpan,
-         * tanpa satu pun tanda di layar.
-         *
-         * Yang dibuang lebih dulu cuma opsi milik bagian yang sedang dibuka,
-         * supaya angka yang sengaja DIKOSONGKAN benar-benar hilang.
-         */
+        // Opsi Profile digabung juga (satu kantong untuk semua bagian)
         if ($this->jenisDibuka === 'profil') {
             $milikBagian = array_column($this->skemaOpsi('profil', $this->bagianDibuka), 'nama');
             $kantong     = $this->halaman_publik['profile']['opsi'] ?? [];
@@ -1355,11 +924,7 @@ class PageIndex extends Component
             $this->tulisIsi('image', $this->gambarBagian->store('settings', 'public'));
         }
 
-        /*
-         * Gambar tonggak DIGABUNG dengan yang sudah tersimpan, bukan ditimpa:
-         * yang diunggah kali ini hanya satu atau dua, dan menulisnya apa adanya
-         * akan menghapus gambar tonggak lain yang tidak disentuh.
-         */
+        // Gambar tonggak digabung, bukan ditimpa
         $tonggak = $this->gambarTonggakLama;
 
         foreach ($this->gambarTonggak as $nama => $berkas) {
@@ -1380,13 +945,7 @@ class PageIndex extends Component
         $this->tutupIsiBagian();
     }
 
-    /**
-     * Membuang foto satu bagian.
-     *
-     * Berkasnya di disk TIDAK ikut dihapus. Alamat yang sama bisa saja masih
-     * dirujuk dari tempat lain, dan berkas yatim jauh lebih murah daripada
-     * gambar yang mendadak hilang di halaman yang sedang tayang.
-     */
+    // Hapus foto bagian (berkas di disk tidak ikut dihapus)
     public function hapusGambarBagian(): void
     {
         if ($this->bagianDibuka === null) {
@@ -1405,14 +964,7 @@ class PageIndex extends Component
         $this->simpanSumber();
     }
 
-    /**
-     * Membuang gambar satu tonggak.
-     *
-     * Berkasnya di disk TIDAK ikut dihapus, dengan alasan yang sama seperti
-     * foto bagian: alamat yang sama bisa masih dirujuk dari tempat lain, dan
-     * berkas yatim jauh lebih murah daripada gambar yang mendadak hilang di
-     * halaman yang sedang tayang.
-     */
+    // Hapus gambar tonggak (berkas di disk tidak ikut dihapus)
     public function hapusGambarTonggak(string $nama): void
     {
         if ($this->bagianDibuka === null) {
@@ -1426,13 +978,7 @@ class PageIndex extends Component
         $this->simpanSumber();
     }
 
-    /**
-     * Menulis satu kunci ke tempat penyimpanan yang sedang dibuka.
-     *
-     * Nilai null berarti kuncinya DIBUANG, bukan disimpan sebagai null: yang
-     * tidak tercatat berarti "ikut bawaan", dan null yang tersimpan tidak bisa
-     * dibedakan dari itu saat dibaca kembali.
-     */
+    // Tulis satu kunci ke tempat penyimpanan aktif; null = hapus kunci
     private function tulisIsi(string $kunci, $nilai): void
     {
         if ($this->jenisDibuka === 'bagian') {
@@ -1460,7 +1006,6 @@ class PageIndex extends Component
         }
     }
 
-    /** Menyimpan tempat penyimpanan yang sedang dibuka ke pengaturan. */
     private function simpanSumber(): void
     {
         if ($this->jenisDibuka === 'bagian') {
@@ -1469,8 +1014,7 @@ class PageIndex extends Component
             return;
         }
 
-        /* Bagian Profile menumpang di kantong isi halaman 'profile', jadi
-           susunannya ikut ditulis ulang supaya tidak tertimpa. */
+        // Bagian Profile menumpang di kantong 'profile', sertakan susunannya
         if ($this->jenisDibuka === 'profil') {
             $this->halaman_publik['profile']['sections'] = $this->profile_sections;
         }
@@ -1480,8 +1024,7 @@ class PageIndex extends Component
 
     private function simpanHalaman(): void
     {
-        /* Halaman yang seluruh isinya kosong dibuang dari JSON-nya, supaya
-           kunci pengaturan ini tidak lama-lama penuh entri hampa. */
+        // Buang halaman yang seluruh isinya kosong
         $bersih = array_filter(
             $this->halaman_publik,
             fn ($h) => array_filter($h, fn ($v) => filled($v)) !== []
@@ -1494,26 +1037,11 @@ class PageIndex extends Component
             ['value' => json_encode((object) $bersih)]
         );
 
-        /* Situs publik mengingat isinya sekali per permintaan; tanpa ini,
-           penggambaran berikutnya dalam permintaan yang sama masih memakai
-           isi yang lama. */
+        // Kosongkan cache IsiHalaman agar halaman publik langsung memuat yang baru
         \App\Support\IsiHalaman::lupakan();
     }
 
-    /**
-     * Menyalakan atau mematikan satu bagian beranda.
-     *
-     * Dipanggil lewat wire:click, bukan wire:model: nilainya hidup di dalam
-     * larik JSON, jadi tidak ada satu properti pun yang bisa diikat langsung.
-     */
-    /**
-     * Baris mana yang daftar bagiannya sedang terbentang: 'home', 'profile',
-     * atau kosong.
-     *
-     * Dibentangkan DI TEMPAT, bukan dibuka sebagai jendela. Menyunting satu
-     * bagian sudah memakai jendela sendiri, dan jendela di atas jendela
-     * memaksa orang menutup dua kali untuk kembali ke daftarnya.
-     */
+    // Baris daftar bagian yang sedang terbentang: 'home', 'profile', atau ''
     public string $susunanDibuka = '';
 
     public function bukaSusunan(string $id): void
@@ -1543,14 +1071,6 @@ class PageIndex extends Component
         $this->geserBagian($id, 1);
     }
 
-    /**
-     * Menukar satu bagian dengan tetangganya.
-     *
-     * Yang ditukar POSISINYA di dalam larik, bukan angka 'order'-nya. Menukar
-     * angkanya saja meninggalkan lariknya dalam urutan lama sampai diurutkan
-     * ulang, dan itu pernah membuat tombol naik/turun tampak melompati satu
-     * baris. simpanBagian() yang menomori ulang sesudahnya.
-     */
     private function geserBagian(string $id, int $arah): void
     {
         $index = $this->cariBagian($id);
@@ -1582,12 +1102,6 @@ class PageIndex extends Component
         usort($this->home_sections, fn ($a, $b) => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
     }
 
-    /**
-     * Menyimpan susunannya sendiri, tanpa menunggu tombol Simpan mana pun.
-     *
-     * Nomornya dirapikan jadi 1,2,3… lebih dulu supaya di dalam JSON tidak
-     * tertinggal angka berlubang atau kembar sesudah beberapa kali digeser.
-     */
     private function simpanBagian(): void
     {
         foreach ($this->home_sections as $index => &$bagian) {
@@ -1604,16 +1118,6 @@ class PageIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        /*
-         * Halaman statis ikut masuk ke kartu Halaman publik, berjajar dengan
-         * ketujuh halaman tetap.
-         *
-         * Tidak lagi berupa tabel berpaginasi dengan pencarian dan penyaring:
-         * isinya cuma segelintir baris, dan tiga kendali untuk menyaring satu
-         * halaman lebih banyak menyita perhatian daripada menolong. Diambil
-         * seluruhnya, urut menurut alamatnya supaya letaknya tidak berpindah
-         * tiap kali salah satunya disunting.
-         */
         $pages = Page::with('translations')->orderBy('slug')->get();
 
         return view('livewire.admin.page-index', [
@@ -1642,9 +1146,6 @@ class PageIndex extends Component
 
         $layanan = app(TranslationService::class);
 
-        /* Label ikut dikirim HANYA kalau diisi. Untai kosong yang dikirim ke
-           layanan terjemahan menghabiskan satu putaran untuk mengembalikan
-           kosong juga. */
         $bahan = [
             'title'   => (string) $this->title_id,
             'content' => (string) $this->content_id,
@@ -1726,9 +1227,6 @@ class PageIndex extends Component
             'status' => $this->status,
         ]);
 
-        /* Label kosong disimpan sebagai NULL, bukan untai kosong: halaman
-           publik memutuskan menggambar labelnya atau tidak dari isian ini, dan
-           '' yang tersimpan tetap "ada" bagi filled(). */
         // Save English translation
         PageTranslation::updateOrCreate(
             ['page_id' => $page->id, 'locale' => 'en'],

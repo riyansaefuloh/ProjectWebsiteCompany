@@ -24,22 +24,8 @@ class NewsShow extends Component
         $appName   = config('app.name');
         $locale    = app()->getLocale();
         $title     = $this->news->getTranslation('title', $locale) ?? $this->news->getTranslation('title', 'en');
-
         $body      = strip_tags($this->news->getTranslation('content', $locale) ?? $this->news->getTranslation('content', 'en') ?? '');
 
-        /*
-         * Judul dan deskripsi SEO dari panel dipakai kalau diisi.
-         *
-         * Sebelum ini kedua isian itu TERSIMPAN TAPI TIDAK PERNAH DIBACA:
-         * kartu "SEO" di modal berita meminta dua judul dan dua deskripsi,
-         * lalu halaman artikelnya tetap menyusun judulnya dari judul artikel
-         * dan deskripsinya dari 160 huruf pertama isi. Borang yang tidak
-         * mengubah apa pun lebih buruk daripada borang yang tidak ada.
-         *
-         * Cadangannya SAMA PERSIS dengan perilaku lama, jadi artikel yang
-         * isian SEO-nya kosong — yaitu seluruhnya, sampai sekarang — tidak
-         * berubah sedikit pun.
-         */
         $metaJudul = trim((string) ($this->news->getTranslation('meta_title', $locale) ?: ''));
         $metaDesk  = trim((string) ($this->news->getTranslation('meta_description', $locale) ?: ''));
 

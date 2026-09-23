@@ -28,17 +28,10 @@
 
     <div class="grid min-h-screen lg:grid-cols-2">
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             KIRI — formulir
-             ══════════════════════════════════════════════════════════════════ --}}
         <div class="flex flex-col p-6 sm:p-10 lg:p-12">
 
-            {{-- Merek: lambang berbingkai + nama perusahaan. --}}
+            {{-- Merek & Logo --}}
             <div class="flex min-w-0 items-center gap-3">
-                
-                {{-- Petak 40px tanpa bingkai, sama dengan kepala bilah sisi
-                     panel. Lambang yang sudah punya bentuknya sendiri tidak
-                     butuh kotak kedua di sekelilingnya. --}}
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center">
                     @if($logo)
                         <img src="{{ \Illuminate\Support\Facades\Storage::url($logo) }}" alt=""
@@ -113,8 +106,7 @@
                             </div>
                         </div>
 
-                        {{-- x-data di pembungkusnya, bukan di <input>: tombol
-                             matanya perlu ikut membaca keadaan yang sama. --}}
+                        {{-- Input Kata Sandi --}}
                         <div x-data="{ terlihat: false }">
                             <label for="password" class="block text-admin-overline uppercase text-ink-muted">
                                 Kata sandi <span class="text-danger" aria-hidden="true">*</span>
@@ -130,10 +122,6 @@
                                               stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
                                     </svg>
                                 </span>
-                                {{-- type="password" tetap ditulis di markup, bukan
-                                     hanya diikat Alpine: sebelum Alpine sempat hidup,
-                                     input tanpa type akan jatuh ke text — dan kata
-                                     sandinya sempat terbaca di layar. --}}
                                 <input id="password" type="password" name="password"
                                        x-bind:type="terlihat ? 'text' : 'password'"
                                        required autocomplete="current-password"
@@ -145,9 +133,6 @@
                                         aria-label="Tampilkan kata sandi"
                                         class="absolute inset-y-0 right-0 flex w-12 items-center justify-center
                                                text-ink-faint transition-colors hover:text-ink">
-                                    {{-- Dua ikon, yang tidak aktif disembunyikan —
-                                         bukan satu ikon yang jalurnya diubah, supaya
-                                         keadaan tertutupnya tetap terbaca tanpa JS. --}}
                                     <svg x-show="! terlihat" class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                                         <path d="M2 10s3-5.6 8-5.6S18 10 18 10s-3 5.6-8 5.6S2 10 2 10Z"
                                               stroke="currentColor" stroke-width="1.4"/>
@@ -164,10 +149,7 @@
                             </div>
                         </div>
 
-                        {{-- Kotak centangnya asli, cuma disembunyikan secara
-                             visual: papan ketik dan pembaca layar tetap bekerja
-                             apa adanya. Kontroler membacanya lewat
-                             $request->boolean('remember'). --}}
+                        {{-- Opsi Ingat Saya --}}
                         <label for="remember" class="flex w-fit cursor-pointer items-center gap-2.5">
                             <input id="remember" type="checkbox" name="remember" value="1"
                                    @checked(old('remember')) class="peer sr-only">
@@ -199,29 +181,10 @@
             </p>
         </div>
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             KANAN — kartu peta
-
-             Petanya yang jadi POKOK, bukan tekstur di belakang tulisan.
-
-             Versi sebelumnya menaruh label, judul, kalimat, dan sembilan keping
-             menu di atasnya, lalu petanya harus diredupkan sampai 25% supaya
-             tidak bersaing dengan keempatnya. Hasilnya: satu-satunya benda yang
-             menarik di panel itu justru yang paling disembunyikan.
-
-             Sekarang isinya tinggal satu kalimat. Petanya bisa naik ke 45% dan
-             berdiri di tengah sebagai gambar utuh, dan yang tersisa di bawahnya
-             cuma satu garis emas pendek, satu judul, satu baris keterangan.
-
-             Gradasi di dasar tetap ada — di sini ia bekerja, bukan menambal:
-             petanya sekarang benar-benar sampai ke bidang tulisan, dan tanpa
-             peredam titik-titik Amerika Selatan jatuh persis di belakang judul.
-             ══════════════════════════════════════════════════════════════════ --}}
         <div class="hidden p-6 lg:block">
             <div class="relative h-full overflow-hidden rounded-panel bg-forest">
 
-                {{-- Peta yang SAMA dengan halaman Pasar Ekspor dan beranda —
-                     berkas yang sama, warna yang sama, bukan tiruan yang mirip. --}}
+                {{-- Visual peta & gradasi --}}
                 <img src="{{ asset('images/world-map.svg') }}" alt="" aria-hidden="true"
                      class="pointer-events-none absolute left-1/2 top-[38%] w-[128%] max-w-none
                             -translate-x-1/2 -translate-y-1/2 select-none opacity-45">
@@ -230,9 +193,6 @@
                             bg-gradient-to-t from-forest via-forest/90 to-transparent"></div>
 
                 <div class="relative flex h-full flex-col justify-end p-10 xl:p-12">
-                    {{-- Garis emas, bukan label bertulisan: satu-satunya aksen
-                         yang dibutuhkan panel ini, dan ia tidak menambah kata
-                         yang harus dibaca. --}}
                     <span aria-hidden="true" class="block h-0.5 w-12 rounded-full bg-brand-soft"></span>
 
                     <h2 class="mt-6 text-login-hero text-white">

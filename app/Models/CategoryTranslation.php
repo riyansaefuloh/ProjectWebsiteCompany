@@ -13,7 +13,7 @@ class CategoryTranslation extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // Tidak perlu timestamps bawaan Laravel karena tabel ini hanya menampung teks translasi
+    // Timestamps disabled
     public $timestamps = false; 
 
     protected $fillable = [

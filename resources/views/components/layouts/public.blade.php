@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{-- SEO Meta Tags: Title, Description, Canonical, OG, Twitter Card --}}
+    
     {!! SEOMeta::generate() !!}
     {!! OpenGraph::generate() !!}
     {!! Twitter::generate() !!}
@@ -25,17 +25,7 @@
         // Get global Organization JSON-LD Schema
         $organizationSchema = \App\Services\JsonLdService::organizationSchema();
     @endphp
-    
-    {{-- Ikon tab SELALU dinyatakan, termasuk ketika tidak ada yang diunggah.
 
-         Halaman yang tidak menyebut ikon sama sekali membuat peramban jatuh ke
-         /favicon.ico, lalu mempertahankan ikon yang terakhir dikenalnya untuk
-         asal ini. Akibatnya favicon yang sudah dihapus tetap tampak di tab —
-         bukan karena aplikasinya masih menyimpannya, melainkan karena tidak ada
-         yang menggantikannya, dan itu membaca seperti penghapusan yang gagal.
-
-         Pernyataan yang eksplisit memutus itu: peramban memakai apa yang
-         disebutkan, bukan apa yang diingatnya. --}}
     @if($favicon)
         <link rel="icon" href="{{ \Illuminate\Support\Facades\Storage::url($favicon) }}">
     @else
@@ -49,23 +39,11 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- Empat rupa, empat tugas — keterangannya di app.css. Bobot yang
-         diminta sengaja sedikit; bobot yang DIPAKAI tapi tidak dimuat akan
-         ditebalkan sendiri oleh peramban, dan hasilnya huruf yang melar.
-         Parisienne karena itu tidak boleh dipanggil dengan bobot apa pun.
-         SOFT dan WONK dipatok di URL, bukan lewat font-variation-settings:
-         rupa yang dikirim Google sudah membawa sumbunya tertanam. --}}
+    
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@100,1,9..144,500..700&family=Parisienne&family=Inter:wght@400;600;700&family=Jost:wght@400;500&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- ══ GOOGLE ANALYTICS — hanya digambar kalau ID-nya benar-benar terisi,
-         dan hanya di tata letak publik: kunjungan staf ke panel bukan lalu
-         lintas pengunjung. ══ --}}
-    {{-- Blok @php penuh, BUKAN bentuk sebaris berkurung: bentuk sebarisnya
-         gagal mencocokkan kurung untuk ungkapan ber-?? lalu terkompilasi jadi
-         tag PHP yang tidak pernah ditutup — menelan sisa berkas dan mematikan
-         SETIAP halaman publik. --}}
     @php
         $gaId = trim($globalSettings['google_analytics_id'] ?? '');
     @endphp
@@ -83,19 +61,8 @@
     @stack('seo')
 </head>
 
-{{-- .situs menimpa nilai token warna & huruf untuk seluruh keturunannya.
-     Satu kelas, dan hanya di sini — panel admin berdiri di layout lain dan
-     tidak ikut berubah. Hapus kelasnya, situs kembali ke rupa lamanya. --}}
 <body class="situs flex min-h-screen flex-col bg-canvas text-ink">
     @php
-        /* Bilah kepala hanya boleh mengambang kalau ada bidang GELAP di
-           bawahnya. Yang menyediakannya cuma hero beranda — dan hero itu bisa
-           dimatikan atau dipindah urutannya dari panel. Kalau ia bukan bagian
-           teratas, huruf putih akan jatuh di atas krem dan lenyap.
-
-           Dibaca dari $globalSettings yang sudah dimuat di atas, bukan lewat
-           kueri baru. Larik kosong berarti susunan bawaan, dan di sana hero
-           memang teratas. */
         $heroDiPuncak = false;
 
         if (request()->routeIs('home')) {

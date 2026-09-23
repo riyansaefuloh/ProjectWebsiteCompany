@@ -38,8 +38,6 @@ class DownloadIndex extends Component
     {
         $downloads = Download::orderBy('sort_order')->get();
         return view('livewire.public.download-index', array_merge(compact('downloads'), [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
             'isi' => \App\Support\IsiHalaman::untuk('downloads'),
         ]));
     }
@@ -69,7 +67,6 @@ class DownloadIndex extends Component
 
         $download->increment('download_count');
 
-        // Reset state
         $this->selectedDownloadId = null;
         $this->email = '';
 
@@ -93,9 +90,7 @@ class DownloadIndex extends Component
             'name'         => 'Download Lead',
             'company'      => 'Download Lead Gate',
             'email'        => $this->email,
-
             'country_code' => 'ZZ',
-
             'message'      => $note,
             'status'       => 'new',
             'ip_address'   => request()->ip(),

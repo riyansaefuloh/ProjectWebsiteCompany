@@ -18,32 +18,12 @@ class NewsIndex extends Component
     use WithPagination, WithFileUploads;
 
     public string $search = '';
-
-    /*
-     * Penyaring status. Namanya selectedStatus, bukan status, karena $status
-     * di bawah sudah dipakai sebagai isian modalnya — satu properti tidak bisa
-     * merangkap dua peran: menyunting artikel bakal ikut menyaring tabelnya.
-     */
     public string $selectedStatus = '';
-
-    /*
-     * Penyaring kategori. Namanya selectedCategory, bukan category, karena
-     * news_category_id di bawah sudah dipakai sebagai isian modalnya — satu
-     * properti tidak bisa merangkap dua peran.
-     */
     public string $selectedCategory = '';
 
     public bool $showModal = false;
     public ?string $editingId = null;
 
-    /**
-     * Kembali ke halaman satu tiap kali penyaringnya diubah.
-     *
-     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
-     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
-     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
-     * padahal hasilnya ada, cuma tidak di halaman itu.
-     */
     public function updating($property, $value): void
     {
         if (in_array($property, ['search', 'selectedStatus', 'selectedCategory'], true)) {
@@ -59,7 +39,7 @@ class NewsIndex extends Component
     public string $content_id = '';
     public string $status = 'published';
     public ?string $published_at = null;
-    
+
     // New Fields: Category, Tags, SEO, Media
     public ?string $news_category_id = null;
     public array $selectedTags = [];
@@ -67,21 +47,11 @@ class NewsIndex extends Component
     public string $meta_title_id = '';
     public string $meta_description_en = '';
     public string $meta_description_id = '';
-    
+
     public $coverFile;
     public ?string $existingCoverUrl = null;
     public string $activeTab = 'en';
     public bool $isTranslating = false;
-
-    /*
-     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
-     *
-     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
-     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
-     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
-     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
-     * tombolnya gagal tanpa mengatakan apa pun.
-     */
     public ?string $galatTerjemah = null;
 
     protected function rules(): array
@@ -101,20 +71,10 @@ class NewsIndex extends Component
             'meta_title_id'    => 'nullable|string|max:255',
             'meta_description_en' => 'nullable|string|max:500',
             'meta_description_id' => 'nullable|string|max:500',
-            'coverFile'    => 'nullable|image|max:3072', // Max 3MB
-
+            'coverFile'    => 'nullable|image|max:3072',
         ];
     }
 
-    /*
-     * Kantong galatnya ikut dikosongkan tiap kali modalnya dibuka.
-     *
-     * Kantong itu bertahan lintas permintaan: sekali percobaan simpan gagal,
-     * pesan merahnya — beserta titik merah di sakelar bahasanya — masih
-     * menempel saat modalnya dibuka lagi untuk artikel yang lain, padahal
-     * isiannya sudah benar. Yang terbaca pemakai: galat yang tidak bisa
-     * dihilangkan.
-     */
     public function create(): void
     {
         $this->resetValidation();
@@ -178,7 +138,7 @@ class NewsIndex extends Component
         $this->meta_description_id = $news->getTranslation('meta_description', 'id') ?? '';
         $this->status = $news->status;
         $this->published_at = $news->published_at ? $news->published_at->format('Y-m-d\TH:i') : null;
-        
+
         $this->news_category_id = $news->news_category_id;
         $this->selectedTags = $news->tags()->pluck('news_tags.id')->toArray();
         $this->existingCoverUrl = $news->getFirstMediaUrl('covers');
@@ -187,25 +147,6 @@ class NewsIndex extends Component
         $this->showModal = true;
     }
 
-    /*
-     * Kategori dan tag berita dikelola SEPENUHNYA dari modal ini — dibuat,
-     * dipilih, dan dihapus — sejak halaman "Kategori & Tag" dihapus.
-     *
-     * Alasannya: keduanya tidak pernah dibutuhkan di luar saat menulis
-     * artikel. Halaman terpisah memaksa penulis meninggalkan tulisannya yang
-     * belum tersimpan hanya untuk membuat satu tag, lalu kembali dan memulai
-     * lagi.
-     */
-
-    /**
-     * Slug yang dijamin belum terpakai.
-     *
-     * Dua nama berbeda bisa menghasilkan slug yang sama ("Ekspor & Impor" dan
-     * "Ekspor Impor" sama-sama jadi "ekspor-impor"), dan kolom slug itu unik.
-     * Sebelumnya tabrakan itu dijawab Str::random(8) — slug acak yang tidak
-     * ada hubungannya dengan namanya; sekarang dinomori di belakang seperti
-     * yang sudah dipakai di tempat lain.
-     */
     private function slugUnik(string $kelas, string $nama): string
     {
         $dasar = Str::slug($nama) ?: 'item';
@@ -219,10 +160,6 @@ class NewsIndex extends Component
         return $slug;
     }
 
-    /**
-     * Membuat kategori berita baru dari dalam modal artikel, lalu langsung
-     * memilihkannya.
-     */
     public function tambahKategori(string $nama): void
     {
         $nama = trim($nama);
@@ -235,13 +172,6 @@ class NewsIndex extends Component
             return;
         }
 
-        /*
-         * Nama yang sudah ada dipakai ulang, bukan ditolak dengan galat.
-         *
-         * Yang diinginkan pemakai saat mengetik nama yang kebetulan sudah ada
-         * adalah "pakai yang itu" — bukan pesan merah, dan jelas bukan
-         * kategori kedua bernama sama yang mustahil dibedakan di menunya.
-         */
         $kategori = NewsCategory::whereRaw('LOWER(name) = ?', [mb_strtolower($nama)])->first()
             ?? NewsCategory::create([
                 'name' => $nama,
@@ -251,13 +181,6 @@ class NewsIndex extends Component
         $this->news_category_id = $kategori->id;
     }
 
-    /**
-     * Menghapus kategori dari dalam modal.
-     *
-     * Kategori yang masih dipakai berita DITOLAK, bukan dihapus paksa: kolom
-     * news_category_id di berita lain akan menggantung menunjuk baris yang
-     * sudah tidak ada.
-     */
     public function hapusKategori(string $id): void
     {
         $this->resetValidation('news_category_id');
@@ -275,11 +198,6 @@ class NewsIndex extends Component
             return;
         }
 
-        /*
-         * Pilihan di borang ikut dikosongkan kalau yang dihapus justru yang
-         * sedang terpilih. Tanpa ini, menyimpan artikel akan gagal validasi
-         * exists: dengan pesan yang tidak menyebut sebabnya.
-         */
         if ((string) $this->news_category_id === (string) $id) {
             $this->news_category_id = null;
         }
@@ -287,9 +205,6 @@ class NewsIndex extends Component
         $kategori->delete();
     }
 
-    /**
-     * Membuat tag baru dari dalam modal, lalu langsung mencentangnya.
-     */
     public function tambahTag(string $nama): void
     {
         $nama = trim($nama);
@@ -308,24 +223,11 @@ class NewsIndex extends Component
                 'slug' => $this->slugUnik(NewsTag::class, $nama),
             ]);
 
-        /*
-         * Untai, bukan objek id: nilai yang datang dari kotak centang di
-         * peramban selalu untai, dan array campur tipe membuat in_array()
-         * longgar di blade-nya berperilaku berbeda untuk tag yang baru
-         * dibuat dibanding tag yang dimuat dari basis data.
-         */
         if (! in_array((string) $tag->id, array_map('strval', $this->selectedTags), true)) {
             $this->selectedTags[] = (string) $tag->id;
         }
     }
 
-    /**
-     * Menghapus tag dari dalam modal.
-     *
-     * Tag boleh dihapus kapan saja — kaitannya hidup di tabel pivot, jadi
-     * melepasnya tidak meninggalkan kolom yang menggantung. Yang perlu diurus
-     * cuma artikel lain yang memakainya, dan itu dilepas di sini.
-     */
     public function hapusTag(string $id): void
     {
         $tag = NewsTag::find($id);
@@ -353,7 +255,7 @@ class NewsIndex extends Component
 
         $news->slug = Str::slug($this->title_en);
         if (!$this->editingId) {
-            $news->author_id = auth()->id() ?? User::first()->id; // Fallback if no auth
+            $news->author_id = auth()->id() ?? User::first()->id;
         }
         $news->news_category_id = $this->news_category_id ?: null;
         $news->status = $this->status;
@@ -379,7 +281,6 @@ class NewsIndex extends Component
             ]
         );
 
-        // Process Upload Cover via Spatie MediaLibrary
         if ($this->coverFile) {
             $news->clearMediaCollection('covers');
             $news->addMedia($this->coverFile->getRealPath())->toMediaCollection('covers');
@@ -433,9 +334,6 @@ class NewsIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        // 'category', 'tags', dan 'media' ikut dimuat di depan karena tabelnya
-        // menampilkan sampul, kategori, dan jumlah tag tiap artikel. Tanpa ini,
-        // tiap baris menembak kuerinya sendiri.
         $newsList = News::with(['translations', 'author', 'category', 'tags', 'media'])
             ->when($this->search, function ($q) {
                 $q->search($this->search);
@@ -450,13 +348,9 @@ class NewsIndex extends Component
             ->paginate(10);
 
         return view('livewire.admin.news-index', [
-            'newsList'   => $newsList,
-            'categories' => NewsCategory::orderBy('name')->get(),
-            'tags'       => NewsTag::orderBy('name')->get(),
-
-            // Dipakai penyaring di kepala halaman. Namanya dibedakan dari
-            // 'categories' di atas supaya jelas mana yang untuk modal dan
-            // mana yang untuk penyaring.
+            'newsList'       => $newsList,
+            'categories'     => NewsCategory::orderBy('name')->get(),
+            'tags'           => NewsTag::orderBy('name')->get(),
             'daftarKategori' => NewsCategory::orderBy('name')->get(),
         ]);
     }

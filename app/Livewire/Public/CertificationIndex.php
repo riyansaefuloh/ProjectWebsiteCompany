@@ -31,26 +31,12 @@ class CertificationIndex extends Component
     #[Layout('components.layouts.public')]
     public function render()
     {
-        /*
-         * berlaku(), bukan sekadar status aktif — cakupan yang sama dengan bilah
-         * kepercayaan di beranda.
-         *
-         * Halaman ini dulu sengaja menampilkan yang kedaluwarsa lengkap dengan
-         * label "Expired on", dengan alasan keterbukaan. Yang terjadi di layar
-         * justru sebaliknya: sertifikat mati berdiri sederet dengan yang hidup,
-         * sama besar dan sama menonjol, dan pembaca harus memeriksa tanggal satu
-         * per satu untuk tahu mana yang masih berarti. Yang sudah lewat tanggal
-         * bukan kabar yang perlu disampaikan di halaman kredensial — ia cuma
-         * melemahkan yang masih berlaku.
-         */
         $certifications = Certification::berlaku()
             ->with(['translations', 'media'])
             ->orderBy('sort_order')
             ->get();
 
         return view('livewire.public.certification-index', array_merge(compact('certifications'), [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
             'isi' => \App\Support\IsiHalaman::untuk('certifications'),
         ]));
     }

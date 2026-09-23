@@ -4,16 +4,7 @@
     <meta charset="utf-8">
     <title>Export Product Catalogue - {{ $companyName }}</title>
     <style>
-        /* ══════════════════════════════════════════════════════════════════
-           Palet Karamel Sangrai, sama dengan situsnya. Yang lama memakai biru
-           Tailwind bawaan — #2563eb, #1e3a8a, #1d4ed8 — yang tidak muncul di
-           satu pun halaman situs ini.
-
-           Huruf DejaVu, bukan Helvetica: DejaVu satu-satunya keluarga bawaan
-           DomPDF yang Unicode penuh, dan nilai spesifikasi di sini memakai
-           tanda pisah en (1.200 – 1.600 mdpl). Serif untuk judul supaya
-           nadanya sekeluarga dengan Fraunces di situs.
-           ══════════════════════════════════════════════════════════════════ */
+        /* Palet Warna & Typography */
         @page { margin: 26mm 16mm 22mm; }
 
         body {
@@ -24,7 +15,6 @@
             color: #5b4d3e;
         }
 
-        /* ── Kepala, hanya di halaman pertama ─────────────────────────── */
         .masthead {
             background-color: #332619;
             color: #ffffff;
@@ -54,7 +44,6 @@
             border-top: 1px solid #5b4d3e;
         }
 
-        /* ── Kartu produk ─────────────────────────────────────────────── */
         .produk {
             border: 1px solid #eae0d0;
             background-color: #fdfaf5;
@@ -63,8 +52,6 @@
             page-break-inside: avoid;
         }
 
-        /* Tabel, bukan float: DomPDF tidak menghitung tinggi float dengan
-           benar, dan kartu berfoto akan saling tumpang tindih. */
         .baris { width: 100%; border-collapse: collapse; }
         .baris td { vertical-align: top; padding: 0; border: none; }
         .kolom-foto { width: 108px; padding-right: 14px !important; }
@@ -87,7 +74,6 @@
         }
         .ringkas { margin: 0 0 10px; font-size: 9pt; }
 
-        /* ── Tabel spesifikasi ────────────────────────────────────────── */
         .spek { width: 100%; border-collapse: collapse; margin-top: 2px; }
         .spek td {
             border-bottom: 1px solid #eae0d0;
@@ -120,7 +106,6 @@
             color: #905c1b;
         }
 
-        /* ── Kaki, terulang di tiap halaman ───────────────────────────── */
         .kaki {
             position: fixed;
             bottom: -14mm;
@@ -139,9 +124,7 @@
 </head>
 <body>
 
-    {{-- Kaki dinyatakan lebih dulu: DomPDF menggambar unsur position:fixed
-         pada tiap halaman terhitung dari tempat ia DIDEKLARASIKAN, jadi yang
-         ditaruh di akhir badan hanya muncul di halaman terakhir. --}}
+    {{-- Kaki halaman PDF --}}
     <div class="kaki">
         <table>
             <tr>
@@ -168,17 +151,12 @@
         @php
             $fotoIni = $foto[$product->id] ?? null;
 
-            /* Spesifikasi bebas dari panel — Processing, Altitude, Moisture
-               Content, dan seterusnya. Relasinya sudah lama ikut dimuat tapi
-               tidak pernah digambar; pembeli justru menilai kopi dari angka
-               inilah. Disaring per bahasa supaya baris ID tidak ikut muncul di
-               katalog berbahasa Inggris. */
+            // Spesifikasi bebas dari produk
             $spekBebas = $product->specifications
                 ->where('locale', app()->getLocale())
                 ->take(4);
 
-            /* Baris tetap, hanya yang benar-benar terisi. Yang lama menggambar
-               keenam barisnya apa pun isinya, jadi katalog penuh sel kosong. */
+            // Baris spesifikasi tetap
             $spekTetap = array_filter([
                 'HS Code'         => $product->hs_code,
                 'MOQ'             => $product->moq,
@@ -214,9 +192,7 @@
 
             @if($spekTetap || $spekBebas->isNotEmpty())
                 @php
-                    /* Dua lajur pasangan kunci–nilai berdampingan, bukan satu
-                       lajur panjang: kartunya jadi separuh tinggi, dan katalog
-                       enam produk muat di dua halaman alih-alih empat. */
+                    // Spesifikasi 2 kolom
                     $semua = $spekTetap;
                     foreach ($spekBebas as $s) { $semua[$s->spec_key] = $s->spec_value; }
                     $pasangan = array_chunk($semua, 2, true);

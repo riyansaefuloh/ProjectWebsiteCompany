@@ -13,7 +13,7 @@ class Gallery extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // Hanya kolom 'name' yang ada di migrasi database Anda
+    // Mass assignable fields
     protected $fillable = [
         'name',
     ];

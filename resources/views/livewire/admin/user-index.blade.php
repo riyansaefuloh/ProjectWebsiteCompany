@@ -28,9 +28,7 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ── KEPALA HALAMAN ────────────────────────────────────────────── --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -49,9 +47,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -99,12 +94,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -128,8 +117,6 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
@@ -391,9 +378,6 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH PENGGUNA
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         @php
             

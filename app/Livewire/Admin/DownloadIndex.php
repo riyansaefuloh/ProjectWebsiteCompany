@@ -14,27 +14,11 @@ class DownloadIndex extends Component
     use WithPagination, WithFileUploads;
 
     public string $search = '';
-
-    /*
-     * Penyaring gerbang unduhan. Untai, bukan boolean: '' berarti "semua",
-     * '1' berarti yang perlu email, '0' berarti yang terbuka.
-     *
-     * Nilai '0' inilah yang menuntut kehati-hatian di kuerinya — lihat
-     * catatan di render().
-     */
     public string $selectedGate = '';
 
     public bool $showModal = false;
     public ?string $editingId = null;
 
-    /**
-     * Kembali ke halaman satu tiap kali penyaringnya diubah.
-     *
-     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
-     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
-     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
-     * padahal hasilnya ada, cuma tidak di halaman itu.
-     */
     public function updating($property, $value): void
     {
         if (in_array($property, ['search', 'selectedGate'], true)) {
@@ -43,59 +27,21 @@ class DownloadIndex extends Component
     }
 
     public string $title = '';
-    /*
-     * Akses unduhan, dipegang sebagai UNTAI di borang meski lajur di basis
-     * data bertipe boolean (require_email).
-     *
-     * x-admin.select selalu mengirimkan untai; untai yang jatuh ke sifat
-     * bertipe bool melempar galat tipe sebelum save() sempat berjalan. Jadi
-     * pengubahannya dilakukan di dua batas — saat memuat dan saat menyimpan
-     * — bukan dengan melonggarkan tipe sifatnya.
-     *
-     * Nilainya 'gated' dan 'open', kata yang sama dengan pil status di
-     * tabelnya. Sebelumnya tiga tempat membicarakan satu hal dengan tiga
-     * cara: pil "Perlu email"/"Terbuka" di tabel, menu "Perlu email"/
-     * "Terbuka" di penyaring, dan sakelar geser menyala/mati di modal.
-     */
     public string $akses = 'gated';
     public int $sort_order = 0;
     public $pdfFile;
-
-    /*
-     * Alamat berkas yang sudah tersimpan, supaya modalnya bisa menunjukkan
-     * apa yang sedang dipakai. Sebelumnya edit() tidak memuatnya sama sekali,
-     * jadi modal ubah selalu tampak seperti belum punya berkas — dan pemakai
-     * mengunggah ulang berkas yang sebenarnya masih ada.
-     */
     public ?string $existingFilePath = null;
 
     protected function rules(): array
     {
         return [
-            'title'         => 'required|string|max:150',
-            'akses'         => 'required|in:gated,open',
-            'sort_order'    => 'integer|min:0',
-
-            /*
-             * Wajib saat menambah baru, boleh kosong saat menyunting.
-             *
-             * downloads.file_path itu NOT NULL tanpa nilai bawaan. Dengan
-             * 'nullable' apa adanya, menambah berkas tanpa mengunggah PDF
-             * lolos validasi lalu jatuh sebagai galat basis data di layar
-             * pemakai — bukan sebagai pesan merah di sebelah isiannya.
-             */
-            'pdfFile' => ($this->editingId ? 'nullable' : 'required')
-                       . '|mimes:pdf|max:10240', // Maksimal 10 MB
+            'title'      => 'required|string|max:150',
+            'akses'      => 'required|in:gated,open',
+            'sort_order' => 'integer|min:0',
+            'pdfFile'    => ($this->editingId ? 'nullable' : 'required') . '|mimes:pdf|max:10240',
         ];
     }
 
-    /*
-     * Kantong galatnya ikut dikosongkan tiap kali modalnya dibuka.
-     *
-     * Kantong itu bertahan lintas permintaan: sekali percobaan simpan gagal,
-     * pesan merahnya masih menempel saat modalnya dibuka lagi untuk berkas
-     * yang lain, padahal isiannya sudah benar.
-     */
     public function create(): void
     {
         $this->resetValidation();
@@ -121,7 +67,7 @@ class DownloadIndex extends Component
     {
         $this->validate();
 
-        $download = $this->editingId 
+        $download = $this->editingId
             ? Download::findOrFail($this->editingId)
             : new Download();
 
@@ -130,12 +76,10 @@ class DownloadIndex extends Component
         $download->sort_order = $this->sort_order;
 
         if ($this->pdfFile) {
-            // Hapus file lama jika ada
             if ($download->file_path && Storage::disk('public')->exists($download->file_path)) {
                 Storage::disk('public')->delete($download->file_path);
             }
 
-            // Simpan file PDF baru di disk public/brochures
             $path = $this->pdfFile->store('brochures', 'public');
             $download->file_path = $path;
         }
@@ -175,14 +119,6 @@ class DownloadIndex extends Component
             ->when($this->search, function ($q) {
                 $q->where('title', 'LIKE', "%{$this->search}%");
             })
-            /*
-             * !== '', BUKAN when($this->selectedGate, ...).
-             *
-             * when() memakai kebenaran nilainya, dan untai '0' itu palsu di
-             * PHP — jadi pilihan "Terbuka" tidak akan pernah menyaring apa pun,
-             * dan diam-diam menampilkan seluruh berkas seolah tidak ada
-             * penyaring yang menyala.
-             */
             ->when($this->selectedGate !== '', function ($q) {
                 $q->where('require_email', $this->selectedGate === '1');
             })

@@ -43,10 +43,6 @@
         };
     @endphp
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -65,10 +61,6 @@
         </button>
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -91,12 +83,6 @@
         </div>
     @endif
 
-
-
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -119,9 +105,6 @@
             </span>
         </div>
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             PENYARING
-             ══════════════════════════════════════════════════════════════════ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
                 
@@ -205,7 +188,6 @@
             </div>
         </div>
 
-
         <div class="p-5 transition-opacity duration-150"
              wire:loading.class="opacity-45"
              wire:target="search, selectedCategory, gotoPage, previousPage, nextPage">
@@ -279,20 +261,7 @@
                                             @endif
 
                                             <div class="min-w-0">
-                                                {{-- Bintang unggulan berdiri di samping NAMA, bukan di kolom
-                                                     status.
-
-                                                     Unggulan bukan status. Status menjawab "terbit atau draf" —
-                                                     satu nilai, satu pil, satu kolom. Unggulan menjawab "produk
-                                                     ini disorot di beranda", sifat yang melekat pada produknya
-                                                     sendiri. Menaruhnya di kolom status membuat satu kolom
-                                                     menjawab dua pertanyaan, dan barisnya jadi punya dua benda
-                                                     berwarna yang tidak berhubungan.
-
-                                                     Bintang telanjang, bukan keping bulat pejal seperti dulu:
-                                                     di sebelah nama 13px, cakram 24px berwarna merek adalah
-                                                     benda yang paling dulu terlihat di seluruh baris —
-                                                     mengalahkan nama produknya sendiri. --}}
+                                                
                                                 <span class="flex min-w-0 items-center gap-1.5">
                                                     <span class="truncate text-admin-strong text-ink"
                                                           title="{{ $nama }}">{{ $nama }}</span>
@@ -416,10 +385,6 @@
         </div>
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH PRODUK
-         ══════════════════════════════════════════════════════════════════ --}}
     @if($showModal)
         @php
             
@@ -577,7 +542,6 @@
 
                                 <div class="space-y-4">
 
-                                    
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">
                                             Nama produk <span class="text-brand">*</span>
@@ -713,10 +677,6 @@
                                              const set = new Set(this.pilihan)
                                              aktif ? set.add(kode) : set.delete(kode)
 
-                                             /* Diurutkan ulang menurut urutan bakunya,
-                                                bukan menurut urutan mencentang — supaya
-                                                dua produk dengan pilihan yang sama
-                                                tersimpan dengan untai yang sama pula. */
                                              this.pilihan = this.urutan.filter(k => set.has(k))
 
                                              $wire.$set('incoterms', this.pilihan.join(','))
@@ -786,7 +746,6 @@
                                             <p class="mt-0.5 text-admin-label text-ink-muted">Informasi teknis dan karakteristik produk.</p>
                                         </div>
                                     </div>
-
 
                                     <span class="text-admin-label text-ink-faint">Opsional</span>
                                 </div>

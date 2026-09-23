@@ -71,23 +71,6 @@ class NewsIndex extends Component
 
         $hasFilters = filled($this->search) || filled($this->category);
 
-        /*
-         * ── ARTIKEL SOROTAN: YANG PALING BARU ────────────────────────────
-         *
-         * Kartu terbesar di halaman ini selalu artikel dengan tanggal terbit
-         * paling belakang — itu satu-satunya aturannya, dan tidak ada kolom
-         * "unggulan" yang bisa menimpanya dari panel.
-         *
-         * Ia digambar HANYA saat tidak ada saringan yang berlaku. Begitu
-         * pengunjung memilih kategori atau mengetik pencarian, yang ditanyakan
-         * bukan lagi "apa yang terbaru" melainkan "apa yang cocok" — dan kartu
-         * besar berisi artikel yang kebetulan paling baru akan berdiri di
-         * puncak hasil yang tidak dimintanya. Jadi kartunya mundur dan seluruh
-         * artikel kembali ke kisi yang setara.
-         *
-         * Menu urutan sudah dilepas dari halaman ini, jadi tidak ada lagi cara
-         * membuat daftarnya berlawanan dengan kartu besarnya.
-         */
         $featured = $hasFilters
             ? null
             : News::where('status', 'published')
@@ -108,10 +91,7 @@ class NewsIndex extends Component
         $query->orderByDesc('published_at');
 
         return view('livewire.public.news-index', [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
-            'isi' => \App\Support\IsiHalaman::untuk('news'),
-
+            'isi'        => \App\Support\IsiHalaman::untuk('news'),
             'news'       => $query->paginate(9),
             'categories' => $categories,
             'featured'   => $featured,

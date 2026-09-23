@@ -15,9 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DownloadController extends Controller
 {
-    /**
-     * Tampilkan form email sebelum download katalog (GET).
-     */
     public function showCatalogForm()
     {
         $appName = config('app.name');
@@ -39,12 +36,10 @@ class DownloadController extends Controller
 
     public function downloadCatalog(Request $request, PdfCatalogService $pdfService): Response
     {
-        // 1. Validasi email (Lead Capture Gate — PRD Bab 7.9)
         $request->validate([
             'email' => 'required|email|max:150',
         ]);
 
-        // 2. Simpan lead buyer ke tabel inquiries
         Inquiry::create([
             'name'         => 'Catalog Lead',
             'company'      => 'Unknown',
@@ -55,13 +50,9 @@ class DownloadController extends Controller
             'ip_address'   => $request->ip(),
         ]);
 
-        // 3. Generate dan return PDF katalog
         return $pdfService->generateCatalogPdf();
     }
 
-    /**
-     * Download File Brosur/Dokumen dengan Lead Capture Gate (Opsional Email).
-     */
     public function downloadFile(Request $request, Download $download)
     {
         if ($download->require_email && !$request->has('email')) {
@@ -71,7 +62,6 @@ class DownloadController extends Controller
             ]);
         }
 
-        // 2. Simpan lead buyer jika email dikirimkan
         if ($request->filled('email')) {
             Inquiry::create([
                 'name'         => $request->input('name', 'Download Lead'),
@@ -84,10 +74,8 @@ class DownloadController extends Controller
             ]);
         }
 
-        // 3. Increment statistik download_count
         $download->increment('download_count');
 
-        // 4. Download file dari Storage
         if (Storage::disk('public')->exists($download->file_path)) {
             return Storage::disk('public')->download($download->file_path, $download->title . '.pdf');
         }

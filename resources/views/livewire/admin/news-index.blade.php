@@ -1,10 +1,6 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * admin lainnya.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
@@ -36,9 +32,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -57,9 +50,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -82,12 +72,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -111,13 +95,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Tiga kendali: pencarian separuh lebar, lalu status dan
-                     kategori. --}}
                 <div class="grid gap-4 p-5 lg:grid-cols-4">
 
                     <div class="relative lg:col-span-2">
@@ -146,9 +126,6 @@
                                         ['nilai' => 'draft',     'label' => 'Draf'],
                                     ]" />
 
-                    {{-- Selalu tergambar, tidak lagi bersyarat ada-tidaknya
-                         kategori: bilah penyaring yang jumlah kendalinya
-                         berubah membuat lebar kotak cari ikut melompat. --}}
                     <x-admin.select model="selectedCategory" :value="$selectedCategory"
                                     label="Saring menurut kategori" placeholder="Semua kategori"
                                     :options="$daftarKategori->map(fn ($k) => [
@@ -204,8 +181,6 @@
                         $kolom = [
                             ['label' => 'Artikel',  'lebar' => 'w-[34%]', 'rata' => 'text-left'],
                             ['label' => 'Kategori', 'lebar' => 'w-[13%]', 'rata' => 'text-left'],
-                            /* 17%: nama + avatarnya butuh ruang lebih dari kolom
-                               lain, dan "Super Admin User" terpotong di 14%. */
                             ['label' => 'Penulis',  'lebar' => 'w-[17%]', 'rata' => 'text-left'],
                             ['label' => 'Terbit',   'lebar' => 'w-[14%]', 'rata' => 'text-left'],
                             ['label' => 'Status',   'lebar' => 'w-[10%]', 'rata' => 'text-left'],
@@ -234,11 +209,6 @@
                             @forelse($newsList as $news)
                                 @php
                                     $judul  = $news->translated_title ?: $news->slug;
-
-                                    /* getFirstMedia(), bukan getFirstMediaUrl(): yang
-                                       kedua mengembalikan untai kosong saat tidak ada
-                                       berkasnya, dan untai kosong di src membuat
-                                       peramban memuat ulang HALAMAN ini sebagai gambar. */
                                     $berkas = $news->getFirstMedia('covers');
 
                                     $alamatSampul = $berkas
@@ -250,18 +220,9 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus — keadaan
-                                         terbit sudah terbaca dari pil status
-                                         di kolom Status, dan dua penanda
-                                         untuk satu keadaan tidak menambah
-                                         kejelasan. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
-                                            {{-- Petak 40x40, sama dengan
-                                                 Produk, Kategori, dan
-                                                 Sertifikasi. Sampulnya 3:2,
-                                                 jadi petak persegi ini
-                                                 memangkas sisi kiri-kanannya. --}}
+                                            
                                             @if($alamatSampul)
                                                 <img src="{{ $alamatSampul }}" alt=""
                                                      loading="lazy" width="40" height="40"
@@ -281,12 +242,7 @@
                                                       title="{{ $judul }}">{{ $judul }}</span>
 
                                                 <span class="mt-0.5 flex items-center gap-2 text-admin-caption text-ink-faint">
-                                                    {{-- Slug jadi baris
-                                                         kedua: itulah yang
-                                                         muncul di alamat
-                                                         artikelnya, jadi itu
-                                                         yang dicocokkan saat
-                                                         menelusuri tautan. --}}
+                                                    
                                                     <span class="min-w-0 truncate"
                                                           title="Slug: {{ $news->slug }}">{{ $news->slug }}</span>
 
@@ -353,11 +309,6 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasan menyebut akibatnya,
-                                                 bukan sekadar "yakin?":
-                                                 artikel lenyap dari situs
-                                                 publik beserta sampul dan
-                                                 kedua terjemahannya. --}}
                                             <x-admin.confirm-delete metode="delete"
                                                                     :id="$news->id"
                                                                     :nama="$judul"
@@ -423,14 +374,9 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TULIS / UBAH ARTIKEL
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ── MODAL TULIS / UBAH ARTIKEL ────────────────────────────────── --}}
     @if($showModal)
         @php
-            /* Titik merah di sakelar bahasa: menandai tab mana yang isian
-               wajibnya belum beres, supaya galat di tab tersembunyi tidak
-               berujung tombol Simpan yang seakan tidak bereaksi. */
             $galatEn = $errors->hasAny(['title_en', 'excerpt_en', 'content_en',
                                         'meta_title_en', 'meta_description_en']);
             $galatId = $errors->hasAny(['title_id', 'excerpt_id', 'content_id',
@@ -446,9 +392,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            {{-- 1100px seperti modal produk, bukan 900 seperti kategori: isi
-                 artikelnya butuh kotak tulis yang benar-benar lebar, dan panel
-                 kanannya membawa tiga kartu. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[1100px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -492,10 +435,7 @@
                                     lg:w-[58%] lg:overflow-y-auto lg:overscroll-contain">
 
                             {{-- ── Kartu: isi artikel ───────────────────── --}}
-                            {{-- Kartu INI SAJA yang tidak memakai
-                                 overflow-hidden: ia membungkus penyunting
-                                 teks, dan kotak alamat tautan milik Quill
-                                 akan terpotong olehnya. --}}
+                            
                             <section class="rounded-corner border border-line bg-canvas">
                                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3.5">
                                     <div class="flex min-w-0 items-center gap-2.5">
@@ -510,11 +450,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Tab bahasa dan tombol Terjemahkan
-                                         berdiri TERPISAH: kendali bersegmen
-                                         menjanjikan "pilih salah satu", dan
-                                         tombol tindakan di dalam bingkai yang
-                                         sama mengingkari janji itu. --}}
                                     <div class="flex shrink-0 flex-wrap items-center gap-2">
 
                                         <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
@@ -536,8 +471,6 @@
                                                         ])>
                                                     {{ $sebutan }}
 
-                                                    {{-- Titik merah: tab ini menyimpan galat
-                                                         yang tidak terlihat karena tertutup. --}}
                                                     @if($bergalat)
                                                         <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
                                                               title="Ada isian yang perlu diperbaiki di sini"></span>
@@ -546,9 +479,6 @@
                                             @endforeach
                                         </div>
 
-                                        {{-- Tombol tindakan, bukan pilihan —
-                                             memakai bentuk tombol panel yang
-                                             baku. --}}
                                         <button type="button" wire:click="autoTranslate"
                                                 wire:loading.attr="disabled" wire:target="autoTranslate"
                                                 title="Salin isian Indonesia ke English, lalu terjemahkan"
@@ -570,8 +500,7 @@
                                 </div>
 
                                 <div class="p-5">
-    {{-- Pesan gagal-terjemah, tepat di bawah tombol yang memicunya —
-         sebelumnya ia gagal tanpa mengatakan apa pun. --}}
+    
                                     @if($galatTerjemah)
                                         <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                             <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -585,11 +514,6 @@
 
                                     <div class="space-y-4">
 
-                                        {{-- Judul mengikuti tab. Keduanya
-                                             TETAP di DOM dan yang tidak aktif
-                                             hanya disembunyikan: isian yang
-                                             elemennya lenyap membuat Livewire
-                                             kehilangan nilainya. --}}
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">
                                                 Judul artikel <span class="text-brand">*</span>
@@ -615,10 +539,6 @@
                                                 @enderror
                                             </div>
 
-                                            {{-- Slug-nya dirangkai dari judul Inggris di save(),
-                                                 jadi judul itulah yang menentukan alamat
-                                                 artikelnya di situs publik. --}}
-                                            
                                         </div>
 
                                         {{-- Ringkasan — mengikuti tab. --}}
@@ -649,12 +569,6 @@
                                             </div>
                                         </div>
 
-                                        {{-- Isi artikel, penyunting kaya.
-                                             Skrip yang disisipkan Livewire
-                                             lewat morph DOM tidak pernah
-                                             dijalankan peramban — karena itu
-                                             editornya dibundel Vite, lihat
-                                             resources/js/editor.js. --}}
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">
                                                 Isi artikel <span class="text-brand">*</span>
@@ -701,9 +615,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Per bahasa, tapi sakelarnya tidak
-                                         digandakan: dua sakelar berisi sama
-                                         persis terbaca sebagai kerusakan. --}}
                                     <span class="shrink-0 text-admin-label text-ink-faint">Mengikuti bahasa di kartu atas</span>
                                 </div>
 
@@ -803,10 +714,6 @@
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">Kategori</label>
 
-                                            {{-- Kategori dibuat DAN dihapus
-                                                 dari sini: baris tambah di
-                                                 kaki menu, tong sampah di
-                                                 tiap baris saat kursor lewat. --}}
                                             <x-admin.select model="news_category_id"
                                                             :value="$news_category_id" class="mt-2"
                                                             label="Kategori artikel" placeholder="Tanpa kategori"
@@ -848,13 +755,6 @@
                                             <div class="flex flex-wrap items-center justify-between gap-3">
                                                 <label class="text-admin-label text-ink-faint">Tag</label>
 
-                                                {{-- Tombolnya di kepala,
-                                                     bukan sebagai keping
-                                                     terakhir: keping di deret
-                                                     itu semuanya berarti
-                                                     "pilih", dan satu keping
-                                                     yang membuka kotak ketik
-                                                     merusak artinya. --}}
                                                 <button type="button" x-show="! tambah"
                                                         x-on:click="tambah = true; $nextTick(() => $refs.isian.focus())"
                                                         class="inline-flex shrink-0 items-center gap-1.5 text-admin-label
@@ -867,11 +767,6 @@
                                                 </button>
                                             </div>
 
-                                            {{-- .prevent.stop di Enter WAJIB
-                                                 — tanpanya Enter ikut
-                                                 mengirim borang modal yang
-                                                 membungkusnya, dan artikelnya
-                                                 tersimpan setengah jadi. --}}
                                             <div x-show="tambah" x-cloak class="mt-2 flex items-center gap-1.5">
                                                 <input type="text" x-ref="isian" x-model="teksBaru"
                                                        placeholder="Nama tag baru…" aria-label="Nama tag baru"
@@ -914,15 +809,7 @@
                                             @if($tags->isNotEmpty())
                                                 <div class="mt-2 flex flex-wrap gap-2">
                                                     @foreach($tags as $tag)
-                                                        {{-- BUKAN satu
-                                                             <label> utuh:
-                                                             tombol di dalam
-                                                             label adalah HTML
-                                                             tidak sah, dan
-                                                             menekan tong
-                                                             sampahnya akan
-                                                             ikut menggerakkan
-                                                             kotak centangnya. --}}
+                                                        
                                                         <span class="group/keping inline-flex items-center gap-2
                                                                      rounded-full border border-line bg-canvas py-1.5 pl-3 pr-1.5
                                                                      text-admin-label font-semibold text-ink-muted
@@ -932,22 +819,7 @@
                                                                      has-[:checked]:text-brand-deep">
 
                                                             <label class="inline-flex cursor-pointer items-center gap-2">
-                                                                {{-- @checked()
-                                                                     WAJIB —
-                                                                     tanpanya
-                                                                     tag yang
-                                                                     sudah
-                                                                     melekat
-                                                                     tampil
-                                                                     tak
-                                                                     tercentang
-                                                                     saat
-                                                                     dibuka,
-                                                                     lalu
-                                                                     tersapu
-                                                                     habis
-                                                                     begitu
-                                                                     disimpan. --}}
+                                                                
                                                                 <x-admin.checkbox wire:model="selectedTags"
                                                                                   value="{{ $tag->id }}"
                                                                                   :checked="in_array($tag->id, $selectedTags)" />
@@ -955,18 +827,6 @@
                                                                 {{ $tag->name }}
                                                             </label>
 
-                                                            {{-- Penegas
-                                                                 biasa, bukan
-                                                                 penegasan
-                                                                 dalam baris:
-                                                                 keping ini
-                                                                 tidak berdiri
-                                                                 di daftar
-                                                                 melayang,
-                                                                 jadi tidak
-                                                                 ada lapisan
-                                                                 yang perlu
-                                                                 didahului. --}}
                                                             <x-admin.confirm-delete metode="hapusTag"
                                                                                     :id="$tag->id"
                                                                                     :nama="$tag->name"
@@ -1011,10 +871,7 @@
                                 </div>
 
                                 <div class="p-5">
-                                    {{-- Dua ubin bersebelahan — yang ada
-                                         sekarang dan penggantinya. Berita
-                                         hanya menyimpan SATU sampul, jadi
-                                         petaknya berhenti di dua. --}}
+                                    
                                     <div class="grid grid-cols-2 gap-3">
 
                                         @if($editingId && filled($existingCoverUrl))
@@ -1040,11 +897,6 @@
                                             </div>
                                         @endif
 
-                                        {{-- temporaryUrl() dibungkus try: ia
-                                             melempar galat untuk berkas yang
-                                             bukan gambar, dan atribut accept
-                                             hanya menyaring tampilan
-                                             penjelajah berkas. --}}
                                         @if($coverFile)
                                             @php
                                                 try {
@@ -1108,8 +960,6 @@
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">Status</label>
 
-                                            {{-- :nullable="false" — artikel selalu berada di salah
-                                                 satu dari dua keadaan ini. --}}
                                             <x-admin.select model="status" :value="$status" class="mt-2"
                                                             label="Status artikel" :nullable="false"
                                                             :options="[

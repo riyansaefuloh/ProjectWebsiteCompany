@@ -1,13 +1,5 @@
 @php
-    /*
-     * Bahasa diambil dari ruas pertama alamat, bukan dari app()->getLocale().
-     *
-     * Middleware bahasa hanya berjalan kalau ada rute yang COCOK. Alamat yang
-     * tidak cocok dengan rute mana pun — persis kasus yang membawa orang ke
-     * sini — tidak pernah melewatinya, jadi pengunjung /id/salah-ketik akan
-     * disambut halaman berbahasa Inggris. Yang jatuh dari firstOrFail() di
-     * dalam rute memang sudah benar bahasanya; baris ini tidak mengubahnya.
-     */
+    
     $ruas = request()->segment(1);
 
     if (array_key_exists((string) $ruas, config('laravellocalization.supportedLocales', []))) {
@@ -28,30 +20,11 @@
     \Artesaos\SEOTools\Facades\SEOMeta::setTitle(__('site.error_404_eyebrow') . ' - ' . config('app.name'));
 @endphp
 
-{{-- ══════════════════════════════════════════════════════════════════════
-     404
-
-     Memakai tata letak publik penuh — berbilah kepala dan berkaki halaman.
-     Itu SATU-SATUNYA alasan halaman ini ada: yang lama memakai halaman bawaan
-     Laravel, tanpa menu, tanpa kaki, tanpa satu pun tautan. Pengunjung yang
-     datang dari hasil pencarian ke produk yang sudah dihapus mentok di situ.
-
-     Aman memanggil basis data di sini: yang gagal cuma pencarian satu baris,
-     bukan aplikasinya. Halaman 500 tidak boleh — lihat catatan di sana.
-     ══════════════════════════════════════════════════════════════════════ --}}
 <x-layouts.public>
     <section class="pb-20 pt-14 md:pt-16 lg:pb-28 lg:pt-20">
         <div class="shell">
             <div class="mx-auto max-w-[44rem] text-center">
 
-                {{-- Angka raksasa berlatar tipis, rupa yang sama dengan nomor
-                     kartu di beranda dan halaman Tentang Kami.
-
-                     data-hias: ia hiasan, dan tintanya 7% memang tidak akan
-                     lolos ambang kontras — penanda ini yang membuat pemeriksa
-                     kontras melewatinya alih-alih melaporkannya sebagai cacat.
-                     aria-hidden supaya pembaca layar tidak melafalkan "404" dua
-                     kali, karena label di bawahnya sudah menyebutnya. --}}
                 <p aria-hidden="true" data-hias
                    class="select-none font-site-display font-bold leading-none tracking-[-0.04em]
                           text-ink/[0.07] text-[clamp(88px,17vw,152px)]">
@@ -60,9 +33,6 @@
 
                 <p class="eyebrow mt-4">{{ __('site.error_404_eyebrow') }}</p>
 
-                {{-- 22ch, bukan 18: judul versi Indonesia 29 huruf dan pada 18ch
-                     ia pecah jadi tiga baris dengan satu kata sendirian di baris
-                     terakhir. --}}
                 <h1 class="display mx-auto mt-5 max-w-[22ch] text-site-h2 text-site-forest">
                     {!! \App\Support\Judul::sorot(__('site.error_404_title')) !!}
                 </h1>
@@ -71,8 +41,6 @@
                     {{ __('site.error_404_body') }}
                 </p>
 
-                {{-- Tombol utama pil forest berbulatan emas, bentuk yang sama
-                     dengan "Explore Products" dan "See More News". --}}
                 <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
                     <a href="{{ $beranda }}"
                        class="group inline-flex h-10 items-center gap-3 rounded-full bg-site-forest pl-5 pr-1.5
@@ -97,9 +65,6 @@
                     </a>
                 </div>
 
-                {{-- Jalan pintas ke seluruh halaman utama. Tombol di atas cuma
-                     menawarkan dua tujuan; yang tersesat di sini bisa saja
-                     sedang mencari salah satu dari enam ini. --}}
                 <div class="mt-14 border-t border-line pt-9">
                     <p class="eyebrow">{{ __('site.error_404_links') }}</p>
 

@@ -2,11 +2,7 @@
     <section class="pb-16 pt-6 md:pt-8 lg:pb-20 lg:pt-10">
         <div class="shell">
 
-            {{-- Tautan kembali berupa pil pucat bercincin, rupa yang sama dengan
-                 "Read Article" di kartu berita. Yang lama .link-arrow — tautan
-                 telanjang berpanah kecil; di puncak halaman yang isinya foto besar
-                 dan judul 42px, ia terlalu tipis untuk terbaca sebagai jalan
-                 kembali. --}}
+            {{-- Tautan kembali --}}
             <a href="{{ route('products.index') }}"
                class="inline-flex h-10 w-max items-center gap-2.5 rounded-full pl-3 pr-5
                       bg-site-paper text-site-forest ring-1 ring-line-strong
@@ -24,32 +20,10 @@
 
             <div class="mt-5 grid items-start gap-8 lg:mt-6 lg:grid-cols-12 lg:gap-12">
 
-                {{-- ── KIRI: foto ──────────────────────────────────────────────
-                     Kartunya SELURUHNYA foto — tanpa bantalan, tanpa bidang krem di
-                     sisinya, tanpa latar kabur menambal sisa ruang. Nisbahnya
-                     mengikuti foto produknya masing-masing, jadi "mengisi penuh" dan
-                     "tidak terpotong" tidak lagi saling meniadakan.
-
-                     Lebarnya 5 dari 12, bukan separuh. Kartu ini tingginya ditentukan
-                     nisbah fotonya, jadi menyempitkan kolomnya adalah satu-satunya cara
-                     memendekkannya tanpa mulai memotong gambar lagi — dan tiga petak
-                     yang berpindah ke kanan dipakai lembar spesifikasi, yang sejak jadi
-                     satu kolom memang butuh lebar antara label dan nilainya. --}}
+                {{-- ── KIRI: Galeri Foto ────────────────────────────────────────── --}}
                 <div class="lg:sticky lg:top-[92px] lg:col-span-5" x-data="{ aktif: 0 }">
                     <div class="overflow-hidden rounded-panel border border-line bg-site-paper">
                         @forelse($gallery as $i => $foto)
-                            {{-- Fotonya mengisi kartu SEPENUHNYA, tepi ke tepi.
-
-                                 Nisbah kartunya datang dari foto itu sendiri (lihat
-                                 nisbahKartu di komponen), jadi object-cover di sini
-                                 tidak memotong apa pun kecuali pada foto yang
-                                 melewati batas 4:5 sampai 3:2.
-
-                                 Nisbahnya ditulis sebagai gaya sebaris, bukan kelas
-                                 aspect-[...]: Tailwind memindai berkas sumber untuk
-                                 menemukan kelas yang perlu dibuat, dan kelas yang
-                                 nilainya baru diketahui saat halaman digambar tidak
-                                 pernah ada di berkas mana pun untuk ditemukan. --}}
                             <div x-show="aktif === {{ $i }}"
                                  @if($i > 0) x-cloak @endif
                                  class="w-full" style="aspect-ratio: {{ $nisbah }}">
@@ -64,10 +38,7 @@
                         @endforelse
                     </div>
 
-                    {{-- Deretan gambar kecil digambar HANYA kalau fotonya lebih dari
-                         satu. Satu gambar kecil di bawah satu foto besar tidak
-                         menawarkan pilihan apa pun; ia cuma mengulang gambar yang
-                         sudah terlihat. --}}
+                    {{-- Thumbs galeri --}}
                     @if($gallery->count() > 1)
                         <ul class="mt-3 flex flex-wrap gap-3">
                             @foreach($gallery as $i => $foto)
@@ -92,7 +63,7 @@
                     @endif
                 </div>
 
-                {{-- ── KANAN: nama, keterangan, spesifikasi, ajakan ───────────── --}}
+                {{-- ── KANAN: Informasi & Spesifikasi ───────────────────────────── --}}
                 <div class="lg:col-span-7">
 
                     @if($product->category)
@@ -102,10 +73,6 @@
                         </a>
                     @endif
 
-                    {{-- 42px cokelat, ukuran dan warna yang sama dengan judul seksi
-                         produk di beranda. Tetap <h1> — ia judul halaman ini — tapi
-                         tidak lagi 48px: ukuran itu membuatnya lebih besar daripada
-                         judul mana pun di situs, padahal perannya sama. --}}
                     <h1 class="display mt-4 max-w-[18ch] text-site-h2 text-site-forest">
                         {!! \App\Support\Judul::sorot($product->translated_name) !!}
                     </h1>
@@ -114,42 +81,11 @@
                         <div class="rich mt-4 max-w-[54ch]">{!! $product->translated_description !!}</div>
                     @endif
 
-                    {{-- ── Lembar spesifikasi ─────────────────────────────────
-                         Satu kolom: sembilan butir yang dibaca berurutan dari atas ke
-                         bawah, bukan dipecah jadi dua tumpukan yang harus disusuri
-                         bolak-balik.
-
-                         Angkanya tabular-nums. Yang dilakukan pembeli dengan kolom ini
-                         adalah membandingkannya antar-produk, dan angka berlebar tetap
-                         membuat digit yang sama berdiri di kolom yang sama saat dua
-                         halaman dibuka bergantian. --}}
+                    {{-- Lembar Spesifikasi --}}
                     @if($facts->isNotEmpty())
                         <div class="mt-7">
                             <p class="eyebrow">{{ __('site.specifications') }}</p>
 
-                            {{-- Satu BIDANG lembar data, bukan baris-baris melayang.
-
-                                 Yang lama sederet baris bergaris bawah di atas kanvas
-                                 halaman — tiap baris berdiri sendiri, dan tidak ada
-                                 yang menyatakan bahwa kesembilannya satu himpunan.
-                                 Dibungkus satu bidang bergaris dengan sekat rambut di
-                                 antaranya, ia terbaca sebagai lembar data: satu benda
-                                 yang bisa dipindai dari atas ke bawah.
-
-                                 Jumlah pesanan minimum dan harga indikatif ikut di
-                                 dalamnya, sederajat dengan asal dan kadar air. Keduanya
-                                 pernah diangkat keluar jadi dua angka besar; tanpa itu,
-                                 seluruh keterangan produk kembali terkumpul di satu
-                                 tempat dan pembacanya tidak perlu memindai dua bidang
-                                 berbeda untuk menghitung satu penawaran.
-
-                                 Label di kiri, nilai di kanan — bukan bertumpuk.
-                                 Bertumpuk memakan dua baris untuk tiap butir; di
-                                 halaman yang sengaja dijaga muat satu layar, sembilan
-                                 butir berarti delapan belas baris. Berhadapan, tiap
-                                 butir cukup satu — dan di satu kolom yang selebar
-                                 setengah halaman, jarak antara label dan nilainya masih
-                                 cukup lebar untuk terbaca sebagai pasangan. --}}
                             <dl class="mt-3 grid gap-px overflow-hidden rounded-corner border border-line
                                        bg-line">
                                 @foreach($facts as $fact)
@@ -168,12 +104,7 @@
                         </div>
                     @endif
 
-                    {{-- Sertifikat pindah KELUAR dari kartu foto.
-
-                         Di sana ia duduk di atas gambar sebagai deretan keping tanpa
-                         judul — tidak jelas apakah ia menerangkan fotonya atau
-                         produknya. Ia fakta tentang produk, sederajat dengan lembar
-                         spesifikasi, jadi tempatnya di sebelahnya dan berlabel. --}}
+                    {{-- Sertifikasi Produk --}}
                     @if($product->certifications->isNotEmpty())
                         <div class="mt-8">
                             <p class="eyebrow">{{ __('site.certifications') }}</p>
@@ -193,13 +124,7 @@
                         </div>
                     @endif
 
-                    {{-- Sepasang tombol dengan rupa yang sama seperti di banner
-                         penutup: pil forest pejal berbulatan emas untuk ajakan
-                         utamanya, pil pucat bercincin untuk WhatsApp.
-
-                         Yang lama .btn-pill .btn-pill-brand dan .btn .btn-outline —
-                         dua keluarga tombol lama yang tidak dipakai di halaman mana
-                         pun lagi. --}}
+                    {{-- Tombol Aksi / Inquiry --}}
                     <div class="mt-7 flex flex-wrap items-center gap-3">
                         <a href="{{ route('inquiry.index', ['product' => $product->id]) }}"
                            class="group inline-flex h-10 items-center gap-3 rounded-full pl-5 pr-1.5

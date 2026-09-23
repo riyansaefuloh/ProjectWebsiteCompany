@@ -1,10 +1,6 @@
 <div class="mx-auto max-w-[1400px]">
 
     @php
-        /*
-         * Daftar penyaring yang sedang menyala — pola yang sama dengan halaman
-         * Inquiry, Produk, Kategori, dan Sertifikasi.
-         */
         $penyaringAktif = collect();
 
         if (filled($search)) {
@@ -34,9 +30,6 @@
         };
     @endphp
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -55,9 +48,6 @@
         </button>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
              class="mb-6 flex items-start gap-3 rounded-corner border border-brand/25 bg-brand-wash px-5 py-4"
@@ -80,12 +70,6 @@
         </div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    {{-- overflow-visible: menu turun penyaring di dalamnya melayang keluar
-         dari bingkai kartu, dan .card membawa overflow-hidden yang akan
-         memotongnya tepat di garis bawah kartu. --}}
     <div class="card overflow-visible">
 
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -109,13 +93,9 @@
             </span>
         </div>
 
-        {{-- ══ PENYARING — berdiri di DALAM kartu, tepat di atas tabelnya,
-             berbingkai sendiri seperti tabelnya. ══ --}}
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
-                {{-- Tiga kendali, jadi pencarian mengambil separuh baris dan dua
-                     penyaring membagi separuh sisanya. --}}
                 <div class="grid gap-4 p-5 lg:grid-cols-4">
 
                     <div class="relative lg:col-span-2">
@@ -202,9 +182,6 @@
                         ];
                     @endphp
 
-                    {{-- Lebar minimalnya ikut turun begitu kolom catatan hilang.
-                         Kalau dibiarkan 900px, empat kolom ini melar dan kolom
-                         Aksi terlempar jauh dari Status. --}}
                     <table class="w-full min-w-[720px] table-fixed">
                         @if($markets->isNotEmpty())
                             <thead>
@@ -232,17 +209,9 @@
 
                                 <tr class="group border-b border-line transition-colors last:border-0 hover:bg-mist">
 
-                                    {{-- Garis tepi kiri dihapus — keadaan
-                                         aktif sudah terbaca dari pil status
-                                         di kolom Status. --}}
                                     <td class="py-4 pl-5 pr-3 align-middle">
                                         <div class="flex items-center gap-3">
-                                            {{-- Kode ISO sebagai penanda
-                                                 baris. Bendera sengaja tidak
-                                                 dipakai: berkasnya tidak
-                                                 disimpan proyek ini, dan
-                                                 emoji bendera tidak tergambar
-                                                 sama sekali di Windows. --}}
+                                            
                                             <span class="admin-code flex h-10 w-10 shrink-0 items-center justify-center
                                                          rounded-control border border-line bg-mist
                                                          text-admin-body font-medium text-brand"
@@ -252,12 +221,6 @@
                                                 <span class="block truncate text-admin-strong text-ink"
                                                       title="{{ $nama }}">{{ $nama }}</span>
 
-                                                {{-- Kawasan jadi baris kedua,
-                                                     bukan kolom sendiri: ia
-                                                     keterangan negaranya, dan
-                                                     ruang yang hemat itu
-                                                     jatuh ke catatan pasar
-                                                     yang jauh lebih panjang. --}}
                                                 <span class="mt-0.5 block truncate text-admin-caption text-ink-faint"
                                                       title="Kawasan: {{ $market->region }}">{{ $market->region }}</span>
                                             </div>
@@ -285,9 +248,6 @@
                                                 <x-icon.admin name="edit" size="h-4 w-4" />
                                             </button>
 
-                                            {{-- Penegasannya menyebut akibatnya, bukan sekadar
-                                                 "yakin?": negara ini hilang dari peta jangkauan
-                                                 di situs publik. --}}
                                             <x-admin.confirm-delete metode="delete"
                                                                     :id="$market->id"
                                                                     :nama="$nama"
@@ -355,20 +315,12 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         MODAL TAMBAH / UBAH NEGARA
-         ══════════════════════════════════════════════════════════════════ --}}
+    {{-- ── MODAL TAMBAH / UBAH NEGARA ────────────────────────────────── --}}
     @if($showModal)
         @php
-            /* Titik merah di sakelar bahasa: menandai tab mana yang isian
-               wajibnya belum beres, supaya galat di tab tersembunyi tidak
-               berujung tombol Simpan yang seakan tidak bereaksi. */
             $galatEn = $errors->hasAny(['name_en', 'note_en']);
             $galatId = $errors->hasAny(['name_id', 'note_id']);
 
-            /* Nama baku negaranya menurut kode ISO yang sedang diketik.
-               Ini cuma cermin — yang tersimpan tetap nama terjemahan yang
-               diketik sendiri, bukan nilai ini. */
             $kodeKetik = strtoupper(trim($country_code));
             $namaIso   = config('countries', [])[$kodeKetik] ?? null;
 
@@ -385,8 +337,6 @@
             <div class="absolute inset-0" aria-hidden="true"
                  x-on:click="$wire.$set('showModal', false)"></div>
 
-            {{-- 900px, selebar modal kategori: jumlah isiannya sebanding, dan
-                 panel selebar modal produk cuma menyisakan rongga kosong. --}}
             <div class="relative flex max-h-[90vh] w-full max-w-[900px] flex-col overflow-clip
                         rounded-corner border border-line bg-canvas
                         shadow-[0_32px_80px_-24px_rgba(26,29,27,0.45)]">
@@ -443,11 +393,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Tab bahasa dan tombol Terjemahkan
-                                         berdiri TERPISAH: kendali bersegmen
-                                         menjanjikan "pilih salah satu", dan
-                                         tombol tindakan di bingkai yang sama
-                                         mengingkari janji itu. --}}
                                     <div class="flex shrink-0 flex-wrap items-center gap-2">
 
                                         <div class="inline-flex shrink-0 items-center gap-0.5 rounded-full
@@ -469,8 +414,6 @@
                                                         ])>
                                                     {{ $sebutan }}
 
-                                                    {{-- Titik merah: tab ini menyimpan galat
-                                                         yang tidak terlihat karena tertutup. --}}
                                                     @if($bergalat)
                                                         <span class="h-1.5 w-1.5 shrink-0 rounded-full bg-danger"
                                                               title="Ada isian yang perlu diperbaiki di sini"></span>
@@ -479,9 +422,6 @@
                                             @endforeach
                                         </div>
 
-                                        {{-- Tombol tindakan, bukan pilihan —
-                                             memakai bentuk tombol panel yang
-                                             baku. --}}
                                         <button type="button" wire:click="autoTranslate"
                                                 wire:loading.attr="disabled" wire:target="autoTranslate"
                                                 title="Salin isian Indonesia ke English, lalu terjemahkan"
@@ -504,9 +444,6 @@
 
                                 <div class="p-5">
 
-                                    {{-- Pesan gagal-terjemah, tepat di bawah
-                                         tombol yang memicunya — sebelumnya ia
-                                         gagal tanpa mengatakan apa pun. --}}
                                     @if($galatTerjemah)
                                         <p class="mb-4 flex items-start gap-1.5 text-admin-caption text-danger" role="alert">
                                             <svg class="mt-px h-3.5 w-3.5 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -520,12 +457,6 @@
 
                                     <div class="space-y-4">
 
-                                        {{-- Nama negara mengikuti tab.
-                                             Keduanya TETAP di DOM dan yang
-                                             tidak aktif hanya disembunyikan:
-                                             isian yang elemennya lenyap
-                                             membuat Livewire kehilangan
-                                             nilainya. --}}
                                         <div>
                                             <label class="block text-admin-label text-ink-faint">
                                                 Nama negara <span class="text-brand">*</span>
@@ -552,15 +483,10 @@
                                             </div>
                                         </div>
 
-                                        {{-- Catatan pasar — mengikuti tab. Kolomnya sengaja
-                                             tidak lagi tampil di tabel daftar, jadi di sinilah
-                                             satu-satunya tempat isinya dibaca utuh. --}}
                                         <div>
                                             <div class="flex flex-wrap items-center justify-between gap-3">
                                                 <label class="text-admin-label text-ink-faint">Catatan</label>
 
-                                                {{-- Batasnya disebut di depan, bukan menunggu
-                                                     galat muncul sesudah menekan Simpan. --}}
                                                 <span class="text-admin-label text-ink-faint">Maksimal 500 karakter</span>
                                             </div>
 
@@ -616,11 +542,6 @@
                                             Kode ISO <span class="text-brand">*</span>
                                         </label>
 
-                                        {{-- .live, satu-satunya di modal ini:
-                                             cerminan nama negara di bawah
-                                             baru berguna kalau ia menyusul
-                                             sambil mengetik. Dua huruf, jadi
-                                             paling banter dua permintaan. --}}
                                         <input type="text" wire:model.live.debounce.400ms="country_code"
                                                id="pasar-kode" maxlength="2" autocomplete="off"
                                                placeholder="DE"
@@ -631,9 +552,6 @@
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror
 
-                                        {{-- Cerminan kodenya. Salah ketik kode dua huruf itu
-                                             gampang dan akibatnya senyap — negara yang salah
-                                             muncul di peta jangkauan situs publik. --}}
                                         <p class="mt-2 flex items-start gap-1.5 text-admin-label">
                                             @if($namaIso)
                                                 <span class="text-ink-faint">Terbaca sebagai</span>
@@ -656,10 +574,6 @@
                                             Kawasan <span class="text-brand">*</span>
                                         </label>
 
-                                        {{-- :nullable="false" — tiap negara
-                                             pasti ada di salah satu kawasan.
-                                             Daftarnya ketujuh kawasan tetap,
-                                             BUKAN yang kebetulan ada datanya. --}}
                                         <x-admin.select model="region" :value="$region" class="mt-2"
                                                         label="Kawasan negara" :nullable="false"
                                                         :options="collect($kawasan)
@@ -690,11 +604,6 @@
 
                                 <div class="space-y-4 p-5">
 
-                                    {{-- Menu pilih, bukan sakelar geser:
-                                         halaman Kategori dan Produk
-                                         menanyakan hal yang sama lewat menu
-                                         berlabel "Status" dengan dua jawaban
-                                         bernama. --}}
                                     <div>
                                         <label class="block text-admin-label text-ink-faint">Status</label>
 
@@ -706,8 +615,6 @@
                                                             ['nilai' => 'inactive', 'label' => 'Nonaktif'],
                                                         ]" />
 
-                                        {{-- Akibatnya disebut, karena tidak terbaca dari
-                                             kata "Nonaktif" sendirian. --}}
                                         @error('status')
                                             <span class="mt-1.5 block text-admin-label text-danger">{{ $message }}</span>
                                         @enderror

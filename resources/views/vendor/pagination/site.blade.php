@@ -47,7 +47,6 @@
             @endforeach
         </div>
 
-        {{-- Penanda halaman untuk ponsel, menggantikan deretan nomor --}}
         <span class="px-3 text-[14px] text-ink-muted sm:hidden">
             {{ $paginator->currentPage() }} / {{ $paginator->lastPage() }}
         </span>

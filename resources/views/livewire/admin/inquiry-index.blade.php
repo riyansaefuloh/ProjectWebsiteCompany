@@ -47,10 +47,6 @@
         };
     @endphp
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         KEPALA HALAMAN
-         ══════════════════════════════════════════════════════════════════ --}}
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="min-w-0">
             <h1 class="text-admin-display text-heading">
@@ -71,10 +67,6 @@
         @endcan
     </div>
 
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         PESAN SETELAH TERSIMPAN
-         ══════════════════════════════════════════════════════════════════ --}}
     @if(session()->has('message'))
         
         <div x-data="{ tampil: true }" x-show="tampil" x-collapse
@@ -98,12 +90,6 @@
         </div>
     @endif
 
-
-
-    {{-- ══════════════════════════════════════════════════════════════════
-         TABEL
-         ══════════════════════════════════════════════════════════════════ --}}
-    
     <div class="card overflow-visible">
         
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4">
@@ -128,10 +114,6 @@
             </span>
         </div>
 
-        {{-- ══════════════════════════════════════════════════════════════════
-             PENYARING
-             ══════════════════════════════════════════════════════════════════ --}}
-        
         <div class="px-5 pt-5">
             <div class="rounded-corner border border-line">
 
@@ -148,8 +130,6 @@
                            placeholder="Cari nama pembeli, perusahaan, email, atau kode negara…"
                            class="admin-control pl-11 pr-10">
 
-                    {{-- Kincir hanya muncul saat pencarian yang sedang berjalan,
-                         bukan saat penyaring lain diubah. --}}
                     <span wire:loading wire:target="search"
                           class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
                         <svg class="h-4 w-4 animate-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -226,7 +206,6 @@
             @endif
             </div>
         </div>
-
 
         {{-- Isi --}}
         <div class="p-5 transition-opacity duration-150"
@@ -402,7 +381,6 @@
             {{ $inquiries->links('vendor.pagination.admin', ['satuan' => 'inquiry']) }}
         </div>
     </div>
-
 
     @include('livewire.admin.partials.inquiry-modal')
 

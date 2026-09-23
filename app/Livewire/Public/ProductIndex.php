@@ -18,7 +18,6 @@ class ProductIndex extends Component
     public $search = '';
     public $category = '';
 
-
     protected $queryString = [
         'search'   => ['except' => ''],
         'category' => ['except' => ''],
@@ -77,7 +76,6 @@ class ProductIndex extends Component
             ->orderBy('sort_order')
             ->get();
 
-
         $query = Product::where('status', 'published')
             ->when($this->search, fn ($q) => $q->search($this->search))
             ->when($this->category, function ($q) {
@@ -85,22 +83,10 @@ class ProductIndex extends Component
             })
             ->with(['translations', 'media', 'category.translations']);
 
-        /*
-         * URUTAN TETAP: unggulan lebih dulu, lalu urutan yang ditetapkan panel.
-         *
-         * Menu urutan di halaman ini sudah dilepas — empat pilihan yang
-         * menawarkan cara memandang katalog yang sama untuk sembilan produk.
-         * Yang tersisa satu urutan, dan urutan itu yang memang dimaksudkan
-         * pemiliknya: apa yang ditandai unggulan naik ke atas, sisanya
-         * mengikuti nomor urut yang disusun dari panel.
-         */
         $query->orderByDesc('is_featured')->orderBy('sort_order');
 
         return view('livewire.public.product-index', [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
-            'isi' => \App\Support\IsiHalaman::untuk('products'),
-
+            'isi'        => \App\Support\IsiHalaman::untuk('products'),
             'categories' => $categories,
             'products'   => $query->paginate(12),
         ]);

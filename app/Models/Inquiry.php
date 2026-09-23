@@ -23,23 +23,17 @@ class Inquiry extends Model
         'volume',
         'incoterms',
         'message',
-        'status',          // 'new', 'processing', 'quoted', 'closed', 'rejected'
-        'assigned_to',     // ID user sales yang menangani
+        'status',
+        'assigned_to',
         'internal_note',
         'ip_address',
     ];
 
-    
-    //  Relasi ke Produk yang ditanyakan (jika ada).
-     
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    
-    //  Relasi ke User Sales yang ditugaskan menangani inquiry ini.
-     
     public function assignedSales(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');

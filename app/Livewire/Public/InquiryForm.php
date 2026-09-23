@@ -19,14 +19,14 @@ class InquiryForm extends Component
     public string $name = '';
     public string $company = '';
     public string $email = '';
-    public string $country_code = 'US'; // Default country code ISO-2
+    public string $country_code = 'US';
     public ?string $phone = null;
     public ?string $product_id = null;
     public ?string $volume = null;
     public ?string $incoterms = null;
     public string $message = '';
 
-    // Anti-spam Honeypot field (harus tetap kosong)
+    // Anti-spam Honeypot field
     public string $website_hp = '';
 
     // Result State
@@ -76,37 +76,21 @@ class InquiryForm extends Component
         $this->dispatch('request-recaptcha');
     }
 
-    /**
-     * Token reCAPTCHA boleh kosong.
-     *
-     * Sebelumnya argumennya wajib, dan itu membuat komponen ini mustahil
-     * diuji: Livewire tidak punya cara menebak nilainya, jadi ->call('submit')
-     * mati dengan BindingResolutionException sebelum satu baris pun berjalan.
-     *
-     * Kosong bukan berarti lolos begitu saja — pemeriksaannya di bawah tetap
-     * berjalan setiap kali RECAPTCHA_SECRET_KEY terisi, dan token kosong akan
-     * ditolak Google seperti token palsu lainnya.
-     */
     public function submit(?string $recaptchaToken = null): void
     {
-        // 1. Anti-Spam Honeypot Check
         if (!empty($this->website_hp)) {
-            // Jika bot mengisi honeypot, abaikan secara diam-diam
             return;
         }
 
         if (!empty(env('RECAPTCHA_SECRET_KEY'))) {
             $http = \Illuminate\Support\Facades\Http::asForm();
 
-            // Di environment local (Windows), PHP sering tidak punya SSL certificate
-            // sehingga koneksi HTTPS ke Google gagal dengan cURL error 60.
-            // SSL verify dinonaktifkan HANYA saat local; di production tetap aktif.
             if (app()->environment('local')) {
                 $http = $http->withoutVerifying();
             }
 
             $response = $http->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'secret'   => env('RECAPTCHA_SECRET_KEY'),
                 'response' => $recaptchaToken,
                 'remoteip' => request()->ip(),
             ]);
@@ -117,7 +101,6 @@ class InquiryForm extends Component
             }
         }
 
-        // 2. Rate Limiting Check (Maksimal 3 inquiry per 10 menit per IP)
         $executed = RateLimiter::attempt(
             'submit-inquiry:' . request()->ip(),
             $perMinute = 3,
@@ -134,10 +117,8 @@ class InquiryForm extends Component
 
     private function processInquiry(): void
     {
-        // Validasi input
         $validatedData = $this->validate();
 
-        // 3. Simpan ke Database
         $inquiry = Inquiry::create([
             'name'         => $validatedData['name'],
             'company'      => $validatedData['company'],
@@ -155,10 +136,8 @@ class InquiryForm extends Component
         $salesEmail = config('mail.from.address', 'sales@exportercompany.com');
         Mail::to($salesEmail)->queue(new InquiryReceivedMail($inquiry));
 
-        // B. Kirim Auto-reply ke Buyer
         Mail::to($inquiry->email)->queue(new InquiryAutoReplyMail($inquiry));
 
-        // 5. Generate WhatsApp Deep-Link
         $this->whatsappUrl = WhatsAppService::generateLink($inquiry);
         $this->isSubmitted = true;
     }
@@ -174,10 +153,7 @@ class InquiryForm extends Component
         $settings = \App\Models\Setting::pluck('value', 'key')->toArray();
 
         return view('livewire.public.inquiry-form', [
-            /* Isi kepala halaman ini bisa disunting dari menu Halaman;
-               yang kosong jatuh ke teks bawaan di berkas bahasa. */
-            'isi' => \App\Support\IsiHalaman::untuk('contact'),
-
+            'isi'      => \App\Support\IsiHalaman::untuk('contact'),
             'products' => $products,
             'settings' => $settings,
         ]);

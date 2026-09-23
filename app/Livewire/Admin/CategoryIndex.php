@@ -15,12 +15,6 @@ class CategoryIndex extends Component
     use WithPagination, WithFileUploads;
 
     public string $search = '';
-
-    /*
-     * Penyaring status. Namanya selectedStatus, bukan status, karena $status
-     * di bawah sudah dipakai sebagai isian modalnya — satu properti tidak bisa
-     * merangkap dua peran: menyunting kategori bakal ikut menyaring tabelnya.
-     */
     public string $selectedStatus = '';
 
     public bool $showModal = false;
@@ -31,7 +25,7 @@ class CategoryIndex extends Component
     public string $name_id = '';
     public string $description_en = '';
     public string $description_id = '';
-    public ?string $icon = null; // Still kept for CSS classes fallback if needed
+    public ?string $icon = null;
     public int $sort_order = 0;
     public string $status = 'active';
 
@@ -40,26 +34,8 @@ class CategoryIndex extends Component
     public ?string $existingImage = null;
     public string $activeTab = 'en';
     public bool $isTranslating = false;
-
-    /*
-     * Sebab kegagalan terjemahan, digambar di bawah kolom bahasanya.
-     *
-     * Bukan session()->flash('error', ...). Tombol Terjemahkan tidak memuat
-     * ulang halaman, jadi kantong flash baru terbaca pada penggambaran
-     * BERIKUTNYA — yang bisa terjadi di halaman lain, atau tidak terjadi
-     * sama sekali sampai orangnya menekan sesuatu yang lain. Sebelum ini
-     * tombolnya gagal tanpa mengatakan apa pun.
-     */
     public ?string $galatTerjemah = null;
 
-    /**
-     * Kembali ke halaman satu tiap kali penyaringnya diubah.
-     *
-     * Tanpa ini, menyaring saat sedang berada di halaman jauh meninggalkan
-     * nomor halamannya apa adanya — dan halaman 20 dari hasil yang cuma 3
-     * halaman menggambar tabel kosong beserta kalimat "tidak ada yang cocok",
-     * padahal hasilnya ada, cuma tidak di halaman itu.
-     */
     public function updating($property, $value): void
     {
         if (in_array($property, ['search', 'selectedStatus'], true)) {
@@ -83,13 +59,6 @@ class CategoryIndex extends Component
 
     public function create(): void
     {
-        /*
-         * Galat validasi dari modal sebelumnya dibuang lebih dulu.
-         *
-         * resetForm() hanya mengosongkan nilainya, bukan kantong galatnya —
-         * jadi tanpa baris ini, gagal simpan lalu menutup modal dan membuka
-         * data lain menampilkan pesan merah milik data yang tadi.
-         */
         $this->resetValidation();
         $this->galatTerjemah = null;
         $this->resetForm();
@@ -149,7 +118,7 @@ class CategoryIndex extends Component
     {
         $this->validate();
 
-        $category = $this->editingId 
+        $category = $this->editingId
             ? Category::findOrFail($this->editingId)
             : new Category();
 
@@ -169,9 +138,8 @@ class CategoryIndex extends Component
             ['name' => $this->name_id, 'description' => $this->description_id]
         );
 
-        // Simpan Gambar Kategori (Spatie MediaLibrary)
         if ($this->imageFile) {
-            $category->clearMediaCollection('icon'); // Hapus gambar lama
+            $category->clearMediaCollection('icon');
             $category->addMedia($this->imageFile->getRealPath())->toMediaCollection('icon');
         }
 
@@ -216,8 +184,6 @@ class CategoryIndex extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        // 'media' ikut dimuat di depan karena tabelnya menampilkan gambar tiap
-        // kategori. Tanpa ini, tiap baris menembak kuerinya sendiri.
         $categories = Category::with(['translations', 'media'])
             ->when($this->search, function ($q) {
                 $q->whereHas('translations', function ($trans) {
