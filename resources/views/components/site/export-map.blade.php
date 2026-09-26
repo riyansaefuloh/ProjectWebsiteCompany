@@ -20,7 +20,8 @@
 
     $markers = [];
     foreach ($markets as $market) {
-        $point = $coordinates[strtoupper($market->country_code)] ?? null;
+        $kode = strtoupper($market->country_code);
+        $point = $coordinates[$kode] ?? null;
 
         if (! $point) {
             continue;
@@ -58,6 +59,7 @@
         ->only(collect($markers)->pluck('code'))
         ->all();
 
+    $byRegion = $markets->groupBy('region');
 @endphp
 <div x-data="{
         tunjuk: null,
