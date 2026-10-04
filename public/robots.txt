@@ -21,4 +21,4 @@ Disallow: /telescope/
 Allow: /
 
 # Lokasi sitemap.xml agar Google langsung tahu peta situs kita
-Sitemap: https://yourdomain.com/sitemap.xml 
+Sitemap: https://progarnico.com/sitemap.xml

@@ -26,6 +26,16 @@ class GenerateSitemapCommand extends Command
         $sitemap->add(Url::create('/id')->setPriority(1.0)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
         $sitemap->add(Url::create('/en/products')->setPriority(0.9)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
         $sitemap->add(Url::create('/id/products')->setPriority(0.9)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
+        $sitemap->add(Url::create('/en/news')->setPriority(0.9)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
+        $sitemap->add(Url::create('/id/news')->setPriority(0.9)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
+        $sitemap->add(Url::create('/en/export-markets')->setPriority(0.8));
+        $sitemap->add(Url::create('/id/export-markets')->setPriority(0.8));
+        $sitemap->add(Url::create('/en/certifications')->setPriority(0.8));
+        $sitemap->add(Url::create('/id/certifications')->setPriority(0.8));
+        $sitemap->add(Url::create('/en/gallery')->setPriority(0.8));
+        $sitemap->add(Url::create('/id/gallery')->setPriority(0.8));
+        $sitemap->add(Url::create('/en/downloads')->setPriority(0.8));
+        $sitemap->add(Url::create('/id/downloads')->setPriority(0.8));
         $sitemap->add(Url::create('/en/about')->setPriority(0.8));
         $sitemap->add(Url::create('/id/about')->setPriority(0.8));
         $sitemap->add(Url::create('/en/inquiry')->setPriority(0.9));

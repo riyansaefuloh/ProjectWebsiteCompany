@@ -1,73 +1,213 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
-    <loc>http://localhost:8000/en</loc>
+    <loc>https://progarnico.com/en</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id</loc>
+    <loc>https://progarnico.com/id</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/en/products</loc>
+    <loc>https://progarnico.com/en/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id/products</loc>
+    <loc>https://progarnico.com/id/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/en/about</loc>
-    <priority>0.8</priority>
-            </url>
-    <url>
-    <loc>http://localhost:8000/id/about</loc>
-    <priority>0.8</priority>
-            </url>
-    <url>
-    <loc>http://localhost:8000/en/inquiry</loc>
+    <loc>https://progarnico.com/en/news</loc>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id/inquiry</loc>
+    <loc>https://progarnico.com/id/news</loc>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/en/products/arabica-gayo-coffee-green-beans</loc>
-    <lastmod>2026-08-09T20:51:42+07:00</lastmod>
+    <loc>https://progarnico.com/en/export-markets</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/export-markets</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/certifications</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/certifications</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/gallery</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/gallery</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/downloads</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/downloads</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/about</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/about</loc>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/inquiry</loc>
+    <priority>0.9</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/inquiry</loc>
+    <priority>0.9</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/products/gayo-mountain-arabica</loc>
+    <lastmod>2026-08-29T18:49:58+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id/products/arabica-gayo-coffee-green-beans</loc>
-    <lastmod>2026-08-09T20:51:42+07:00</lastmod>
+    <loc>https://progarnico.com/id/products/gayo-mountain-arabica</loc>
+    <lastmod>2026-08-29T18:49:58+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/en/products/robusta-lampung-coffee-green-beans</loc>
-    <lastmod>2026-08-09T20:52:30+07:00</lastmod>
+    <loc>https://progarnico.com/en/products/toraja-kalosi-arabica</loc>
+    <lastmod>2026-08-29T18:54:22+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id/products/robusta-lampung-coffee-green-beans</loc>
-    <lastmod>2026-08-09T20:52:30+07:00</lastmod>
+    <loc>https://progarnico.com/id/products/toraja-kalosi-arabica</loc>
+    <lastmod>2026-08-29T18:54:22+07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/en/news/ekspor-perdana-kopi-gayo-jerman</loc>
-    <lastmod>2026-08-09T20:34:29+07:00</lastmod>
+    <loc>https://progarnico.com/en/products/java-espresso-reserve</loc>
+    <lastmod>2026-09-04T05:25:06+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/products/java-espresso-reserve</loc>
+    <lastmod>2026-09-04T05:25:06+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/products/nusantara-signature-blend</loc>
+    <lastmod>2026-09-04T05:25:14+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/products/nusantara-signature-blend</loc>
+    <lastmod>2026-09-04T05:25:14+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/products/temanggung-premium-robusta</loc>
+    <lastmod>2026-09-04T05:27:22+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/products/temanggung-premium-robusta</loc>
+    <lastmod>2026-09-04T05:27:22+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/products/lampung-fine-robusta</loc>
+    <lastmod>2026-09-04T05:28:06+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/products/lampung-fine-robusta</loc>
+    <lastmod>2026-09-04T05:28:06+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/green-coffee-quality-standards-as-the-foundation-for-sustainable-exports</loc>
+    <lastmod>2026-08-30T02:26:57+07:00</lastmod>
     <priority>0.7</priority>
             </url>
     <url>
-    <loc>http://localhost:8000/id/news/ekspor-perdana-kopi-gayo-jerman</loc>
-    <lastmod>2026-08-09T20:34:29+07:00</lastmod>
+    <loc>https://progarnico.com/id/news/green-coffee-quality-standards-as-the-foundation-for-sustainable-exports</loc>
+    <lastmod>2026-08-30T02:26:57+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/understanding-changes-in-coffee-export-market-regulations</loc>
+    <lastmod>2026-08-30T02:29:53+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/news/understanding-changes-in-coffee-export-market-regulations</loc>
+    <lastmod>2026-08-30T02:29:53+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/from-origin-to-cup-why-is-the-character-of-indonesian-coffee-so-diverse</loc>
+    <lastmod>2026-08-30T02:31:38+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/news/from-origin-to-cup-why-is-the-character-of-indonesian-coffee-so-diverse</loc>
+    <lastmod>2026-08-30T02:31:38+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/building-a-more-resilient-coffee-supply-chain-amid-global-market-dynamics</loc>
+    <lastmod>2026-08-30T02:34:17+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/news/building-a-more-resilient-coffee-supply-chain-amid-global-market-dynamics</loc>
+    <lastmod>2026-08-30T02:34:17+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/increasing-the-competitiveness-of-indonesian-coffee-through-traceability</loc>
+    <lastmod>2026-08-30T02:55:01+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/news/increasing-the-competitiveness-of-indonesian-coffee-through-traceability</loc>
+    <lastmod>2026-08-30T02:55:01+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/en/news/sustainability-as-part-of-a-coffee-export-strategy-to-global-markets</loc>
+    <lastmod>2026-09-07T23:27:18+07:00</lastmod>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>https://progarnico.com/id/news/sustainability-as-part-of-a-coffee-export-strategy-to-global-markets</loc>
+    <lastmod>2026-09-07T23:27:18+07:00</lastmod>
     <priority>0.7</priority>
             </url>
 </urlset>

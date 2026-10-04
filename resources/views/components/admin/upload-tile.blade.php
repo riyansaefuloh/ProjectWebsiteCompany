@@ -1,8 +1,11 @@
 @props([
-    'model',                       // nama properti Livewire yang menerima berkasnya
-    'id',                          // id kotak isian, untuk <label for> pembaca layar
-    'accept'   => 'image
-@endphp
+    'model',
+    'id',
+    'accept' => 'image/*',
+    'multiple' => false,
+    'label' => 'Pilih berkas',
+    'judul' => null,
+])
 
 <label title="{{ $judul ?? $label }}"
        {{ $attributes->class([
